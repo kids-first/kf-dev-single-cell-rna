@@ -1,47 +1,44 @@
-baseCommand: [cellranger, count]
+cwlVersion: v1.0
+class: CommandLineTool
+
+id: cellranger_count
+
+baseCommand: ['cellranger', 'count']
 
 requirements:
   - class: DockerRequirement
     dockerPull: 'kfdrc/cellranger:3.1.0'
-
-arguments:
-  - position: 1
-    shellQuote: false
-    valueFrom: >-
-
-      --id=$(inputs.run_id)
-      --fastqs=$(inputs.fastqs)
-      --sample=$(inputs.sample_name)
-      --transcriptome=$(inputs.reference)
-
-      tar -czf
-      run_count.tar.gz
-      run_count_$(inputs.run_id)/
+  - class: ResourceRequirement
+    ramMin: 8000
 
 inputs:
   run_id:
     type: string
     inputBinding:
-      position: 1
-      prefix: --id=
+        position: 1
+        prefix: --id=
+        separate: false
   fastqs:
-    type: string
+    type: Directory
     inputBinding:
-      position: 2
-      prefix: --fastqs=
+        position: 2
+        prefix: --fastqs=
+        separate: false
   sample_name:
     type: string
     inputBinding:
-      position: 3
-      prefix: --sample=
+        position: 3
+        prefix: --sample=
+        separate: false
   reference:
-    type: string
+    type: Directory
     inputBinding:
-      position: 4
-      prefix: --transcriptome=
+        position: 4
+        prefix: --transcriptome=
+        separate: false
 
 outputs:
   count_out:
     type: Directory
     outputBinding:
-      glob: "run_count.tar.gz"
+      glob: "$(inputs.run_id)"
