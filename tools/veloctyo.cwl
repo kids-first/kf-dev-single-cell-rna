@@ -7,6 +7,8 @@ requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
     dockerPull: 'kfdrc/velocyto:0.17.17'
+  - class: ResourceRequirement
+    ramMin: 20000
   - class: InlineJavascriptRequirement
 
 baseCommand: [velocyto, run]
@@ -16,11 +18,26 @@ arguments:
     shellQuote: false
     valueFrom: >-
       -e $(inputs.sample_name)
-      -b $(inputs.barcodes)
-      -m $(inputs.repeats)
+  - position: 2
+    shellQuote: false
+    valueFrom: >-
+      -b $(inputs.barcodes.path)
+  - position: 3
+    shellQuote: false
+    valueFrom: >-
+      -m $(inputs.repeats.path)
+  - position: 4
+    shellQuote: false
+    valueFrom: >-
       -o $(inputs.output_folder)
-      $(inputs.bam)
-      $(inputs.genes)
+  - position: 5
+    shellQuote: false
+    valueFrom: >-
+      $(inputs.bam.path)
+  - position: 6
+    shellQuote: false
+    valueFrom: >-
+      $(inputs.genes.path)
 
 inputs:
   sample_name:
@@ -40,4 +57,4 @@ outputs:
   velocyto_out:
     type: File
     outputBinding:
-      glob: *.loom
+      glob: $(inputs.output_folder)/$(inputs.sample_name).loom
