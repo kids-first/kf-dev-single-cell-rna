@@ -8,7 +8,7 @@ requirements:
   - class: DockerRequirement
     dockerPull: 'kfdrc/velocyto:0.17.17'
   - class: ResourceRequirement
-    ramMin: 20000
+    ramMin: 40000
   - class: InlineJavascriptRequirement
 
 baseCommand: [velocyto, run]
