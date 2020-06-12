@@ -58,3 +58,4 @@ outputs:
     type: File
     outputBinding:
       glob: $(inputs.output_folder)/$(inputs.sample_name).loom
+    doc: "Loom file, contains layered data describing calculated velocity."
