@@ -14,44 +14,23 @@ requirements:
 baseCommand: [velocyto, run]
 
 arguments:
-  - position: 1
+  - position: 0
     shellQuote: false
     valueFrom: >-
       -e $(inputs.sample_name)
-  - position: 2
-    shellQuote: false
-    valueFrom: >-
       -b $(inputs.barcodes.path)
-  - position: 3
-    shellQuote: false
-    valueFrom: >-
       -m $(inputs.repeats.path)
-  - position: 4
-    shellQuote: false
-    valueFrom: >-
       -o $(inputs.output_folder)
-  - position: 5
-    shellQuote: false
-    valueFrom: >-
       $(inputs.bam.path)
-  - position: 6
-    shellQuote: false
-    valueFrom: >-
       $(inputs.genes.path)
 
 inputs:
-  sample_name:
-    type: string
-  barcodes:
-    type: File
-  repeats:
-    type: File
-  output_folder:
-    type: string
-  bam:
-    type: File
-  genes:
-    type: File
+  sample_name: {type: string, doc: "sample name, used as basename for output"}
+  barcodes: {type: File[]?, doc: "list of barcodes used to filter the bam file"}
+  repeats: {type: File[]?, doc: ".gtf file containing intervals to mask"}
+  output_folder: {type: string, doc: "output folder"}
+  bam: {type: File[]?, doc: "bam file to process"}
+  genes: {type: File[]?, doc: ".gtf file with genes to analyze"}
 
 outputs:
   velocyto_out:
