@@ -1,7 +1,7 @@
 cwlVersion: v1.0
 class: CommandLineTool
-
 id: velocyto_run
+doc: "Run velocyto to compute RNA velocity of a single cell RNA dataset."
 
 requirements:
   - class: ShellCommandRequirement
