@@ -42,5 +42,5 @@ outputs:
   bam:
     type: File
     outputBinding:
-      glob: $(inputs.run_id)/out/*.bam
+      glob: $(inputs.run_id)/outs/*.bam
     doc: "The bam file that was generated"
