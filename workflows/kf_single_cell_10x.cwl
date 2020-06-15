@@ -38,26 +38,26 @@ outputs:
 
 steps:
   cellranger:
-  run: ../tools/cellranger_count.cwl
-  in:
-    run_id: run_id
-    fastqs: fastqs
-    sample_name: sample_name
-    reference: reference
-  out: count_out
+    run: ../tools/cellranger_count.cwl
+    in:
+      run_id: run_id
+      fastqs: fastqs
+      sample_name: sample_name
+      reference: reference
+    out: count_out
 
   velocyto:
   run: ../tools/velocyto.cwl
-  in:
-    sample_name: sample_name
-    barcodes:
-      source: cellranger/
-    repeats: repeats
-    output_folder: output_folder
-    bam:
-      source: cellranger/
-    genes: genes
-  out: velocyto_out
+    in:
+      sample_name: sample_name
+      barcodes:
+        source: cellranger/barcodes
+      repeats: repeats
+      output_folder: output_folder
+      bam:
+        source: cellranger/bam
+      genes: genes
+    out: velocyto_out
 
 $namespaces:
   sbg: https://sevenbridges.com
