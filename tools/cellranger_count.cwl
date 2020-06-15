@@ -9,6 +9,7 @@ requirements:
     dockerPull: 'kfdrc/cellranger:3.1.0'
   - class: ResourceRequirement
     ramMin: 20000
+    coresMin: 8
   - class: InlineJavascriptRequirement
 
 baseCommand: [tar, -xzf]
@@ -19,7 +20,7 @@ arguments:
     valueFrom: >-
      $(inputs.fastqs.path)
      && tar -xzf $(inputs.reference.path)
-     && cellranger count --id=$(inputs.run_id) --fastqs=./$(inputs.fastqs.nameroot.split('.')[0]) --sample=$(inputs.sample_name) --transcriptome=./$(inputs.reference.nameroot.split('.')[0])
+     && cellranger count --localcores=8 --id=$(inputs.run_id) --fastqs=./$(inputs.fastqs.nameroot.split('.')[0]) --sample=$(inputs.sample_name) --transcriptome=./$(inputs.reference.nameroot.split('.')[0])
      && tar -czf $(inputs.run_id).tar.gz $(inputs.run_id)
 
 inputs:
@@ -37,7 +38,7 @@ outputs:
   barcodes:
     type: File
     outputBinding:
-      glob: $(inputs.run_id)/outs/iltered_feature_bc_matrix/barcodes.tsv.gz
+      glob: $(inputs.run_id)/outs/filtered_feature_bc_matrix/barcodes.tsv.gz
     doc: "Filtered barcode file"
   bam:
     type: File
