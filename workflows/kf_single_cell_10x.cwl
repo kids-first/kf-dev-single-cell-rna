@@ -44,10 +44,10 @@ steps:
       fastqs: fastqs
       sample_name: sample_name
       reference: reference
-    out: count_out
+    out: [count_out, bam, barcodes]
 
   velocyto:
-  run: ../tools/velocyto.cwl
+    run: ../tools/velocyto.cwl
     in:
       sample_name: sample_name
       barcodes:
@@ -57,7 +57,7 @@ steps:
       bam:
         source: cellranger/bam
       genes: genes
-    out: velocyto_out
+    out: [velocyto_out]
 
 $namespaces:
   sbg: https://sevenbridges.com
