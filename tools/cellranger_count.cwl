@@ -9,7 +9,7 @@ requirements:
     dockerPull: 'kfdrc/cellranger:3.1.0'
   - class: ResourceRequirement
     ramMin: 20000
-    coresMin: 8
+    coresMin: 16
   - class: InlineJavascriptRequirement
 
 baseCommand: [tar, -xzf]
