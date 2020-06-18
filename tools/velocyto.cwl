@@ -26,11 +26,11 @@ arguments:
 
 inputs:
   sample_name: {type: string, doc: "sample name, used as basename for output"}
-  barcodes: {type: 'File', doc: "list of barcodes used to filter the bam file"}
-  repeats: {type: 'File', doc: ".gtf file containing intervals to mask"}
+  barcodes: {type: File, doc: "list of barcodes used to filter the bam file"}
+  repeats: {type: File, doc: ".gtf file containing intervals to mask"}
   output_folder: {type: string, doc: "output folder"}
-  bam: {type: 'File', doc: "bam file to process"}
-  genes: {type: 'File', doc: ".gtf file with genes to analyze"}
+  bam: {type: File, doc: "bam file to process"}
+  genes: {type: File, doc: ".gtf file with genes to analyze"}
 
 outputs:
   velocyto_out:

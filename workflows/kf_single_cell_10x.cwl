@@ -16,25 +16,23 @@ doc: |-
   1. The fastqs and references inputs must be tarballs of folders containing the
      relevant files. The repeats and genes files are gtfs containg either repeats
      or genes and can be zipped.
-
-requirements:
-  - class: ScatterFeatureRequirement
-  - class: MultipleInputFeatureRequirement
-  - class: SubworkflowFeatureRequirement
+  1. The reference file can be downloaded from 10x, however, the directory
+     name contains several periods that must be changed before creating the
+     reference tarball.
 
 inputs:
   run_id: {type: string, doc: "run id, used as basename for output"}
   fastqs: {type: File, doc: "tarball of fastqs being run"}
   sample_name: {type: string, doc: "sample name"}
   reference: {type: File, doc: "tarball of reference files"}
-  repeats: {type: 'File', doc: ".gtf file containing intervals to mask"}
+  repeats: {type: File, doc: ".gtf file containing intervals to mask"}
   output_folder: {type: string, doc: "output folder"}
-  genes: {type: 'File', doc: ".gtf file with genes to analyze"}
+  genes: {type: File, doc: ".gtf file with genes to analyze"}
 
 outputs:
-  count_out: {type: 'File?', outputSource: cellranger/count_out}
-  bam: {type: 'File?', outputSource: cellranger/bam}
-  velocyto_out: {type: 'File?', outputSource: velocyto/velocyto_out}
+  count_out: {type: File, outputSource: cellranger/count_out}
+  bam: {type: File, outputSource: cellranger/bam}
+  velocyto_out: {type: File, outputSource: velocyto/velocyto_out}
 
 steps:
   cellranger:
@@ -50,17 +48,9 @@ steps:
     run: ../tools/velocyto.cwl
     in:
       sample_name: sample_name
-      barcodes:
-        source: cellranger/barcodes
+      barcodes: cellranger/barcodes
       repeats: repeats
       output_folder: output_folder
-      bam:
-        source: cellranger/bam
+      bam: cellranger/bam
       genes: genes
     out: [velocyto_out]
-
-$namespaces:
-  sbg: https://sevenbridges.com
-hints:
-  - class: 'sbg:maxNumberOfParallelInstances'
-    value: 3

@@ -20,7 +20,7 @@ arguments:
     valueFrom: >-
      $(inputs.fastqs.path)
      && tar -xzf $(inputs.reference.path)
-     && cellranger count --localcores=8 --id=$(inputs.run_id) --fastqs=./$(inputs.fastqs.nameroot.split('.')[0]) --sample=$(inputs.sample_name) --transcriptome=./$(inputs.reference.nameroot.split('.')[0])
+     && cellranger count --localcores=16 --id=$(inputs.run_id) --fastqs=./$(inputs.fastqs.nameroot.split('.')[0]) --sample=$(inputs.sample_name) --transcriptome=./$(inputs.reference.nameroot.split('.')[0])
      && tar -czf $(inputs.run_id).tar.gz $(inputs.run_id)
 
 inputs:
