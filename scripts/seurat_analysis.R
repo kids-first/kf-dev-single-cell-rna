@@ -117,8 +117,14 @@ print("done with PCA")
 #output pca summary
 file <- file.path(out_dir, paste("pca_summary", ".txt", sep = ""))
 sink(file)
-print(analysis[["pca"]], dims = 1:5, nfeatures = 5)
+#print(analysis[["pca"]], dims = 1:5, nfeatures = 5)
+print(analysis[["pca"]], dims = 1:5)
 sink()
+
+#create a heat map for PC1
+name <- "pc1"
+cmd <- 'DimHeatmap(analysis, dims = 1, cells = 500, balanced = TRUE)'
+save_plot(cmd,name)
 
 #create a heat map for the first 10 PCs
 name <- "heat_map"
@@ -149,16 +155,18 @@ save_plot(cmd, name)
 analysis.markers <- FindAllMarkers(analysis, only.pos = TRUE, min.pct = 0.25,
   logfc.threshold = 0.25)
 file <- file.path(out_dir, paste("cluster_markers", ".txt", sep = ""))
-sink(file)
-analysis.markers %>% group_by(cluster) %>% top_n(n = 2, wt = avg_logFC)
-sink()
+cluster_markers <- analysis.markers %>% group_by(cluster) %>% top_n(n = 20, wt
+  = avg_logFC)
+write.csv(cluster_markers, file = file)
+#print(cluster_markers)
 
 #the next few steps are just examples
 #eventually, we'll have to figure out what we would want
 
 #show violin plot for 2 genes ("MS4A1" and "CD79A")
 name <- "gene_vln"
-cmd <- 'VlnPlot(analysis, features = c("MS4A1", "CD79A"))'
+#cmd <- 'VlnPlot(analysis, features = c("MS4A1", "CD79A"))'
+cmd <- 'VlnPlot(analysis, features = c("RPS29", "S100A9"))'
 save_plot(cmd, name)
 
 #generate feature plots for a list of genes
