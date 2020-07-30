@@ -26,7 +26,7 @@ arguments:
 inputs:
   run_id: {type: string, doc: "run id, used as basename for output"}
   fastqs: {type: File, doc: "set of fastqs being run"}
-  sample_name: {type: string, doc: "sample name"}
+  sample_name: {type: string, doc: "sample name, used as prefix for finding fastqs to analyze"}
   reference: {type: File, doc: "tarball of reference files"}
 
 outputs:

@@ -19,11 +19,19 @@ doc: |-
   1. The reference file can be downloaded from 10x, however, the directory
      name contains several periods that must be changed before creating the
      reference tarball.
+  1. The sample name is used as a prefix to find fastq files contained within
+     the fastq tarball. cellranger expects reads to be in the format
+     `[Sample Name]_S1_L00[Lane Number]_[Read Type]_001.fastq.gz`. If the sample
+     name is not found in the beginning of the fastq files or there are other
+     characters before the _S1 part of the fastq name, the fastq will not be
+     included in the analysis and if no files are found with the sample name,
+     the workflow will fail.
+  1. Multiple sample names can be given as a comma separated list.
 
 inputs:
   run_id: {type: string, doc: "run id, used as basename for output"}
   fastqs: {type: File, doc: "tarball of fastqs being run"}
-  sample_name: {type: string, doc: "sample name"}
+  sample_name: {type: string, doc: "sample name, used as prefix for finding fastqs to analyze"}
   reference: {type: File, doc: "tarball of reference files"}
   repeats: {type: File, doc: ".gtf file containing intervals to mask"}
   output_folder: {type: string, doc: "output folder"}
