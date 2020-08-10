@@ -39,6 +39,12 @@ option_list <- list(
     help = "Project name."
   ),
   make_option(
+    opt_str = "--out_size",
+    default = 20,
+    type = "numeric",
+    help = "Number of genes to include in the cluster output file."
+  ),
+  make_option(
     opt_str = "--data",
     default = file.path(getwd(), "data"),
     type = "character",
@@ -55,6 +61,7 @@ option_list <- list(
 #parse options
 opts <- parse_args(OptionParser(option_list = option_list))
 plot_size <- opts$size
+clust_size <- opts$out_size
 data_dir <- file.path(opts$data)
 out_dir <- file.path(opts$out)
 project_name <- opts$name
@@ -155,8 +162,8 @@ save_plot(cmd, name)
 analysis.markers <- FindAllMarkers(analysis, only.pos = TRUE, min.pct = 0.25,
   logfc.threshold = 0.25)
 file <- file.path(out_dir, paste("cluster_markers", ".txt", sep = ""))
-cluster_markers <- analysis.markers %>% group_by(cluster) %>% top_n(n = 20, wt
-  = avg_logFC)
+cluster_markers <- analysis.markers %>% group_by(cluster) %>% top_n(n =
+  clust_size, wt = avg_logFC)
 write.csv(cluster_markers, file = file)
 #print(cluster_markers)
 
