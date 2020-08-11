@@ -66,16 +66,13 @@ data_dir <- file.path(opts$data)
 out_dir <- file.path(opts$out)
 project_name <- opts$name
 
+#make output directory
+dir.create(out_dir, recursive = "true")
+
 ##load data
 analysis.data <- Read10X(data.dir = data_dir)
 analysis <- CreateSeuratObject(counts = analysis.data, project = project_name,
   min.cells = 3, min.features = 200)
-
-#output initial summary
-file <- file.path(out_dir, paste("summary", ".txt", sep = ""))
-sink(file)
-analysis
-sink()
 
 ##preprocess / qc
 #calculate % MT reads
@@ -124,14 +121,8 @@ print("done with PCA")
 #output pca summary
 file <- file.path(out_dir, paste("pca_summary", ".txt", sep = ""))
 sink(file)
-#print(analysis[["pca"]], dims = 1:5, nfeatures = 5)
-print(analysis[["pca"]], dims = 1:5)
+print(analysis[["pca"]], dims = 1:7, nfeatures = clust_size)
 sink()
-
-#create a heat map for PC1
-name <- "pc1"
-cmd <- 'DimHeatmap(analysis, dims = 1, cells = 500, balanced = TRUE)'
-save_plot(cmd,name)
 
 #create a heat map for the first 10 PCs
 name <- "heat_map"
@@ -170,31 +161,11 @@ write.csv(cluster_markers, file = file)
 #the next few steps are just examples
 #eventually, we'll have to figure out what we would want
 
-#show violin plot for 2 genes ("MS4A1" and "CD79A")
-name <- "gene_vln"
-#cmd <- 'VlnPlot(analysis, features = c("MS4A1", "CD79A"))'
-cmd <- 'VlnPlot(analysis, features = c("RPS29", "S100A9"))'
-save_plot(cmd, name)
-
-#generate feature plots for a list of genes
-name <- "cluster_features"
-cmd <- 'FeaturePlot(analysis, features = c("MS4A1", "GNLY", "CD3E",
-  "CD14", "FCER1A", "FCGR3A", "LYZ", "PPBP", "CD8A"))'
-save_plot(cmd, name)
-
 #generate a heat map of the top 10 markers
 top10 <- analysis.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_logFC)
 name <- "cluster_heat"
 cmd <- 'DoHeatmap(analysis, features = top10$gene) + NoLegend()'
 save_plot(cmd, name)
-
-#in the tutorial, at this point they label the features based on cell type
-#from the expressed genes
-#however, you have to know the order of the list to rename
-#so we would need to:
-# 1) figure out what each cluster type is
-# 2) rename / label clusters
-# 3) graph labeled clusters
 
 ##save data object
 out_file <- file.path(out_dir, paste("analysis", ".rds", sep = ""))
