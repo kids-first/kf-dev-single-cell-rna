@@ -19,7 +19,7 @@ suppressMessages(library(Seurat))
 save_plot <- function(cmd, name) {
   #function to take in a command and a basename and output a plot file
   print(name)
-  plot_file <- file.path(out_dir, paste(name, ".png", sep = ""))
+  plot_file <- file.path(out_dir, paste0(name, ".png"))
   png(filename = plot_file, width = plot_size, height = plot_size)
   eval(parse(text = cmd))
 }
@@ -119,7 +119,7 @@ analysis <- RunPCA(analysis, features = VariableFeatures(object = analysis))
 print("done with PCA")
 
 #output pca summary
-file <- file.path(out_dir, paste("pca_summary", ".txt", sep = ""))
+file <- file.path(out_dir, paste0("pca_summary", ".txt"))
 sink(file)
 print(analysis[["pca"]], dims = 1:7, nfeatures = clust_size)
 sink()
@@ -152,7 +152,7 @@ save_plot(cmd, name)
 #find markers for every cluster compared to all remaining cells, report only the positive ones
 analysis.markers <- FindAllMarkers(analysis, only.pos = TRUE, min.pct = 0.25,
   logfc.threshold = 0.25)
-file <- file.path(out_dir, paste("cluster_markers", ".txt", sep = ""))
+file <- file.path(out_dir, paste0("cluster_markers", ".txt"))
 cluster_markers <- analysis.markers %>% group_by(cluster) %>% top_n(n =
   clust_size, wt = avg_logFC)
 write.csv(cluster_markers, file = file)
@@ -168,6 +168,6 @@ cmd <- 'DoHeatmap(analysis, features = top10$gene) + NoLegend()'
 save_plot(cmd, name)
 
 ##save data object
-out_file <- file.path(out_dir, paste("analysis", ".rds", sep = ""))
+out_file <- file.path(out_dir, paste0("analysis", ".rds"))
 print("saving final data object")
 saveRDS(analysis, file = out_file)
