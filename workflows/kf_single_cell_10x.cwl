@@ -29,7 +29,7 @@ doc: |-
   1. Multiple sample names can be given as a comma separated list.
 
 inputs:
-  run_id: {type: string, doc: "run id, used as basename for output"}
+  run_id: {type: string, doc: "run id, used as basename cellranger for output"}
   fastqs: {type: File, doc: "tarball of fastqs being run"}
   sample_name: {type: string, doc: "sample name, used as prefix for finding fastqs to analyze"}
   reference: {type: File, doc: "tarball of reference files"}
@@ -39,7 +39,6 @@ inputs:
 
 outputs:
   count_out: {type: File, outputSource: cellranger/count_out}
-  bam: {type: File, outputSource: cellranger/bam}
   velocyto_out: {type: File, outputSource: velocyto/velocyto_out}
 
 steps:
