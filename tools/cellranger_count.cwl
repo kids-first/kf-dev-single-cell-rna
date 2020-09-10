@@ -21,7 +21,7 @@ arguments:
      $(inputs.fastqs.path)
      && tar -xzf $(inputs.reference.path)
      && cellranger count --localcores=16 --id=$(inputs.run_id) --fastqs=./$(inputs.fastqs.nameroot.split('.')[0]) --sample=$(inputs.sample_name) --transcriptome=./$(inputs.reference.nameroot.split('.')[0])
-     && tar -czf $(inputs.run_id).matrix.tar.gz $(inputs.run_id)/outs/raw_feature_bc_matrix
+     && tar -C $(inputs.run_id)/outs/ -czf $(inputs.run_id).matrix.tar.gz raw_feature_bc_matrix
 
 inputs:
   run_id: {type: string, doc: "run id, used as basename for output"}
