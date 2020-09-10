@@ -39,7 +39,7 @@ outputs:
   barcodes:
     type: File
     outputBinding:
-      glob: $(inputs.run_id)/outs/filtered_feature_bc_matrix/barcodes.tsv.gz
+      glob: $(inputs.run_id)/outs/$(inputs.run_id)/barcodes.tsv.gz
     doc: "Filtered barcode file"
   bam:
     type: File
