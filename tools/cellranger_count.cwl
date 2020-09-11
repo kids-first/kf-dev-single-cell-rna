@@ -34,7 +34,7 @@ outputs:
   matrix_out:
     type: File
     outputBinding:
-      glob: $(inputs.run_id).matrix.tar.gz
+      glob: $(inputs.run_id).tar.gz
     doc: "Tarball containing the filtered feature matrix"
   barcodes:
     type: File
