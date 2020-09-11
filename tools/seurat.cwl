@@ -206,7 +206,7 @@ arguments:
      }
      ${
        if (inputs.size != null){
-         return "--size " + inputs.name;
+         return "--size " + inputs.size;
        }
        else{
          return "";
@@ -214,7 +214,7 @@ arguments:
      }
      ${
        if (inputs.out_size != null){
-         return "--out_size " + inputs.name;
+         return "--out_size " + inputs.out_size;
        }
        else{
          return "";
