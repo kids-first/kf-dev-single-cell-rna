@@ -36,11 +36,6 @@ outputs:
     outputBinding:
       glob: $(inputs.run_id).tar.gz
     doc: "Tarball containing the filtered feature matrix"
-  barcodes:
-    type: File
-    outputBinding:
-      glob: $(inputs.run_id)/outs/$(inputs.run_id)/barcodes.tsv.gz
-    doc: "Filtered barcode file"
   bam:
     type: File
     outputBinding:
