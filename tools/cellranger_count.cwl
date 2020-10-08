@@ -44,7 +44,7 @@ inputs:
   fastqs: {type: File, doc: "set of fastqs being run"}
   sample_name: {type: string, doc: "sample name, used as prefix for finding fastqs to analyze"}
   reference: {type: File, doc: "tarball of reference files"}
-  return_h5: {type: boolean?, doc: "Return h5 files or tarred matrix directories?"}
+  return_h5: {type: boolean?, doc: "TRUE: return h5 files or FALSE: return tarred matrix directories?"}
 
 outputs:
   filtered_matrix_out:
