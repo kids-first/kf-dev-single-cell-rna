@@ -23,17 +23,17 @@ arguments:
      cellranger count --localcores=16 --id=$(inputs.run_id) --fastqs=./$(inputs.fastqs.nameroot.split('.')[0]) --sample=$(inputs.sample_name) --transcriptome=./$(inputs.reference.nameroot.split('.')[0]) &&
      ${
        var sp = inputs.run_id + "/outs/" + inputs.run_id + "." + inputs.sample_name;
-       var cmd = "mv " + inputs.run_id + "/outs/molecule_info.h5 " + sp + ".molecule_info.h5 &&";
-       cmd += "mv " + inputs.run_id + "/outs/web_summary.html " + sp + ".web_summary.html &&";
-       cmd += "mv " + inputs.run_id + "/outs/possorted_genome_bam.bam " + sp + ".bam &&";
+       var cmd = "mv " + inputs.run_id + "/outs/molecule_info.h5 " + sp + ".molecule_info.h5 && ";
+       cmd += "mv " + inputs.run_id + "/outs/web_summary.html " + sp + ".web_summary.html && ";
+       cmd += "mv " + inputs.run_id + "/outs/possorted_genome_bam.bam " + sp + ".bam && ";
        if (inputs.return_h5){
-         cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix.h5 " + sp + ".filtered_feature_bc_matrix.h5 &&";
-         cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix.h5 " + sp + ".raw_feature_bc_matrix.h5";
+         cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix.h5 " + sp + ".filtered_feature_bc_matrix.h5 && ";
+         cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix.h5 " + sp + ".raw_feature_bc_matrix.h5 ";
        }
        else {
-         cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix " + sp + ".filtered_feature_bc_matrix &&";
-         cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix " + sp + ".raw_feature_bc_matrix &&";
-         cmd += "tar -czf " + sp + ".filtered_feature_bc_matrix.tar.gz " + sp + ".filtered_feature_bc_matrix &&";
+         cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix " + sp + ".filtered_feature_bc_matrix && ";
+         cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix " + sp + ".raw_feature_bc_matrix && ";
+         cmd += "tar -czf " + sp + ".filtered_feature_bc_matrix.tar.gz " + sp + ".filtered_feature_bc_matrix && ";
          cmd += "tar -czf " + sp + ".raw_feature_bc_matrix.tar.gz " + sp + ".raw_feature_bc_matrix";
        }
        return cmd;
@@ -51,12 +51,12 @@ outputs:
     type: File
     outputBinding:
       glob: $(inputs.run_id)/outs/$(inputs.run_id).$(inputs.sample_name).filtered_feature_bc_matrix.*
-    doc: "Tarball containing the filtered feature matrix"
+    doc: "File containing the filtered feature matrix"
   raw_matrix_out:
     type: File
     outputBinding:
       glob: $(inputs.run_id)/outs/$(inputs.run_id).$(inputs.sample_name).raw_feature_bc_matrix.*
-    doc: "Tarball containing the raw feature matrix"
+    doc: "File containing the raw feature matrix"
   bam:
     type: File
     outputBinding:
