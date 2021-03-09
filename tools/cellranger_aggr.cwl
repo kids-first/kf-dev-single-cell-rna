@@ -8,8 +8,8 @@ requirements:
   - class: DockerRequirement
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/cellranger:3.1'
   - class: ResourceRequirement
-    ramMin: 8000
-    coresMin: 4
+    ramMin: 20000
+    coresMin: 16
   - class: InlineJavascriptRequirement
 
 baseCommand: [echo]
@@ -18,16 +18,16 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >
-     "library_id,molecule_h5" > aggr_file.txt
-     && aggr_data="${
-       var arr = []
-       for (var i=0; i<inputs.molecule_infos.length; i++)
-        arr = arr.concat(inputs.molecule_infos[i].nameroot.concat(",", inputs.molecule_infos[i].path))
-       return (arr.join('\n'))
-     }"
-     && echo -e $aggr_data >> aggr_file.txt
+     "library_id,molecule_h5" > ./aggr_file.txt &&
+     ${
+       var cmd_str = "";
+       for (var i=0; i<inputs.molecule_infos.length; i++){
+         cmd_str += "echo " + inputs.molecule_infos[i].nameroot.concat(",", inputs.molecule_infos[i].path) + ">> ./aggr_file.txt;";
+       }
+       return (cmd_str);
+     }
 
-     cellranger aggr --localcores=4 --localmem=8 --id=$(inputs.run_id) --csv=aggr_file.txt &&
+     cellranger aggr --localcores=16 --localmem=20 --id=$(inputs.run_id) --csv=./aggr_file.txt &&
 
      ${
        var sp = inputs.run_id + "/outs/" + inputs.run_id + ".aggr";
@@ -37,7 +37,7 @@ arguments:
          cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix.h5 " + sp + ".raw_feature_bc_matrix.h5";
        }
        else {
-         cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix " + sp + ".filtered_feature_bc_matrix &&" ;
+         cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix " + sp + ".filtered_feature_bc_matrix && ";
          cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix " + sp + ".raw_feature_bc_matrix && ";
          cmd += "tar -czf " + sp + ".filtered_feature_bc_matrix.tar.gz " + sp + ".filtered_feature_bc_matrix && ";
          cmd += "tar -czf " + sp + ".raw_feature_bc_matrix.tar.gz " + sp + ".raw_feature_bc_matrix";
