@@ -57,15 +57,15 @@ outputs:
   filtered_matrix_out:
     type: File
     outputBinding:
-      glob: ./$(inputs.run_id)_aggr_filtered_feature_bc_matrix.*
+      glob: $(inputs.run_id)_aggr_filtered_feature_bc_matrix.*
     doc: "Tarball or h5 file containing the filtered feature matrix"
   raw_matrix_out:
     type: File
     outputBinding:
-      glob: ./$(inputs.run_id)_aggr_raw_feature_bc_matrix.*
+      glob: $(inputs.run_id)_aggr_raw_feature_bc_matrix.*
     doc: "Tarball or h5 file containing the raw feature matrix"
   output_summary:
     type: File
     outputBinding:
-      glob: ./$(inputs.run_id)_aggr_web_summary.html
+      glob: $(inputs.run_id)_aggr_web_summary.html
     doc: "HTML alignment summary"
