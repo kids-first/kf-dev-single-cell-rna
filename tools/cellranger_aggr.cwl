@@ -8,8 +8,8 @@ requirements:
   - class: DockerRequirement
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/cellranger:3.1'
   - class: ResourceRequirement
-    ramMin: 20000
-    coresMin: 16
+    ramMin: ${return inputs.ram * 1000}
+    coresMin: $(inputs.cpus)
   - class: InlineJavascriptRequirement
 
 baseCommand: [echo]
@@ -27,20 +27,21 @@ arguments:
        return (cmd_str);
      }
 
-     cellranger aggr --localcores=16 --localmem=20 --id=$(inputs.run_id) --csv=./aggr_file.txt &&
+     cellranger aggr --localcores=$(inputs.cpus) --localmem=$(inputs.ram) --id=$(inputs.run_id) --csv=./aggr_file.txt &&
 
      ${
-       var sp = inputs.run_id + "/outs/" + inputs.run_id + ".aggr";
-       var cmd = "mv " + inputs.run_id + "/outs/web_summary.html " + sp + ".web_summary.html && ";
+       var dir = inputs.run_id + "/outs/";
+       var base_name = "./" + inputs.run_id + "_aggr_";
+       var cmd = "mv " + dir + "web_summary.html " + base_name + "web_summary.html && ";
        if (inputs.return_h5){
-         cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix.h5 " + sp + ".filtered_feature_bc_matrix.h5 && ";
-         cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix.h5 " + sp + ".raw_feature_bc_matrix.h5";
+         cmd += "mv " + dir + "filtered_feature_bc_matrix.h5 " + base_name + "filtered_feature_bc_matrix.h5 && ";
+         cmd += "mv " + dir + "raw_feature_bc_matrix.h5 " + base_name + "raw_feature_bc_matrix.h5";
        }
        else {
-         cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix " + sp + ".filtered_feature_bc_matrix && ";
-         cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix " + sp + ".raw_feature_bc_matrix && ";
-         cmd += "tar -czf " + sp + ".filtered_feature_bc_matrix.tar.gz " + sp + ".filtered_feature_bc_matrix && ";
-         cmd += "tar -czf " + sp + ".raw_feature_bc_matrix.tar.gz " + sp + ".raw_feature_bc_matrix";
+         cmd += "mv " + dir + "filtered_feature_bc_matrix " + base_name + "filtered_feature_bc_matrix && ";
+         cmd += "mv " + dir + "raw_feature_bc_matrix " + base_name + "raw_feature_bc_matrix && ";
+         cmd += "tar -czf " + base_name + "filtered_feature_bc_matrix.tar.gz " + base_name + "filtered_feature_bc_matrix && ";
+         cmd += "tar -czf " + base_name + "raw_feature_bc_matrix.tar.gz " + base_name + "raw_feature_bc_matrix";
        }
        return cmd;
      }
@@ -49,20 +50,22 @@ inputs:
   run_id: {type: string, doc: "run id, used as basename for output"}
   molecule_infos: {type: 'File[]', doc: "List of molecule info files to aggregate"}
   return_h5: {type: boolean?, doc: "Return h5 files or tarred matrix directories?"}
+  ram: {type: ['null', int], default: 20, doc: "In GB"}
+  cpus: {type: ['null', int], default: 16, doc: "Number of CPUs to request"}
 
 outputs:
   filtered_matrix_out:
     type: File
     outputBinding:
-      glob: $(inputs.run_id)/outs/$(inputs.run_id).aggr.filtered_feature_bc_matrix.*
+      glob: ./$(inputs.run_id)_aggr_filtered_feature_bc_matrix.*
     doc: "Tarball or h5 file containing the filtered feature matrix"
   raw_matrix_out:
     type: File
     outputBinding:
-      glob: $(inputs.run_id)/outs/$(inputs.run_id).aggr.raw_feature_bc_matrix.*
+      glob: ./$(inputs.run_id)_aggr_raw_feature_bc_matrix.*
     doc: "Tarball or h5 file containing the raw feature matrix"
   output_summary:
     type: File
     outputBinding:
-      glob: $(inputs.run_id)/outs/$(inputs.run_id).aggr.web_summary.html
+      glob: ./$(inputs.run_id)_aggr_web_summary.html
     doc: "HTML alignment summary"
