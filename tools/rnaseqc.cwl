@@ -16,24 +16,28 @@ arguments:
     shellQuote: false
     valueFrom: >-
       $(inputs.collapsed_gtf.path)
-      $(inputs.Aligned_sorted_bam.path)
+      $(inputs.input_bam.path)
       output/
       ${
-        var cmd = "--legacy";
+        var cmd = "";
+        if (inputs.legacy) {
+          cmd += " --legacy"
+        }
         if (inputs.strand != null && inputs.strand != "default"){
           cmd += " --stranded=" + inputs.strand;
         }
-        if (inputs.input_reads2 == null) {
+        if (! inputs.paired) {
           cmd += " --unpaired";
         }
         return cmd;
       }
 
 inputs:
-  Aligned_sorted_bam: File
-  collapsed_gtf: File
-  strand: {type: ['null', string]}
-  input_reads2: File?
+  input_bam: {type: File, secondaryFiles: [^.bai]}
+  collapsed_gtf: {type: File, doc: "GTF file without overlapping genes and one transcript per gene"}
+  strand: {type: ['null', string], doc: "Only collect metrics for features on the same strand. Input string must be: RF, rf, FR, or fr"}
+  paired: {type: ['null', boolean], default: TRUE}
+  legacy: {type: ['null', boolean], default: FALSE, doc: "use legacy RNAseQC counting rules. Legacy is default counting scheme used by KF bulk RNA workflow"}
 
 outputs:
   Metrics:
