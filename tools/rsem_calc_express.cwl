@@ -24,10 +24,9 @@ arguments:
         }
         cmd += " " + inputs.input_bam.path +
         " ./" + inputs.reference.nameroot.split('.')[0] + "/" + inputs.reference.nameroot.split('.')[0] +
-        " " +  inputs.output_basename + ".rsem";
+        " " +  inputs.output_basename;
         return cmd
-      } &&
-      gzip *results
+      }
 
 inputs:
   input_bam: {type: File, secondaryFiles: [^.bai]}
@@ -41,9 +40,24 @@ outputs:
   gene_out:
     type: File
     outputBinding:
-      glob: '*genes.results.gz'
+      glob: $(inputs.output_basename).genes*
 
   isoform_out:
     type: File
     outputBinding:
-      glob: '*isoforms.results.gz'
+      glob: $(inputs.output_basename).isoforms*
+
+  cnt_out:
+    type: File
+    outputBinding:
+      glob: $(inputs.output_basename).stat/$(inputs.output_basename).cnt
+
+  model_out:
+    type: File
+    outputBinding:
+      glob: $(inputs.output_basename).stat/$(inputs.output_basename).model
+
+  theta_out:
+    type: File
+    outputBinding:
+      glob: $(inputs.output_basename).stat/$(inputs.output_basename).theta
