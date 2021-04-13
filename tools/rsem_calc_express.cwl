@@ -29,7 +29,7 @@ arguments:
       }
 
 inputs:
-  input_bam: {type: File, secondaryFiles: [^.bai]}
+  input_bam: {type: File}
   reference: {type: File, doc: "tarball of reference files"}
   output_basename: {type: string, doc: "Output file basename"}
   paired: {type: ['null', boolean], default: TRUE}
