@@ -4,11 +4,11 @@ id: rnaseqc
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'gcr.io/broad-cga-aarong-gtex/rnaseqc:latest'
+    dockerPull: 'gcr.io/broad-cga-aarong-gtex/rnaseqc:2.4.2'
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    coresMin: 8
-    ramMin: 10000
+    coresMin: $(inputs.cpus)
+    ramMin: ${return inputs.ram * 1000}
 
 baseCommand: [rnaseqc]
 arguments:
@@ -38,21 +38,23 @@ inputs:
   strand: {type: ['null', string], doc: "Only collect metrics for features on the same strand. Input string must be: RF, rf, FR, or fr"}
   paired: {type: ['null', boolean], default: TRUE}
   legacy: {type: ['null', boolean], default: FALSE, doc: "use legacy RNAseQC counting rules. Legacy is default counting scheme used by KF bulk RNA workflow"}
+  ram: {type: ['null', int], default: 1, doc: "In GB"}
+  cpus: {type: ['null', int], default: 8, doc: "Number of CPUs to request"}
 
 outputs:
-  Metrics:
+  metrics:
     type: File
     outputBinding:
       glob: 'output/*.metrics.tsv'
-  Gene_TPM:
+  gene_TPM:
     type: File
     outputBinding:
       glob: 'output/*.gene_tpm.gct'
-  Gene_count:
+  gene_count:
     type: File
     outputBinding:
       glob: 'output/*.gene_reads.gct'
-  Exon_count:
+  exon_count:
     type: File
     outputBinding:
       glob: 'output/*.exon_reads.gct'
