@@ -32,7 +32,6 @@ requirements:
 
           save_plot <- function(cmd, name) {
             #function to take in a command and a basename and output a plot file
-            print(name)
             plot_file <- file.path(out_dir, paste0(name, ".png"))
             png(filename = plot_file, width = plot_size, height = plot_size)
             eval(parse(text = cmd))
@@ -136,8 +135,6 @@ requirements:
           num_pcs <- opts$num_pcs
           knn_granularity <- opts$knn_granularity
 
-          print(data_dir)
-
           #make output directory
           dir.create(out_dir, recursive = "true")
 
@@ -149,7 +146,6 @@ requirements:
           ##preprocess / qc
           #calculate % MT reads
           analysis[["percent.mt"]] <- PercentageFeatureSet(analysis, pattern = "^MT-")
-
 
           #Visualize QC metrics as a violin plot
           name <- "qc_violin"
@@ -228,7 +224,6 @@ requirements:
           cluster_markers <- analysis.markers %>% group_by(cluster) %>% top_n(n =
             clust_size, wt = avg_logFC)
           write.csv(cluster_markers, file = file)
-          #print(cluster_markers)
 
           #the next few steps are just examples
           #eventually, we'll have to figure out what we would want
@@ -253,7 +248,10 @@ arguments:
     shellQuote: false
     valueFrom: >-
      $(inputs.scRNA_cts_tar.path)
-     && Rscript seurat_analysis.R --data $(inputs.scRNA_cts_tar.nameroot.split('.')[0]) --out $(inputs.output_basename)
+     && Rscript seurat_analysis.R --data $(inputs.scRNA_cts_tar.nameroot.split('.')[0]) --out $(inputs.output_basename) \
+     --min_features $(inputs.min_features) --max_features $(inputs.max_features) --max_mt $(inputs.max_mt) \
+     --norm_method $(inputs.norm_method) --retain_features $(inputs.retain_features) --nheatmap $(inputs.nheatmap) \
+     --num_pcs $(inputs.num_pcs) --knn_granularity $(inputs.knn_granularity) \
      ${
        if (inputs.name != null){
          return "--name " + inputs.name;
