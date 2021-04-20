@@ -294,7 +294,7 @@ inputs:
   knn_granularity: {type: float?, default: 0.5, doc: "KNN clustering granularity parameter"} 
 
 outputs:
-  out_file:
+  tarball:
     type: File
     outputBinding:
       glob: $(inputs.output_basename).tar.gz

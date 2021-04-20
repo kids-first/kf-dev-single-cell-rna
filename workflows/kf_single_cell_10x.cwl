@@ -32,12 +32,21 @@ inputs:
   reference: {type: File, doc: "tarball of reference files"}
   count_h5_output: {type: boolean?, default: False, doc: "count returns hdf5 files [False]"}
   aggr_h5_output: {type: boolean?, default: False, doc: "aggr returns hdf5 files [False]"}
+  seurat_min_features: {type: int?, default: 200, doc: "Minimum number of genes observed in a cell to retain"}
+  seurat_max_features: {type: int?, default: 2500, doc: "Maximum number of genes observed in a cell to retain"}
+  seurat_max_mt: {type: int?, default: 5, doc: "Maximum mitochondrial percentage observed in a cell to retain"}
+  seurat_norm_method: {type: string?, default: "LogNormalize", doc: "Normalization to apply to counts (LogNormalize, CLR, RC)"}
+  seurat_retain_features: {type: int?, default: 2000, doc: "Number of most-variable features to initially retain"}
+  seurat_nheatmap: {type: int?, default: 10, doc: "Number of principal components for which to produce heatmaps"}
+  seurat_num_pcs: {type: int?, default: 10, doc: "Number of principal components to retain for clustering"}
+  seurat_knn_granularity: {type: float?, default: 0.5, doc: "KNN clustering granularity parameter"}
 
 outputs:
   count_summary: {type: File, outputSource: count/output_summary}
   aggr_summary: {type: File, outputSource: aggr/output_summary}
   filt_matrix_out: {type: File, outputSource: aggr/filtered_matrix_out}
   raw_matrix_out: {type: File, outputSource: aggr/raw_matrix_out}
+  seurat_tarball: {type: File, outputSource: seurat/tarball}
 
 steps:
   count:
@@ -56,3 +65,18 @@ steps:
       molecule_infos: count/molecule_info
       return_h5: aggr_h5_output
     out: [filtered_matrix_out, raw_matrix_out, output_summary]
+  seurat:
+    run: ../tools/seurat.cwl
+    in:
+      name: sample_name
+      scRNA_cts_tar: aggr/filtered_matrix_out
+      output_basename: output_basename 
+      min_features: seurat_min_features 
+      max_features: seurat_max_features
+      max_mt: seurat_max_mt 
+      norm_method: seurat_norm_method
+      retain_features: seurat_retain_features
+      nheatmap: seurat_nheatmap
+      num_pcs: seurat_num_pcs
+      knn_granularity: seurat_knn_granularity
+    out: [tarball]
