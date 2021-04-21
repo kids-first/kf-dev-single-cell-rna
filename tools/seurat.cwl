@@ -248,10 +248,10 @@ arguments:
     shellQuote: false
     valueFrom: >-
      $(inputs.scRNA_cts_tar.path)
-     && Rscript seurat_analysis.R --data $(inputs.scRNA_cts_tar.nameroot.split('.')[0]) --out $(inputs.output_basename) \
-     --min_features $(inputs.min_features) --max_features $(inputs.max_features) --max_mt $(inputs.max_mt) \
-     --norm_method $(inputs.norm_method) --retain_features $(inputs.retain_features) --nheatmap $(inputs.nheatmap) \
-     --num_pcs $(inputs.num_pcs) --knn_granularity $(inputs.knn_granularity) \
+     && Rscript seurat_analysis.R --data $(inputs.scRNA_cts_tar.nameroot.split('.')[0]) --out $(inputs.output_basename)
+     --min_features $(inputs.min_features) --max_features $(inputs.max_features) --max_mt $(inputs.max_mt)
+     --norm_method $(inputs.norm_method) --retain_features $(inputs.retain_features) --nheatmap $(inputs.nheatmap)
+     --num_pcs $(inputs.num_pcs) --knn_granularity $(inputs.knn_granularity)
      ${
        if (inputs.name != null){
          return "--name " + inputs.name;
