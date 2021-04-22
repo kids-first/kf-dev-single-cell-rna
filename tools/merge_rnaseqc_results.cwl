@@ -1,7 +1,7 @@
 cwlVersion: v1.0
 class: CommandLineTool
-id: cellranger_aggr
-doc: "Run cellranger aggr on a set of molecule_info files"
+id: merge_rnaseqc_results
+doc: "Merge RNAseQC metrics files into one TSV file"
 
 requirements:
   - class: ShellCommandRequirement
@@ -41,7 +41,6 @@ arguments:
         arr = arr.concat(inputs.metrics_files[i].path)
        return (arr.join(' '))
      }"
-     echo $qcs &&
      /bin/bash join_rec.sh $qcs > $(inputs.output_basename).tsv
 
 inputs:
