@@ -34,7 +34,7 @@ requirements:
 
 inputs:
   output_basename: {type: string, doc: "basename used to name output tarballs"}
-  fastqs_tar: {type: File[], doc: "tarball(s) of fastqs being run, one from each sample / well"}
+  fastqs_tar: {type: 'File[]', doc: "tarball(s) of fastqs being run, one from each sample or well"}
   sample_name: {type: string, doc: "used as prefix for finding fastqs to analyze"}
   reference: {type: File, doc: "tarball of reference files"}
   count_h5_output: {type: boolean?, default: False, doc: "count returns hdf5 files [False]"}
