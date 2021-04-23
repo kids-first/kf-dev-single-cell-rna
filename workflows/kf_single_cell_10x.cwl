@@ -59,7 +59,7 @@ steps:
 
   count:
     run: ../tools/cellranger_count.cwl
-    scatter: fastqs
+    scatter: [fastqs]
     in:
       run_id: output_basename
       fastqs: fastqs_tar
