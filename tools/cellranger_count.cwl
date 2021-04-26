@@ -68,7 +68,7 @@ outputs:
       glob: $(inputs.run_id)/outs/$(inputs.run_id).$(inputs.sample_name).web_summary.html
     doc: "HTML alignment summary"
   molecule_info:
-    type: File[]
+    type: File
     outputBinding:
       glob: $(inputs.run_id)/outs/$(inputs.run_id).$(inputs.sample_name).molecule_info.h5
     doc: "Molecule info file, used by cellranger aggr"
