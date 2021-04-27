@@ -7,21 +7,21 @@ requirements:
 
 inputs:
   fastq1s: {type: 'File[]', doc: "Array of fastq 1s to align"}
-  fastq2s: {type: ['null', 'File[]?'], doc: "Array of fastq 2s to align"}
+  fastq2s: {type: 'File[]?', doc: "Array of fastq 2s to align"}
 
 outputs:
   fastq2s:
-    type: string[]
+    type: File[]
 
 expression:
   "${
       var fastq2s = [];
       if (inputs.fastq2s == null){
         for (var i=0; i<inputs.fastq1s.length; i++)
-          fastq2s = fastq2s.concat(null);
+          fastq2s = fastq2s.concat(null)
       }
       else {
         fastq2s = inputs.fastq2s;
       }
-    return fastq2s
+    return {'fastq2s': fastq2s} 
   }"
