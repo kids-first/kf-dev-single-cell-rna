@@ -18,7 +18,7 @@ inputs:
   #list of read1s
   fastq1s: {type: 'File[]', doc: "Array of fastq 1s to align"}
   #list of read2s
-  fastq2s: {type: 'File[]?', default: [], doc: "Array of fastq 2s to align"}
+  fastq2s: {type: ['null', 'File[]?'], doc: "Array of fastq 2s to align"}
   #list of sample names
   sample_names: {type: 'string[]', doc: "Array of sample names"}
   #hisat genome reference
@@ -50,6 +50,13 @@ steps:
 #will need to append _genome and _trans to sample_names before aligning...
   #or not if we're not returning the bams???
 
+  build_fastq2_array:
+    run: ../tools/build_fastq2_array.cwl
+    in:
+      fastq1s: fastq1s
+      fastq2s: fastq2s
+    out: [fastq2s]
+
 #these jobs are all scattered on the input fastqs
 
   #hisat 2 align to genome
@@ -63,7 +70,7 @@ steps:
     in:
       reference: hisat_genome_ref
       fastq1: fastq1s
-      fastq2: fastq2s
+      fastq2: build_fastq2_array/fastq2s
       output_basename: sample_names
       input_id: sample_names
       strict:
@@ -82,7 +89,7 @@ steps:
     in:
       reference: hisat_trans_ref
       fastq1: fastq1s
-      fastq2: fastq2s
+      fastq2: build_fastq2_array/fastq2s
       output_basename: sample_names
       input_id: sample_names
       strict:
