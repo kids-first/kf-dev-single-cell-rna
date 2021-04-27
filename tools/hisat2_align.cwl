@@ -50,7 +50,7 @@ arguments:
 inputs:
   reference: {type: File, doc: "tarball of reference files"}
   fastq1: {type: File, doc: "gzipped read 1 fq file"}
-  fastq2: {type: File?, doc: "gzipped read 2 fq file"}
+  fastq2: {type: File?, default: null, doc: "gzipped read 2 fq file"}
   output_basename: {type: string, doc: "Output file basename"}
   input_id: {type: string, doc: "Sample name"}
   strict: {type: boolean?, doc: "Flag to use a stricter alignment to make input bam for RSEM"}
@@ -72,9 +72,5 @@ outputs:
       type: File
       outputBinding:
         glob: $(inputs.output_basename).bam
+      secondaryFiles: [^.bai]
       doc: "Bam file"
-  bai:
-      type: File?
-      outputBinding:
-        glob: $(inputs.output_basename).bai
-      doc: "Bam index"
