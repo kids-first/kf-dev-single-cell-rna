@@ -20,7 +20,9 @@ requirements:
                 join -1 1 -t $'\t' - "$f" | join_rec "$@"
               fi
           }
-          if [ $# -le 2 ]; then
+          if [ $# -eq 1 ]; then
+              echo "$@"
+          elif [ $# -le 2 ]; then
               join -1 1 -t $'\t' "$@"
           else
               f1=$1; f2=$2; shift 2
