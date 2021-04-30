@@ -123,7 +123,7 @@ requirements:
           opts <- parse_args(OptionParser(option_list = option_list))
           plot_size <- opts$size
           clust_size <- opts$out_size
-          data_dir <- file.path(opts$data)
+          data_in <- file.path(opts$data)
           out_dir <- file.path(opts$out)
           project_name <- opts$name
           min_features <- opts$min_features
@@ -139,7 +139,16 @@ requirements:
           dir.create(out_dir, recursive = "true")
 
           ##load data
-          analysis.data <- Read10X(data.dir = data_dir)
+          if (dir.exists(data_in)){
+            #load 10x matrix folder
+            analysis.data <- Read10X(data.dir = data_in)
+          } else {
+            #load loom file
+            #the function name does not at all line up with how we're using it...
+            analysis.data <- Read10X_h5(data_in, use.names = TRUE)
+          }
+
+          #filter data
           analysis <- CreateSeuratObject(counts = analysis.data, project = project_name,
             min.cells = 3, min.features = 200)
 
@@ -241,17 +250,31 @@ requirements:
 
         writable: false
 
-baseCommand: [tar, -xaf]
+baseCommand: []
 
 arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-     $(inputs.scRNA_cts_tar.path)
-     && Rscript seurat_analysis.R --data $(inputs.scRNA_cts_tar.nameroot.split('.')[0]) --out $(inputs.output_basename)
+     ${
+       var cmd = 'echo funny_easter_egg'
+       if (inputs.scRNA_cts_tar){
+         var cmd = "tar -xaf " + inputs.scRNA_cts_tar.path;
+       }
+       return cmd;
+      }
+     Rscript seurat_analysis.R --out $(inputs.output_basename)
      --min_features $(inputs.min_features) --max_features $(inputs.max_features) --max_mt $(inputs.max_mt)
      --norm_method $(inputs.norm_method) --retain_features $(inputs.retain_features) --nheatmap $(inputs.nheatmap)
      --num_pcs $(inputs.num_pcs) --knn_granularity $(inputs.knn_granularity)
+     ${
+       if (inputs.scRNA_cts_tar){
+         return "--data " + inputs.scRNA_cts_tar.nameroot.split('.')[0];
+       }
+       else if (inputs.scRNA_cts_matrix){
+         return "--data " + inputs.scRNA_cts_matrix.path;
+       }
+     }
      ${
        if (inputs.name != null){
          return "--name " + inputs.name;
@@ -282,7 +305,8 @@ inputs:
   size: {type: int?, default: 500, doc: "Plot size, plot area will be a square with side length of size"}
   name: {type: string?, doc: "Project string, used internally by Seurat"}
   out_size: {type: int?, doc: "Number of genes to include in the cluster output file."}
-  scRNA_cts_tar: {type: File, doc: "tarball of input data, folder must contain three files: barcodes.tsv.gz, features.tsv.gz, and matrix.mtx.gz these files are the output of cellranger"}
+  scRNA_cts_tar: {type: File?, doc: "tarball of input data, folder must contain three files: barcodes.tsv.gz, features.tsv.gz, and matrix.mtx.gz these files are the output of cellranger"}
+  scRNA_cts_matrix: {type: File?, doc: "matrix file with input data"}
   output_basename: {type: string, doc: "name of output directory"}
   min_features: {type: int?, default: 200, doc: "Minimum number of genes observed in a cell to retain"}
   max_features: {type: int?, default: 2500, doc: "Maximum number of genes observed in a cell to retain"}
@@ -291,7 +315,7 @@ inputs:
   retain_features: {type: int?, default: 2000, doc: "Number of most-variable features to initially retain"}
   nheatmap: {type: int?, default: 10, doc: "Number of principal components for which to produce heatmaps"}
   num_pcs: {type: int?, default: 10, doc: "Number of principal components to retain for clustering"}
-  knn_granularity: {type: float?, default: 0.5, doc: "KNN clustering granularity parameter"} 
+  knn_granularity: {type: float?, default: 0.5, doc: "KNN clustering granularity parameter"}
 
 outputs:
   tarball:
