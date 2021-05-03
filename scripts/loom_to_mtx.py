@@ -4,6 +4,8 @@ import sys
 
 import h5py
 import numpy as np
+import scipy.io
+import scipy.sparse
 
 matrix_header = '%%MatrixMarket matrix coordinate integer general\n%metadata_json: {"format_version": 2, "software_version": "3.1.0"}\n'
 
@@ -22,14 +24,7 @@ total_cells = len(sample_names)
 total_features = len(hugo_names)
 total_counts = np.sum(matrix)
 
-with open('matrix.mtx', 'w') as matrix_file:
-    matrix_file.write(matrix_header)
-    matrix_file.write(' '.join([str(s) for s in (total_features, total_cells, total_counts)]))
-    for j in range(total_cells):
-        for i in range(total_features)[::-1]:
-            count = matrix[i][j]
-            if count:
-                matrix_file.write('\n' + ' '.join([str(t) for t in (i+1, j+1, count)]))
+scipy.io.mmwrite('matrix.mtx', scipy.sparse.csr_matrix(matrix), field='real', precision=2)
 
 with open('barcodes.tsv', 'w') as barcodes:
     for name in sample_names[:-1]:
