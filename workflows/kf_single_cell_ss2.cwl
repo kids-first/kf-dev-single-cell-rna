@@ -35,6 +35,7 @@ inputs:
 
 outputs:
   matrix_loom: {type: 'File', outputSource: merge_looms/output_file}
+  matrix_tar: {type: 'File', outputSource: loom_to_mtx/output_tar}
   alignment_metrics_report: {type: 'File', outputSource: merge_rnaseqc_results/output_file}
   #seurat output
 
@@ -138,6 +139,13 @@ steps:
       output_basename: final_output_basename
       loom_files: make_single_loom/loom_file
     out: [output_file]
+
+  loom_to_mtx:
+    run: ../tools/loom_to_mtx.cwl
+    in:
+      loom_file: merge_looms/output_file
+      output_basename: final_output_basename
+    out: [output_tar]
 
   #Seurat clustering
     #runs on the merged loom file
