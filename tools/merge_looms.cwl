@@ -6,7 +6,7 @@ doc: "Merge several loom files into one"
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerImageId: 'loompy:2.0.16'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/loompy:2.0.16'
   - class: InlineJavascriptRequirement
   - class: InitialWorkDirRequirement
     listing:
