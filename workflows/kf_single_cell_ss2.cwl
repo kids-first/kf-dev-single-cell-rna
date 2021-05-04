@@ -8,8 +8,7 @@ doc: |-
 
   ![data service logo](https://github.com/d3b-center/d3b-research-workflows/raw/master/doc/kfdrc-logo-sm.png)
   The workflow uses [HISAT2](http://daehwankimlab.github.io/hisat2/) for alignment, [RNAseQC](https://github.com/getzlab/rnaseqc) to collect sequencing metrics, and [RSEM](https://deweylab.github.io/RSEM/) to calculate gene expression.
-  The workflow produces two files a matrix of cells gene counts in a loom file and a tsv with collected sequencing metrics from all cells analyzed.
-  The output matrix is filtered and analyzed using the [Seurat](https://satijalab.org/seurat/) R package.
+  The outputs of the workflow are a matrix of cells gene counts in a loom file, a tarball containing a matrix of the gene counts in Matrix Market format, and a tsv with collected sequencing metrics from all cells analyzed.
   Basic functionality includes removal of abnormal cells, dimensionality reduction, identification of differentially expressed features, and clustering.
 
   Data are aligned to both the genome and the transcriptome. Genome aligned data are used to collect sequencing metrics and transcriptome aligned data are used to calculate expression.
