@@ -10,7 +10,7 @@ inputs:
   fastq2s: {type: 'File[]?', doc: "Array of fastq 2s to align"}
 
 outputs:
-  fastq2s:
+  fastq2_array:
     type: File[]
 
 expression:
@@ -23,5 +23,5 @@ expression:
       else {
         fastq2s = inputs.fastq2s;
       }
-    return {'fastq2s': fastq2s} 
+    return {'fastq2_array': fastq2s}
   }"

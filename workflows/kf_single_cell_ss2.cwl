@@ -46,7 +46,7 @@ steps:
     in:
       fastq1s: fastq1s
       fastq2s: fastq2s
-    out: [fastq2s]
+    out: [fastq2_array]
 
   strand_parse:
     run: ../tools/expression_parse_strand_param.cwl
@@ -61,7 +61,7 @@ steps:
     in:
       reference: hisat_genome_ref
       fastq1: fastq1s
-      fastq2: build_fastq2_array/fastq2s
+      fastq2: build_fastq2_array/fastq2_array
       output_basename: sample_names
       input_id: sample_names
       strict:
@@ -77,7 +77,7 @@ steps:
     in:
       reference: hisat_trans_ref
       fastq1: fastq1s
-      fastq2: build_fastq2_array/fastq2s
+      fastq2: build_fastq2_array/fastq2_array
       output_basename: sample_names
       input_id: sample_names
       strict:
