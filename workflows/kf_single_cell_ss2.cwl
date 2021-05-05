@@ -23,7 +23,7 @@ inputs:
   final_output_basename: {type: string, doc: "Output basename for workflow output files"}
   fastq1s: {type: 'File[]', doc: "Array of fastq 1s to align"}
   fastq2s: {type: ['null', 'File[]?'], doc: "Array of fastq 2s to align"}
-  sample_names: {type: 'string[]', doc: "Array of sample names"}
+  sample_file: {type: 'File', doc: "File with sample names one per line"}
   hisat_genome_ref: {type: 'File', doc: "Hisat 2 genome reference"}
   hisat_trans_ref: {type: 'File', doc: "Hisat 2 transcriptome reference"}
   rnaseqc_gtf: {type: 'File', doc: "gtf file used by RNAseQC", sbg:suggestedValue: {class: 'File', path: '5d8bb21fe4b0950c4028f852', name: 'gencode.v27.primary_assembly.RNAseQC.gtf'}}
@@ -47,6 +47,12 @@ steps:
       fastq2s: fastq2s
     out: [fastq2_array]
 
+  build_samples_array:
+    run: ../tools/build_samples_array.cwl
+    in:
+      sample_file: sample_file
+    out: [sample_names]
+
   strand_parse:
     run: ../tools/expression_parse_strand_param.cwl
     in:
@@ -61,8 +67,8 @@ steps:
       reference: hisat_genome_ref
       fastq1: fastq1s
       fastq2: build_fastq2_array/fastq2_array
-      output_basename: sample_names
-      input_id: sample_names
+      output_basename: build_samples_array/sample_names
+      input_id: build_samples_array/sample_names
       strict:
         valueFrom: ${return Boolean(false)}
       ram: ram
@@ -77,8 +83,8 @@ steps:
       reference: hisat_trans_ref
       fastq1: fastq1s
       fastq2: build_fastq2_array/fastq2_array
-      output_basename: sample_names
-      input_id: sample_names
+      output_basename: build_samples_array/sample_names
+      input_id: build_samples_array/sample_names
       strict:
         valueFrom: ${return Boolean(true)}
       ram: ram
@@ -108,7 +114,7 @@ steps:
     in:
       input_bam: hisat2_align_trans/bam
       reference: rsem_reference
-      output_basename: sample_names
+      output_basename: build_samples_array/sample_names
       paired:
         valueFrom: ${
           if (inputs.fastq2s) { return Boolean(true)}
@@ -122,7 +128,7 @@ steps:
     scatterMethod: dotproduct
     in:
       rsem_matrix: rsem/gene_out
-      sample_name: sample_names
+      sample_name: build_samples_array/sample_names
     out: [loom_file]
 
   merge_rnaseqc_results:
