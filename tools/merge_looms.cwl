@@ -26,7 +26,7 @@ requirements:
               required_args = parser.add_argument_group("required arguments")
               required_args.add_argument(
                   "--files",
-                  help="Comma separated list of aths to the directory with the RSEM output looms",
+                  help="Comma separated list of paths to the RSEM output looms",
                   required=True
                   )
               required_args.add_argument(

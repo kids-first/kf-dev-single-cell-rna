@@ -1,6 +1,7 @@
 cwlVersion: v1.0
 class: ExpressionTool
 id: expression_strand_params
+doc: "Format the overall strand parameter to the format expected by downstream tools (rsem and RNAseQC)"
 requirements:
   - class: InlineJavascriptRequirement
 
@@ -15,20 +16,10 @@ outputs:
 
 expression:
   "${
-      var strand = 'default';
-      if (inputs.wf_strand_param != null){
-        strand = inputs.wf_strand_param;
-      }
       var parse_dict = {
           'default': {'rsem_std': 'none', 'rnaseqc_std': 'default'},
           'rf-stranded': {'rsem_std': 'reverse', 'rnaseqc_std': 'rf'},
           'fr-stranded': {'rsem_std': 'forward', 'rnaseqc_std': 'fr'}
           };
-      if (strand in parse_dict){
-        return parse_dict[strand];
-
-      }
-      else{
-        throw new Error(strand + ' is a not a valid strand param. Use one of default, rf-stranded, fr-stranded');
-      }
+      return parse_dict[inputs.wf_strand_param];
   }"

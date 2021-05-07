@@ -1,7 +1,7 @@
 cwlVersion: v1.0
 class: ExpressionTool
 id: build_fastq2_array
-doc: "If the fastq2 parameter isn't given, build an array of empty strings that are the same length as the fastq1s input."
+doc: "If the fastq2 parameter isn't given, build an array of nulls that are the same length as the fastq1s input."
 requirements:
   - class: InlineJavascriptRequirement
 
@@ -17,8 +17,7 @@ expression:
   "${
       var fastq2s = [];
       if (inputs.fastq2s == null){
-        for (var i=0; i<inputs.fastq1s.length; i++)
-          fastq2s = fastq2s.concat(null)
+        fastq2s = Array(inputs.fastq1s.length).fill(null)
       }
       else {
         fastq2s = inputs.fastq2s;

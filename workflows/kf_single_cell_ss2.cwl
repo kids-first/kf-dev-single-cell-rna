@@ -22,7 +22,7 @@ requirements:
 inputs:
   final_output_basename: {type: string, doc: "Output basename for workflow output files"}
   fastq1s: {type: 'File[]', doc: "Array of fastq 1s to align"}
-  fastq2s: {type: ['null', 'File[]?'], doc: "Array of fastq 2s to align"}
+  fastq2s: {type: 'File[]?', doc: "Array of fastq 2s to align"}
   sample_file: {type: 'File', doc: "File with sample names one per line"}
   hisat_genome_ref: {type: 'File', doc: "Hisat 2 genome reference"}
   hisat_trans_ref: {type: 'File', doc: "Hisat 2 transcriptome reference"}
@@ -160,4 +160,4 @@ $namespaces:
   sbg: https://sevenbridges.com
 hints:
   - class: 'sbg:maxNumberOfParallelInstances'
-    value: 5
+    value: 2
