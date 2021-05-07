@@ -18,9 +18,9 @@ matrix = np.array(loom['matrix'])
 loom.close()
 
 #output files
-out_mat = out_dir + 'matrix.mtx'
-out_bar = out_dir + 'barcodes.tsv'
-out_feat = out_dir + 'features.tsv'
+out_mat = out_dir + '/matrix.mtx'
+out_bar = out_dir + '/barcodes.tsv'
+out_feat = out_dir + '/features.tsv'
 
 scipy.io.mmwrite(out_mat, scipy.sparse.csr_matrix(matrix), field='real', precision=2)
 
