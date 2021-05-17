@@ -78,7 +78,7 @@ def main(args):
             raise ValueError("The following samples are missing a read pair " + ",".join(unmatched))
         sample_names = sample_names_1
 
-    print(sample_names)
+    print("\n".join(sorted(sample_names)))
 
 if __name__ == "__main__":
     # execute only if run as a script
