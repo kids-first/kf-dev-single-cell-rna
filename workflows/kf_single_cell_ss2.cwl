@@ -21,9 +21,7 @@ requirements:
 
 inputs:
   final_output_basename: {type: string, doc: "Output basename for workflow output files"}
-  fastq1s: {type: 'File[]', doc: "Array of fastq 1s to align"}
-  fastq2s: {type: 'File[]?', doc: "Array of fastq 2s to align"}
-  sample_file: {type: 'File', doc: "File with sample names one per line"}
+  input_tar: {type: 'File', doc: "Tarball with fastq files in a single base directory"}
   hisat_genome_ref: {type: 'File', doc: "Hisat 2 genome reference"}
   hisat_trans_ref: {type: 'File', doc: "Hisat 2 transcriptome reference"}
   rnaseqc_gtf: {type: 'File', doc: "gtf file used by RNAseQC", sbg:suggestedValue: {class: 'File', path: '5d8bb21fe4b0950c4028f852', name: 'gencode.v27.primary_assembly.RNAseQC.gtf'}}
@@ -31,6 +29,7 @@ inputs:
   cpus: { type: 'int?', default: 4, doc: "CPUs to allocate to call task"}
   ram: { type: 'int?', default: 8, doc: "RAM to allocate to call task in gb"}
   wf_strand_param: {type: [{type: enum, name: wf_strand_param, symbols: ["default", "rf-stranded", "fr-stranded"]}], doc: "use 'default' for unstranded/auto, 'rf-stranded' if read1 in the fastq read pairs is reverse complement to the transcript, 'fr-stranded' if read1 same sense as transcript"}
+  paired: {type: boolean?, default: False, doc: "Flag for paired data, separate from wf_strand_param which describes the orientation of paired data [False]"}
 
 outputs:
   matrix_loom: {type: 'File', outputSource: merge_looms/output_file}
@@ -40,24 +39,31 @@ outputs:
 
 steps:
 
-  build_fastq2_array:
-    run: ../tools/build_fastq2_array.cwl
-    in:
-      fastq1s: fastq1s
-      fastq2s: fastq2s
-    out: [fastq2_array]
-
-  build_samples_array:
-    run: ../tools/build_samples_array.cwl
-    in:
-      sample_file: sample_file
-    out: [sample_names]
-
   strand_parse:
     run: ../tools/expression_parse_strand_param.cwl
     in:
       wf_strand_param: wf_strand_param
     out: [rsem_std, rnaseqc_std]
+
+  samples_from_tar:
+    run: ../tools/samples_from_tar.cwl
+    in:
+      tar_file: input_tar
+      paired: paired
+    out: [fastq1s, fastq2s, samples]
+
+  build_fastq2_array:
+    run: ../tools/build_fastq2_array.cwl
+    in:
+      fastq1s: samples_from_tar/fastq1s
+      fastq2s: samples_from_tar/fastq2s
+    out: [fastq2_array]
+
+  build_samples_array:
+    run: ../tools/build_samples_array.cwl
+    in:
+      sample_file: samples_from_tar/samples
+    out: [sample_names]
 
   hisat2_align_genome:
     run: ../tools/hisat2_align.cwl
@@ -65,7 +71,7 @@ steps:
     scatterMethod: dotproduct
     in:
       reference: hisat_genome_ref
-      fastq1: fastq1s
+      fastq1: samples_from_tar/fastq1s
       fastq2: build_fastq2_array/fastq2_array
       output_basename: build_samples_array/sample_names
       input_id: build_samples_array/sample_names
@@ -81,7 +87,7 @@ steps:
     scatterMethod: dotproduct
     in:
       reference: hisat_trans_ref
-      fastq1: fastq1s
+      fastq1: samples_from_tar/fastq1s
       fastq2: build_fastq2_array/fastq2_array
       output_basename: build_samples_array/sample_names
       input_id: build_samples_array/sample_names
@@ -98,11 +104,7 @@ steps:
       input_bam: hisat2_align_genome/bam
       collapsed_gtf: rnaseqc_gtf
       strand: strand_parse/rnaseqc_std
-      paired:
-        valueFrom: ${
-          if (inputs.fastq2s) { return Boolean(true)}
-          else { return Boolean(false)}
-          }
+      paired: paired
       ram: ram
       cpus: cpus
     out: [metrics, gene_TPM, gene_count, exon_count]
@@ -115,11 +117,7 @@ steps:
       input_bam: hisat2_align_trans/bam
       reference: rsem_reference
       output_basename: build_samples_array/sample_names
-      paired:
-        valueFrom: ${
-          if (inputs.fastq2s) { return Boolean(true)}
-          else { return Boolean(false)}
-          }
+      paired: paired
     out: [gene_out, isoform_out, cnt_out, model_out, theta_out]
 
   make_single_loom:
