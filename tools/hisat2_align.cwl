@@ -72,9 +72,5 @@ outputs:
       type: File
       outputBinding:
         glob: $(inputs.output_basename).bam
+      secondaryFiles: [^.bai]
       doc: "Bam file"
-  bai:
-      type: File?
-      outputBinding:
-        glob: $(inputs.output_basename).bai
-      doc: "Bam index"
