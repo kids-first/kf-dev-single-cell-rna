@@ -12,7 +12,7 @@ requirements:
     coresMin: $(inputs.cpus)
   - class: InlineJavascriptRequirement
 
-baseCommand: [cellranger reanalyze]
+baseCommand: [cellranger, reanalyze]
 
 arguments:
   - position: 1
@@ -23,13 +23,12 @@ arguments:
        var dir = inputs.run_id + "/outs/";
        var base_name = "./" + inputs.run_id + "_reanalysis_";
        var cmd = "mv " + dir + "web_summary.html " + base_name + "web_summary.html && ";
-       var cmd = "mv " + dir + "analysis_csv " + base_name + "analysis_csv && ";
        if (inputs.return_h5){
-         cmd += "mv " + dir + "filtered_feature_bc_matrix.h5 " + base_name + "filtered_feature_bc_matrix.h5 && ";
+         cmd += "mv " + dir + "filtered_feature_bc_matrix.h5 " + base_name + "filtered_feature_bc_matrix.h5";
        }
        else {
          cmd += "mv " + dir + "filtered_feature_bc_matrix " + base_name + "filtered_feature_bc_matrix && ";
-         cmd += "tar -czf " + base_name + "filtered_feature_bc_matrix.tar.gz " + base_name + "filtered_feature_bc_matrix && ";
+         cmd += "tar -czf " + base_name + "filtered_feature_bc_matrix.tar.gz " + base_name + "filtered_feature_bc_matrix";
        }
        return cmd;
      }
@@ -42,10 +41,10 @@ inputs:
   barcodes: {type: 'File?', inputBinding: {prefix: --barcodes}, doc: "csv file with a list of barcodes to use for analysis"}
   genes: {type: 'File?', inputBinding: {prefix: --genes}, doc: "file with gene ids to analyze"}
   exclude_genes: {type: 'File?', inputBinding: {prefix: --exclude-genes}, doc: "file with gene ids to exclude from analysis"}
-  force_cells: {type: int?, inputBinding: {prefix: --force-cells}, doc: "force cellranger to use this number of cells instead of cellranger estimating them"}
+  force_cells: {type: 'int?', inputBinding: {prefix: --force-cells}, doc: "force cellranger to use this number of cells instead of cellranger estimating them"}
   ram: {type: ['null', int], default: 20, inputBinding: {prefix: --localmem}, doc: "In GB"}
   cpus: {type: ['null', int], default: 16, inputBinding: {prefix: --localcores}, doc: "Number of CPUs to request"}
-  return_h5: {type: boolean?, doc: "Return h5 files or tarred matrix directories?"}
+  return_h5: {type: 'boolean?', doc: "Return h5 files or tarred matrix directories?"}
 
 outputs:
   filtered_matrix_out:
@@ -58,8 +57,3 @@ outputs:
     outputBinding:
       glob: $(inputs.run_id)_reanalysis_web_summary.html
     doc: "HTML alignment summary"
-  analysis_output_csv:
-    type: File
-    outputBinding:
-      glob: $(inputs.run_id)_reanalysis_analysis_csv
-    doc: "Secondary analysis output csv"
