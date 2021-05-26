@@ -1,7 +1,9 @@
 cwlVersion: v1.2
 class: CommandLineTool
 id: cellranger_reanalyze
-doc: "Run cellranger reanalyze"
+doc: |-
+  Run cellranger reanalyze
+  [Reanalysis documentation from 10x](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/using/reanalyze)
 
 requirements:
   - class: ShellCommandRequirement
