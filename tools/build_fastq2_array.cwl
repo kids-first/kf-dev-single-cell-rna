@@ -16,7 +16,7 @@ outputs:
 expression:
   "${
       var fastq2s = [];
-      if (inputs.fastq2s == null){
+      if (inputs.fastq2s == null || inputs.fastq2s.length == 0){
         fastq2s = Array(inputs.fastq1s.length).fill(null)
       }
       else {
