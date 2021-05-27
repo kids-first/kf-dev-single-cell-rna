@@ -35,7 +35,7 @@ requirements:
 inputs:
   output_basename: {type: string, doc: "basename used to name output tarballs"}
   fastqs_tar: {type: 'File[]', doc: "tarball(s) of fastqs being run, one from each sample or well"}
-  sample_name: {type: string, doc: "used as prefix for finding fastqs to analyze"}
+  sample_names: {type: string[], doc: "used as prefix for finding fastqs to analyze"}
   reference: {type: File, doc: "tarball of reference files"}
   count_h5_output: {type: boolean?, default: False, doc: "count returns hdf5 files [False]"}
   aggr_h5_output: {type: boolean?, default: False, doc: "aggr returns hdf5 files [False]"}
@@ -49,7 +49,9 @@ inputs:
   seurat_knn_granularity: {type: float?, default: 0.5, doc: "KNN clustering granularity parameter"}
 
 outputs:
-  count_summary: {type: File, outputSource: count/output_summary}
+  count_summary: {type: File[], outputSource: count/output_summary}
+  count_raw_matrices: {type: File[], outputSource: count/raw_matrix_out}
+  count_filtered_matrices: {type: File[], outputSource: count/filt_matrix_out}
   aggr_summary: {type: File, outputSource: aggr/output_summary}
   filt_matrix_out: {type: File, outputSource: aggr/filtered_matrix_out}
   raw_matrix_out: {type: File, outputSource: aggr/raw_matrix_out}
@@ -59,11 +61,12 @@ steps:
 
   count:
     run: ../tools/cellranger_count.cwl
-    scatter: [fastqs]
+    scatter: [fastqs, sample_names]
+    scatterMethod: dotproduct
     in:
       run_id: output_basename
       fastqs: fastqs_tar
-      sample_name: sample_name
+      sample_name: sample_names
       reference: reference
       return_h5: count_h5_output
     out: [filtered_matrix_out, raw_matrix_out, bam, output_summary, molecule_info]
@@ -79,12 +82,12 @@ steps:
   seurat:
     run: ../tools/seurat.cwl
     in:
-      name: sample_name
+      name: output_basename
       scRNA_cts_tar: aggr/filtered_matrix_out
-      output_basename: output_basename 
-      min_features: seurat_min_features 
+      output_basename: output_basename
+      min_features: seurat_min_features
       max_features: seurat_max_features
-      max_mt: seurat_max_mt 
+      max_mt: seurat_max_mt
       norm_method: seurat_norm_method
       retain_features: seurat_retain_features
       nheatmap: seurat_nheatmap
