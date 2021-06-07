@@ -72,3 +72,7 @@ outputs:
     outputBinding:
       glob: $(inputs.run_id)/outs/$(inputs.run_id).$(inputs.sample_name).molecule_info.h5
     doc: "Molecule info file, used by cellranger aggr"
+  analysis:
+    type: Directory
+    outputBinding:
+      glob: $(inputs.run_id)/outs/analysis
