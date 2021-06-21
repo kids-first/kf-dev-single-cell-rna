@@ -6,9 +6,9 @@
 #install packages if not installed.
 list.of.packages <- c("optparse")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-if(length(new.packages)) suppressMessages(install.packages(new.packages))
+if(length(new.packages)) suppressMessages(install.packages(new.packages, "."))
 
-suppressMessages(library(optparse))
+suppressMessages(library(optparse, lib.loc = "."))
 suppressMessages(library(patchwork))
 suppressMessages(library(dplyr))
 suppressMessages(library(Seurat))
@@ -18,43 +18,90 @@ suppressMessages(library(Seurat))
 
 save_plot <- function(cmd, name) {
   #function to take in a command and a basename and output a plot file
-  print(name)
   plot_file <- file.path(out_dir, paste0(name, ".png"))
   png(filename = plot_file, width = plot_size, height = plot_size)
   eval(parse(text = cmd))
 }
 
-#proccess inputs
+#process inputs
 option_list <- list(
   make_option(
     opt_str = "--size",
     default = 500,
     type = "numeric",
-    help = "Size for plots.",
+    help = "Size for plots",
   ),
   make_option(
     opt_str = "--name",
     default = "test",
     type = "character",
-    help = "Project name."
+    help = "Project name"
   ),
   make_option(
     opt_str = "--out_size",
     default = 20,
     type = "numeric",
-    help = "Number of genes to include in the cluster output file."
+    help = "Number of genes to include in the cluster output file"
   ),
   make_option(
     opt_str = "--data",
     default = file.path(getwd(), "data"),
     type = "character",
-    help = "Input data directory."
+    help = "Input data directory"
   ),
   make_option(
     opt_str = "--out",
     default = file.path(getwd(), "out"),
     type = "character",
-    help = "Output directory path."
+    help = "Output directory path"
+  ),
+  make_option(
+    opt_str = "--min_features",
+    default = 200,
+    type = "numeric",
+    help = "Minimum number of genes observed in a cell to retain"
+  ),
+  make_option(
+    opt_str = "--max_features",
+    default = 2500,
+    type = "numeric",
+    help = "Maximum number of genes observed in a cell to retain"
+  ),
+  make_option(
+    opt_str = "--max_mt",
+    default = 5,
+    type = "numeric",
+    help = "Maximum mitochondrial percentage observed in a cell to retain"
+  ),
+  make_option(
+    opt_str = "--norm_method",
+    default = "LogNormalize",
+    type = "character",
+    help = "Normalization to apply to counts (LogNormalize, CLR, RC)"
+  ),
+  make_option(
+    opt_str = "--retain_features",
+    default = 2000,
+    type = "numeric",
+    help = "Number of most-variable features to initially retain"
+  ),
+  make_option(
+    opt_str = "--nheatmap",
+    default = 10,
+    type = "numeric",
+    help = "Number of principal components for which to produce heatmaps"
+  ),
+  make_option(
+    opt_str = "--num_pcs",
+    default = 10,
+    type = "numeric",
+    help = "Number of principal components to retain for clustering"
+  ),
+  make_option(
+    opt_str = "--knn_granularity",
+    default = 0.5,
+    type = "numeric",
+    help = "KNN clustering granularity parameter"
   )
 )
 
@@ -65,6 +112,14 @@ clust_size <- opts$out_size
 data_dir <- file.path(opts$data)
 out_dir <- file.path(opts$out)
 project_name <- opts$name
+min_features <- opts$min_features
+max_features <- opts$max_features
+max_mt <- opts$max_mt
+norm_method <- opts$norm_method
+retain_features <- opts$retain_features
+nheatmap <- opts$nheatmap
+num_pcs <- opts$num_pcs
+knn_granularity <- opts$knn_granularity
 
 #make output directory
 dir.create(out_dir, recursive = "true")
@@ -78,7 +133,6 @@ analysis <- CreateSeuratObject(counts = analysis.data, project = project_name,
 #calculate % MT reads
 analysis[["percent.mt"]] <- PercentageFeatureSet(analysis, pattern = "^MT-")
 
-
 #Visualize QC metrics as a violin plot
 name <- "qc_violin"
 cmd <- 'VlnPlot(analysis, features = c("nFeature_RNA", "nCount_RNA",
@@ -86,16 +140,16 @@ cmd <- 'VlnPlot(analysis, features = c("nFeature_RNA", "nCount_RNA",
 save_plot(cmd, name)
 
 #subset data with desired options
-analysis <- subset(analysis, subset = nFeature_RNA > 200 & nFeature_RNA < 2500
-  & percent.mt < 20)
+analysis <- subset(analysis, subset = nFeature_RNA > min_features & nFeature_RNA < max_features
+  & percent.mt < max_mt)
 
 #normalize data with selected type and scale factor
-analysis <- NormalizeData(analysis, normalization.method = "LogNormalize",
+analysis <- NormalizeData(analysis, normalization.method = norm_method,
   scale.factor = 10000)
 
 #identify highly variable genes
 analysis <- FindVariableFeatures(analysis, selection.method = "vst",
-  nfeatures = 2000)
+  nfeatures = retain_features)
 
 # Identify the 10 most highly variable genes
 top10 <- head(VariableFeatures(analysis), 10)
@@ -126,7 +180,7 @@ sink()
 
 #create a heat map for the first 10 PCs
 name <- "heat_map"
-cmd <- 'DimHeatmap(analysis, dims = 1:10, cells = 500, balanced = TRUE)'
+cmd <- 'DimHeatmap(analysis, dims = 1:nheatmap, cells = 500, balanced = TRUE)'
 save_plot(cmd, name)
 
 #create an elbow plot for PCA
@@ -135,11 +189,11 @@ cmd <- 'ElbowPlot(analysis)'
 save_plot(cmd, name)
 
 ##clustering
-analysis <- FindNeighbors(analysis, dims = 1:10)
-analysis <- FindClusters(analysis, resolution = 0.5)
+analysis <- FindNeighbors(analysis, dims = 1:num_pcs)
+analysis <- FindClusters(analysis, resolution = knn_granularity)
 
 #run UMAP
-analysis <- RunUMAP(analysis, dims = 1:10)
+analysis <- RunUMAP(analysis, dims = 1:num_pcs)
 
 #plot UMAP
 name <- "umap"
@@ -156,7 +210,6 @@ file <- file.path(out_dir, paste0("cluster_markers", ".txt"))
 cluster_markers <- analysis.markers %>% group_by(cluster) %>% top_n(n =
   clust_size, wt = avg_logFC)
 write.csv(cluster_markers, file = file)
-#print(cluster_markers)
 
 #the next few steps are just examples
 #eventually, we'll have to figure out what we would want
