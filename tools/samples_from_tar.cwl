@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: samples_from_tar
 doc: "Take a tarball with fastq files and create array of fastq1s, fastq2s, and sample names."
@@ -24,7 +24,7 @@ arguments:
 
 inputs:
   tar_file: {type: 'File', doc: "Tarball file with fastqs"}
-  paired: {type: boolean?, inputBinding: {position: 1, prefix: -p}, doc: "Flag for paired samples"}
+  paired: {type: "boolean?", inputBinding: {position: 1, prefix: -p}, doc: "Flag for paired samples"}
 
 outputs:
   fastq1s:

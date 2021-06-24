@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: merge_rnaseqc_results
 doc: "Merge RNAseQC metrics files into one TSV file"

@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: hisat2_align
 doc: "Run HISAT2 alignment"
@@ -50,10 +50,10 @@ arguments:
 inputs:
   reference: {type: File, doc: "tarball of reference files"}
   fastq1: {type: File, doc: "gzipped read 1 fq file"}
-  fastq2: {type: File?, doc: "gzipped read 2 fq file"}
+  fastq2: {type: "File?", doc: "gzipped read 2 fq file"}
   output_basename: {type: string, doc: "Output file basename"}
   input_id: {type: string, doc: "Sample name"}
-  strict: {type: boolean?, doc: "Flag to use a stricter alignment to make input bam for RSEM"}
+  strict: {type: "boolean?", doc: "Flag to use a stricter alignment to make input bam for RSEM"}
   ram: {type: ['null', int], default: 16, doc: "In GB"}
   cpus: {type: ['null', int], default: 4, doc: "Number of CPUs to request"}
 

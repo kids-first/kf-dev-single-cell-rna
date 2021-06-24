@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: Workflow
 id: kf_singe_cell_ss2
 label: Kids First DRC single cell RNA Smart Seq 2 Workflow
@@ -24,12 +24,12 @@ inputs:
   input_tar: {type: 'File', doc: "Tarball with fastq files in a single base directory"}
   hisat_genome_ref: {type: 'File', doc: "Hisat 2 genome reference"}
   hisat_trans_ref: {type: 'File', doc: "Hisat 2 transcriptome reference"}
-  rnaseqc_gtf: {type: 'File', doc: "gtf file used by RNAseQC", sbg:suggestedValue: {class: 'File', path: '5d8bb21fe4b0950c4028f852', name: 'gencode.v27.primary_assembly.RNAseQC.gtf'}}
-  rsem_reference: {type: 'File', doc: "RSEM reference file", sbg:suggestedValue: {class: 'File', path: '5d8bb21fe4b0950c4028f851', name: 'RSEM_GENCODE27.tar.gz'}}
+  rnaseqc_gtf: {type: "File", doc: "gtf file used by RNAseQC", "sbg:suggestedValue": {class: 'File', path: '5d8bb21fe4b0950c4028f852', name: 'gencode.v27.primary_assembly.RNAseQC.gtf'}}
+  rsem_reference: {type: "File", doc: "RSEM reference file", "sbg:suggestedValue": {class: 'File', path: '5d8bb21fe4b0950c4028f851', name: 'RSEM_GENCODE27.tar.gz'}}
   cpus: { type: 'int?', default: 4, doc: "CPUs to allocate to call task"}
   ram: { type: 'int?', default: 8, doc: "RAM to allocate to call task in gb"}
   wf_strand_param: {type: [{type: enum, name: wf_strand_param, symbols: ["default", "rf-stranded", "fr-stranded"]}], doc: "use 'default' for unstranded/auto, 'rf-stranded' if read1 in the fastq read pairs is reverse complement to the transcript, 'fr-stranded' if read1 same sense as transcript"}
-  paired: {type: boolean?, default: False, doc: "Flag for paired data, separate from wf_strand_param which describes the orientation of paired data [False]"}
+  paired: {type: 'boolean?', default: False, doc: "Flag for paired data, separate from wf_strand_param which describes the orientation of paired data [False]"}
 
 outputs:
   matrix_loom: {type: 'File', outputSource: merge_looms/output_file}

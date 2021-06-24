@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: ExpressionTool
 id: build_samples_array
 doc: "Turn a file with sample names into an array of strings."

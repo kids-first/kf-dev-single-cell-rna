@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: ExpressionTool
 id: build_fastq2_array
 doc: "If the fastq2 parameter isn't given, build an array of nulls that are the same length as the fastq1s input."

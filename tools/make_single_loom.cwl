@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: make_single_loom
 doc: "Create a single sample loom file from the rsem gene output."
