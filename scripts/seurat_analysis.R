@@ -5,17 +5,15 @@
 
 #install packages if not installed.
 list.of.packages <- c("optparse")
-new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-if(length(new.packages)) suppressMessages(install.packages(new.packages, "."))
+new.packages <- list.of.packages[!(list.of.packages %in%
+  installed.packages()[,"Package"])]
+if (length(new.packages)) suppressMessages(install.packages(new.packages, "."))
 
 suppressMessages(library(optparse, lib.loc = "."))
 suppressMessages(library("tools"))
 suppressMessages(library(patchwork))
 suppressMessages(library(dplyr))
 suppressMessages(library(Seurat))
-
-#command to check number of features(genes) and cells in seurat object
-#dim(GetAssayData(analysis))
 
 save_plot <- function(cmd, name) {
   #function to take in a command and a basename and output a plot file
@@ -127,10 +125,11 @@ dir.create(out_dir, recursive = "true")
 
 ##load data
 ext <- file_ext(data_file)
-if (ext == "gz" | ext == "tgz"){
+if (ext == "gz" | ext == "tgz") {
   print("using tar file")
   untar(tarfile = data_file, exdir = "./input_matrix")
-  analysis.data <- Read10X(data.dir = "./input_matrix")
+  analysis.data <- Read10X(data.dir = paste("./input_matrix",
+    list.files("./input_matrix")[1], sep = "/"))
   analysis <- CreateSeuratObject(counts = analysis.data, project = project_name,
     min.cells = 3, min.features = 200)
 } else if (ext == "h5") {
@@ -151,13 +150,13 @@ analysis[["percent.mt"]] <- PercentageFeatureSet(analysis, pattern = "^MT-")
 
 #Visualize QC metrics as a violin plot
 name <- "qc_violin"
-cmd <- 'VlnPlot(analysis, features = c("nFeature_RNA", "nCount_RNA",
-  "percent.mt"), ncol = 3)'
+cmd <- "VlnPlot(analysis, features = c(\"nFeature_RNA\", \"nCount_RNA\",
+  \"percent.mt\"), ncol = 3)"
 save_plot(cmd, name)
 
 #subset data with desired options
-analysis <- subset(analysis, subset = nFeature_RNA > min_features & nFeature_RNA < max_features
-  & percent.mt < max_mt)
+analysis <- subset(analysis, subset = nFeature_RNA > min_features &
+  nFeature_RNA < max_features & percent.mt < max_mt)
 
 #normalize data with selected type and scale factor
 analysis <- NormalizeData(analysis, normalization.method = norm_method,
@@ -174,7 +173,7 @@ top10 <- head(VariableFeatures(analysis), 10)
 plot1 <- VariableFeaturePlot(analysis)
 plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE)
 name <- "features"
-cmd <- 'plot2'
+cmd <- "plot2"
 save_plot(cmd, name)
 
 ##pca
@@ -196,12 +195,12 @@ sink()
 
 #create a heat map for the first 10 PCs
 name <- "heat_map"
-cmd <- 'DimHeatmap(analysis, dims = 1:nheatmap, cells = 500, balanced = TRUE)'
+cmd <- "DimHeatmap(analysis, dims = 1:nheatmap, cells = 500, balanced = TRUE)"
 save_plot(cmd, name)
 
 #create an elbow plot for PCA
 name <- "elbow"
-cmd <- 'ElbowPlot(analysis)'
+cmd <- "ElbowPlot(analysis)"
 save_plot(cmd, name)
 
 ##clustering
@@ -213,27 +212,31 @@ analysis <- RunUMAP(analysis, dims = 1:num_pcs)
 
 #plot UMAP
 name <- "umap"
-cmd <- 'DimPlot(analysis, reduction = "umap")'
+cmd <- "DimPlot(analysis, reduction = \"umap\")"
 save_plot(cmd, name)
 
 #could also run tSNE at this point
 
 ##differential expression
-#find markers for every cluster compared to all remaining cells, report only the positive ones
+#find markers for every cluster compared to all remaining cells,
+#report only the positive ones
 analysis.markers <- FindAllMarkers(analysis, only.pos = TRUE, min.pct = 0.25,
   logfc.threshold = 0.25)
 file <- file.path(out_dir, paste0("cluster_markers", ".txt"))
-cluster_markers <- analysis.markers %>% group_by(cluster) %>% top_n(n =
-  clust_size, wt = avg_logFC)
+cluster_markers <- analysis.markers %>%
+  group_by(cluster) %>%
+  top_n(n = clust_size, wt = avg_logFC)
 write.csv(cluster_markers, file = file)
 
 #the next few steps are just examples
 #eventually, we'll have to figure out what we would want
 
 #generate a heat map of the top 10 markers
-top10 <- analysis.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_logFC)
+top10 <- analysis.markers %>%
+  group_by(cluster) %>%
+  top_n(n = 10, wt = avg_logFC)
 name <- "cluster_heat"
-cmd <- 'DoHeatmap(analysis, features = top10$gene) + NoLegend()'
+cmd <- "DoHeatmap(analysis, features = top10$gene) + NoLegend()"
 save_plot(cmd, name)
 
 ##save data object
