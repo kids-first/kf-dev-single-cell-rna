@@ -44,7 +44,7 @@ option_list <- list(
   ),
   make_option(
     opt_str = "--data",
-    default = file.path(getwd(), "data"),
+    default = file.path(getwd(), "data.rds"),
     type = "character",
     help = "Input data file"
   ),
