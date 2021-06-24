@@ -9,6 +9,7 @@ new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"
 if(length(new.packages)) suppressMessages(install.packages(new.packages, "."))
 
 suppressMessages(library(optparse, lib.loc = "."))
+suppressMessages(library("tools"))
 suppressMessages(library(patchwork))
 suppressMessages(library(dplyr))
 suppressMessages(library(Seurat))
@@ -47,7 +48,7 @@ option_list <- list(
     opt_str = "--data",
     default = file.path(getwd(), "data"),
     type = "character",
-    help = "Input data directory"
+    help = "Input data file"
   ),
   make_option(
     opt_str = "--out",
@@ -109,7 +110,7 @@ option_list <- list(
 opts <- parse_args(OptionParser(option_list = option_list))
 plot_size <- opts$size
 clust_size <- opts$out_size
-data_dir <- file.path(opts$data)
+data_file <- file.path(opts$data)
 out_dir <- file.path(opts$out)
 project_name <- opts$name
 min_features <- opts$min_features
@@ -125,9 +126,24 @@ knn_granularity <- opts$knn_granularity
 dir.create(out_dir, recursive = "true")
 
 ##load data
-analysis.data <- Read10X(data.dir = data_dir)
-analysis <- CreateSeuratObject(counts = analysis.data, project = project_name,
-  min.cells = 3, min.features = 200)
+ext <- file_ext(data_file)
+if (ext == "gz" | ext == "tgz"){
+  print("using tar file")
+  untar(tarfile = data_file, exdir = "./input_matrix")
+  analysis.data <- Read10X(data.dir = "./input_matrix")
+  analysis <- CreateSeuratObject(counts = analysis.data, project = project_name,
+    min.cells = 3, min.features = 200)
+} else if (ext == "h5") {
+  print("using h5 file")
+  analysis.data <- Read10X_h5(data_file)
+  analysis <- CreateSeuratObject(counts = analysis.data, project = project_name,
+    min.cells = 3, min.features = 200)
+} else if (ext == "rds") {
+  print("using rds file")
+  analysis <- readRDS(file = data_file)
+} else {
+  stop("Unrecognized input file type")
+}
 
 ##preprocess / qc
 #calculate % MT reads

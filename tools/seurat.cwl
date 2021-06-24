@@ -14,14 +14,13 @@ requirements:
         entry:
           $include: ../scripts/seurat_analysis.R
 
-baseCommand: [tar, -xaf]
+baseCommand: [Rscript]
 
 arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-     $(inputs.scRNA_cts_tar.path)
-     && Rscript seurat_analysis.R --data $(inputs.scRNA_cts_tar.nameroot.split('.')[0]) --out $(inputs.output_basename)
+     seurat_analysis.R --data $(inputs.input_data.path) --out $(inputs.output_basename)
      --min_features $(inputs.min_features) --max_features $(inputs.max_features) --max_mt $(inputs.max_mt)
      --norm_method $(inputs.norm_method) --retain_features $(inputs.retain_features) --nheatmap $(inputs.nheatmap)
      --num_pcs $(inputs.num_pcs) --knn_granularity $(inputs.knn_granularity)
@@ -52,19 +51,19 @@ arguments:
      && tar -czf $(inputs.output_basename).tar.gz $(inputs.output_basename)
 
 inputs:
-  size: {type: int?, default: 500, doc: "Plot size, plot area will be a square with side length of size"}
-  name: {type: string?, doc: "Project string, used internally by Seurat"}
-  out_size: {type: int?, doc: "Number of genes to include in the cluster output file."}
-  scRNA_cts_tar: {type: File, doc: "tarball of input data, folder must contain three files: barcodes.tsv.gz, features.tsv.gz, and matrix.mtx.gz these files are the output of cellranger"}
+  size: {type: "int?", default: 500, doc: "Plot size, plot area will be a square with side length of size"}
+  name: {type: "string?", doc: "Project name, used internally by Seurat"}
+  out_size: {type: "int?", doc: "Number of genes to include in the cluster output file."}
+  input_data: {type: File, doc: "Input data, can be matrix tarball, cellragner h5, or Seurat object rds file"}
   output_basename: {type: string, doc: "name of output directory"}
-  min_features: {type: int?, default: 200, doc: "Minimum number of genes observed in a cell to retain"}
-  max_features: {type: int?, default: 2500, doc: "Maximum number of genes observed in a cell to retain"}
-  max_mt: {type: int?, default: 5, doc: "Maximum mitochondrial percentage observed in a cell to retain"}
-  norm_method: {type: string?, default: "LogNormalize", doc: "Normalization to apply to counts (LogNormalize, CLR, RC)"}
-  retain_features: {type: int?, default: 2000, doc: "Number of most-variable features to initially retain"}
-  nheatmap: {type: int?, default: 10, doc: "Number of principal components for which to produce heatmaps"}
-  num_pcs: {type: int?, default: 10, doc: "Number of principal components to retain for clustering"}
-  knn_granularity: {type: float?, default: 0.5, doc: "KNN clustering granularity parameter"}
+  min_features: {type: "int?", default: 200, doc: "Minimum number of genes observed in a cell to retain"}
+  max_features: {type: "int?", default: 2500, doc: "Maximum number of genes observed in a cell to retain"}
+  max_mt: {type: "int?", default: 5, doc: "Maximum mitochondrial percentage observed in a cell to retain"}
+  norm_method: {type: "string?", default: "LogNormalize", doc: "Normalization to apply to counts (LogNormalize, CLR, RC)"}
+  retain_features: {type: "int?", default: 2000, doc: "Number of most-variable features to initially retain"}
+  nheatmap: {type: "int?", default: 10, doc: "Number of principal components for which to produce heatmaps"}
+  num_pcs: {type: "int?", default: 10, doc: "Number of principal components to retain for clustering"}
+  knn_granularity: {type: "float?", default: 0.5, doc: "KNN clustering granularity parameter"}
 
 outputs:
   tarball:
