@@ -65,6 +65,7 @@ steps:
     in:
       count_dir:
         source: count/filtered_matrix_out
-        valueFrom: '$(self.dirname)'
+        valueFrom: |
+          ${return {class: Directory, listing: [self.dirname]}}
       sample_name: sample_name
     out: [decontaminated_matrix]
