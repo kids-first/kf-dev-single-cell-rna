@@ -8,7 +8,7 @@ doc: >-
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'r-base:4.1.0'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/soupx_r:4.1.0_SoupX'
   - class: InlineJavascriptRequirement
   - class: InitialWorkDirRequirement
     listing:
@@ -22,7 +22,7 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      run_soupX.R --countmaxtrixdir $(inputs.count_dir) --sample_name $(inputs.sample_name) --out $(inputs.count_dir)
+      run_soupX.R --countmatrixdir $(inputs.count_dir.path) --sample_name $(inputs.sample_name)
 
 inputs:
   count_dir:
