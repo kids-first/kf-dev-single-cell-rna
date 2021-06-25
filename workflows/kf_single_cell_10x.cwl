@@ -56,16 +56,13 @@ steps:
       sample_name: sample_name
       reference: reference
       return_h5: count_h5_output
-    out: [filtered_matrix_out, raw_matrix_out, bam, output_summary, molecule_info, analysis]
+    out: [filtered_matrix_out, raw_matrix_out, bam, output_summary, molecule_info, whole_output_dir]
 
   soupx:
     run: ../tools/soupx.cwl
     scatter: [count_dir, sample_name]
     scatterMethod: dotproduct
     in:
-      count_dir:
-        source: count/filtered_matrix_out
-        valueFrom: |
-          ${return {class: Directory, listing: [self.dirname]}}
+      count_dir: count/whole_output_dir
       sample_name: sample_name
     out: [decontaminated_matrix]
