@@ -28,13 +28,15 @@ arguments:
        cmd += "mv " + inputs.run_id + "/outs/possorted_genome_bam.bam " + sp + ".bam && ";
        if (inputs.return_h5){
          cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix.h5 " + sp + ".filtered_feature_bc_matrix.h5 && ";
-         cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix.h5 " + sp + ".raw_feature_bc_matrix.h5 ";
+         cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix.h5 " + sp + ".raw_feature_bc_matrix.h5";
        }
        else {
-         cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix " + sp + ".filtered_feature_bc_matrix && ";
-         cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix " + sp + ".raw_feature_bc_matrix && ";
-         cmd += "tar -czf " + sp + ".filtered_feature_bc_matrix.tar.gz " + sp + ".filtered_feature_bc_matrix && ";
-         cmd += "tar -czf " + sp + ".raw_feature_bc_matrix.tar.gz " + sp + ".raw_feature_bc_matrix";
+         cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix " + inputs.run_id + "/outs/raw_gene_bc_matrices && ";
+         cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix " + inputs.run_id + "/outs/filtered_gene_bc_matrices && ";
+         cmd += "mkdir " + inputs.run_id + "/outs/filtered_gene_bc_matrices/" + "GRCh38 && ";
+         cmd += "mkdir " + inputs.run_id + "/outs/raw_gene_bc_matrices/" + "GRCh38 && ";     
+         cmd += "mv " + inputs.run_id + "/outs/filtered_gene_bc_matrices/*.gz " + inputs.run_id + "/outs/filtered_gene_bc_matrices/" + "GRCh38/ && ";
+         cmd += "mv " + inputs.run_id + "/outs/raw_gene_bc_matrices/*.gz " + inputs.run_id + "/outs/raw_gene_bc_matrices/" + "GRCh38/";
        }
        return cmd;
      }
