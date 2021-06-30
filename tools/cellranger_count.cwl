@@ -36,7 +36,11 @@ arguments:
          cmd += "mkdir " + inputs.run_id + "/outs/filtered_gene_bc_matrices/" + "GRCh38 && ";
          cmd += "mkdir " + inputs.run_id + "/outs/raw_gene_bc_matrices/" + "GRCh38 && ";     
          cmd += "mv " + inputs.run_id + "/outs/filtered_gene_bc_matrices/*.gz " + inputs.run_id + "/outs/filtered_gene_bc_matrices/" + "GRCh38/ && ";
-         cmd += "mv " + inputs.run_id + "/outs/raw_gene_bc_matrices/*.gz " + inputs.run_id + "/outs/raw_gene_bc_matrices/" + "GRCh38/";
+         cmd += "mv " + inputs.run_id + "/outs/raw_gene_bc_matrices/*.gz " + inputs.run_id + "/outs/raw_gene_bc_matrices/" + "GRCh38/ && ";
+         cmd += "cp -r " + inputs.run_id + "/outs/filtered_gene_bc_matrices " + sp + ".filtered_feature_bc_matrix && ";
+         cmd += "cp -r  " + inputs.run_id + "/outs/raw_gene_bc_matrices " + sp + ".raw_feature_bc_matrix && ";
+         cmd += "tar -czf " + sp + ".filtered_feature_bc_matrix.tar.gz " + sp + ".filtered_feature_bc_matrix && ";
+         cmd += "tar -czf " + sp + ".raw_feature_bc_matrix.tar.gz " + sp + ".raw_feature_bc_matrix";
        }
        return cmd;
      }
