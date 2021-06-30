@@ -6,7 +6,7 @@ doc: "Run cellranger aggr on a set of molecule_info files"
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/cellranger:5.0'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/cellranger:6.0'
   - class: ResourceRequirement
     ramMin: ${return inputs.ram * 1000}
     coresMin: $(inputs.cpus)
