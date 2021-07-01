@@ -10,8 +10,6 @@ print(new.packages)
 if(length(new.packages)) suppressMessages(install.packages(new.packages, repos='http://cran.us.r-project.org'))
 
 suppressMessages(library(optparse))
-#suppressMessages(library(patchwork))
-#suppressMessages(library(dplyr))
 suppressMessages(library(SoupX))
 
 #proccess inputs
@@ -35,10 +33,6 @@ sample_name <- opts$sample_name
 
 # load 10X data
 sc <- load10X(countmatrixdir)
-
-# set clusters
-# data(PBMC_metaData)
-# sc = setClusters(sc, setNames(PBMC_metaData$Cluster, rownames(PBMC_metaData)))
 
 # estimate contamination fraction rho
 sc = autoEstCont(sc)
