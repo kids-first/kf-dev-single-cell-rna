@@ -54,7 +54,6 @@ steps:
       fastqs: fastqs_tar
       sample_name: sample_name
       reference: reference
-      return_h5: count_h5_output
     out: [filtered_matrix_out, raw_matrix_out, bam, output_summary, molecule_info, whole_output_dir]
 
   soupx:
