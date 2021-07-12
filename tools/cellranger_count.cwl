@@ -6,7 +6,7 @@ doc: "Run cellranger count on a set of fastq files"
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'kfdrc/cellranger:3.1.0'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/cellranger:6.0'
   - class: ResourceRequirement
     ramMin: 20000
     coresMin: 16
@@ -28,11 +28,17 @@ arguments:
        cmd += "mv " + inputs.run_id + "/outs/possorted_genome_bam.bam " + sp + ".bam && ";
        if (inputs.return_h5){
          cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix.h5 " + sp + ".filtered_feature_bc_matrix.h5 && ";
-         cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix.h5 " + sp + ".raw_feature_bc_matrix.h5 ";
+         cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix.h5 " + sp + ".raw_feature_bc_matrix.h5";
        }
        else {
-         cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix " + sp + ".filtered_feature_bc_matrix && ";
-         cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix " + sp + ".raw_feature_bc_matrix && ";
+         cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix " + inputs.run_id + "/outs/raw_gene_bc_matrices && ";
+         cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix " + inputs.run_id + "/outs/filtered_gene_bc_matrices && ";
+         cmd += "mkdir " + inputs.run_id + "/outs/filtered_gene_bc_matrices/" + "GRCh38 && ";
+         cmd += "mkdir " + inputs.run_id + "/outs/raw_gene_bc_matrices/" + "GRCh38 && ";     
+         cmd += "mv " + inputs.run_id + "/outs/filtered_gene_bc_matrices/*.gz " + inputs.run_id + "/outs/filtered_gene_bc_matrices/" + "GRCh38/ && ";
+         cmd += "mv " + inputs.run_id + "/outs/raw_gene_bc_matrices/*.gz " + inputs.run_id + "/outs/raw_gene_bc_matrices/" + "GRCh38/ && ";
+         cmd += "cp -r " + inputs.run_id + "/outs/filtered_gene_bc_matrices " + sp + ".filtered_feature_bc_matrix && ";
+         cmd += "cp -r  " + inputs.run_id + "/outs/raw_gene_bc_matrices " + sp + ".raw_feature_bc_matrix && ";
          cmd += "tar -czf " + sp + ".filtered_feature_bc_matrix.tar.gz " + sp + ".filtered_feature_bc_matrix && ";
          cmd += "tar -czf " + sp + ".raw_feature_bc_matrix.tar.gz " + sp + ".raw_feature_bc_matrix";
        }
@@ -72,3 +78,7 @@ outputs:
     outputBinding:
       glob: $(inputs.run_id)/outs/$(inputs.run_id).$(inputs.sample_name).molecule_info.h5
     doc: "Molecule info file, used by cellranger aggr"
+  whole_output_dir:
+    type: Directory
+    outputBinding:
+      glob: $(inputs.run_id)/outs
