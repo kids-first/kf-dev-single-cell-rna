@@ -23,7 +23,7 @@ arguments:
      seurat_analysis.R --data $(inputs.input_data.path) --out $(inputs.output_basename)
      --min_features $(inputs.min_features) --max_features $(inputs.max_features) --max_mt $(inputs.max_mt)
      --norm_method $(inputs.norm_method) --retain_features $(inputs.retain_features) --nheatmap $(inputs.nheatmap)
-     --num_pcs $(inputs.num_pcs) --knn_granularity $(inputs.knn_granularity)
+     --num_pcs $(inputs.num_pcs) --knn_granularity $(inputs.knn_granularity) --pc_cut $(inputs.pc_cut)
      ${
        if (inputs.name != null){
          return "--name " + inputs.name;
@@ -63,6 +63,7 @@ inputs:
   retain_features: {type: "int?", default: 2000, doc: "Number of most-variable features to initially retain"}
   nheatmap: {type: "int?", default: 10, doc: "Number of principal components for which to produce heatmaps"}
   num_pcs: {type: "int?", default: 10, doc: "Number of principal components to retain for clustering"}
+  pc_cut: {type: "float?", default: 0.05, doc: "p-value cutoff for determing the number of prinicipal components to retrain for clustering"}
   knn_granularity: {type: "float?", default: 0.5, doc: "KNN clustering granularity parameter"}
 
 outputs:
