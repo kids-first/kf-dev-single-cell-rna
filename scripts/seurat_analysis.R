@@ -94,7 +94,13 @@ option_list <- list(
     opt_str = "--num_pcs",
     default = 10,
     type = "numeric",
-    help = "Number of principal components to retain for clustering"
+    help = "Minimum number of principal components to retain for clustering"
+  ),
+  make_option(
+    opt_str = "--pc_cut",
+    default = 0.05,
+    type = "numeric",
+    help = "p-value cutoff for determing the number of prinicipal components to retain for clustering"
   ),
   make_option(
     opt_str = "--knn_granularity",
@@ -118,6 +124,7 @@ norm_method <- opts$norm_method
 retain_features <- opts$retain_features
 nheatmap <- opts$nheatmap
 num_pcs <- opts$num_pcs
+pc_cut <- opts$pc_cut
 knn_granularity <- opts$knn_granularity
 
 #make output directory
@@ -187,12 +194,6 @@ print("running PCA")
 analysis <- RunPCA(analysis, features = VariableFeatures(object = analysis))
 print("done with PCA")
 
-#output pca summary
-file <- file.path(out_dir, paste0("pca_summary", ".txt"))
-sink(file)
-print(analysis[["pca"]], dims = 1:7, nfeatures = clust_size)
-sink()
-
 #create a heat map for the first 10 PCs
 name <- "heat_map"
 cmd <- "DimHeatmap(analysis, dims = 1:nheatmap, cells = 500, balanced = TRUE)"
@@ -202,6 +203,25 @@ save_plot(cmd, name)
 name <- "elbow"
 cmd <- "ElbowPlot(analysis)"
 save_plot(cmd, name)
+
+#run jackstraw to score pcs
+analysis <- JackStraw(analysis, num.replicate = 100)
+analysis <- ScoreJackStraw(analysis, dims = 1:20)
+
+#determine number of pcs to use for clustering
+scores <- JS(object = analysis[["pca"]], slot = "overall")
+auto_pcs <- length(which(scores[, "Score"] <= pc_cut))
+if (num_pcs < auto_pcs) {
+  num_pcs <- auto_pcs
+}
+
+#output pca summary
+file <- file.path(out_dir, paste0("pca_summary", ".txt"))
+sink(file)
+print(paste("Number of PCs used in clustering:", num_pcs))
+print("PCA Summary")
+print(analysis[["pca"]], dims = 1:7, nfeatures = clust_size)
+sink()
 
 ##clustering
 analysis <- FindNeighbors(analysis, dims = 1:num_pcs)
