@@ -100,7 +100,7 @@ option_list <- list(
     opt_str = "--pc_cut",
     default = 0.05,
     type = "numeric",
-    help = "p-value cutoff for determing the number of prinicipal components to retrain for clustering"
+    help = "p-value cutoff for determing the number of prinicipal components to retain for clustering"
   ),
   make_option(
     opt_str = "--knn_granularity",
