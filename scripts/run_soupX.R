@@ -1,5 +1,4 @@
-# R script to SoupX for removeal of mRNA contamination
-# from single-cell data
+# R script for mRNA decontamination of 10X single-cell data using SoupX
 
 options(error = traceback)
 
@@ -12,7 +11,7 @@ if(length(new.packages)) suppressMessages(install.packages(new.packages, repos='
 suppressMessages(library(optparse))
 suppressMessages(library(SoupX))
 
-#proccess inputs
+#process inputs
 option_list <- list(
   make_option(
     opt_str = "--countmatrixdir",
