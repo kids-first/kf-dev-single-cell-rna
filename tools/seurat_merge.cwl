@@ -21,7 +21,7 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      seurat_merge.R --matrix_files ${var name_string = ""; for (var i=0; i<inputs.matrix_rds_files.length-1; i++){name_string += inputs.matrix_rds_files[i].path+","} name_string += inputs.matrix_rds_files[inputs.matrix_rds_files.length-1].path; return name_string} --output_name $(inputs.output_name)
+      seurat_merge.R --matrix_files $(inputs.matrix_rds_files.map(function(i){return i.path}).join()) --output_name $(inputs.output_name)
 
 inputs:
   matrix_rds_files:
