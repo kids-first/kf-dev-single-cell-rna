@@ -35,7 +35,7 @@ requirements:
 inputs:
   output_basename: {type: string, doc: "basename used to name output files"}
   fastqs_tar: {type: 'File[]', doc: "tarball(s) of fastqs being run, one from each sample or well"}
-  sample_name: {type: 'string[]', doc: "used as prefix for finding fastqs to analyze"}
+  sample_name: {type: 'string[]', doc: "used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz, one per input fastq in the same order"}
   reference: {type: File, doc: "tarball of reference files"}
 
 outputs:
