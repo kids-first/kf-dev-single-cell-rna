@@ -33,7 +33,7 @@ def parse_args(args):
         required=False
         )
     parser.add_argument(
-        "-g", "--min_cell",
+        "-l", "--min_cell",
         help='Optional, minimum number of cells a gene must be in to be \
         reatained; default 3',
         type = int,
@@ -41,7 +41,7 @@ def parse_args(args):
         required=False
         )
     parser.add_argument(
-        "-v", "--min_gene_variability_pctl",
+        "-g", "--min_gene_variability_pctl",
         help='Optional, Keep the most highly variable genes \
         (in the top min_gene_variability_pctl percentile), as measured by \
         the v-statistic; default 85',
