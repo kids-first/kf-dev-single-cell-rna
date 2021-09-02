@@ -34,7 +34,7 @@ arguments:
          cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix " + inputs.run_id + "/outs/raw_gene_bc_matrices && ";
          cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix " + inputs.run_id + "/outs/filtered_gene_bc_matrices && ";
          cmd += "mkdir " + inputs.run_id + "/outs/filtered_gene_bc_matrices/" + "GRCh38 && ";
-         cmd += "mkdir " + inputs.run_id + "/outs/raw_gene_bc_matrices/" + "GRCh38 && ";     
+         cmd += "mkdir " + inputs.run_id + "/outs/raw_gene_bc_matrices/" + "GRCh38 && ";
          cmd += "mv " + inputs.run_id + "/outs/filtered_gene_bc_matrices/*.gz " + inputs.run_id + "/outs/filtered_gene_bc_matrices/" + "GRCh38/ && ";
          cmd += "mv " + inputs.run_id + "/outs/raw_gene_bc_matrices/*.gz " + inputs.run_id + "/outs/raw_gene_bc_matrices/" + "GRCh38/ && ";
          cmd += "cp -r " + inputs.run_id + "/outs/filtered_gene_bc_matrices " + sp + ".filtered_feature_bc_matrix && ";
@@ -50,7 +50,7 @@ inputs:
   fastqs: {type: File, doc: "set of fastqs being run"}
   sample_name: {type: string, doc: "sample name, used as prefix for finding fastqs to analyze"}
   reference: {type: File, doc: "tarball of reference files"}
-  return_h5: {type: boolean?, doc: "TRUE: return h5 files or FALSE: return tarred matrix directories?"}
+  return_h5: {type: 'boolean?', doc: "TRUE: return h5 files or FALSE: return tarred matrix directories?"}
 
 outputs:
   filtered_matrix_out:
