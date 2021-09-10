@@ -37,11 +37,22 @@ inputs:
   fastqs_tar: {type: 'File[]', doc: "tarball(s) of fastqs being run, one from each sample or well"}
   sample_name: {type: 'string[]', doc: "used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz, one per input fastq in the same order"}
   reference: {type: File, doc: "tarball of reference files"}
+  expected_doublet_rate: {type: 'float?'}
+  doublet_score_threshold: {type: 'float?'}
+  count_min: {type: 'int?'}
+  cell_min: {type: 'int?'}
+  min_gene_variability_pctl: {type: 'int?'}
+  n_prin_comps: {type: 'int?'}
+  ram: {type: 'int?', default: 16, doc: "In GB"}
+  cpus: {type: 'int?', default: 1, doc: "Number of CPUs to request"}
 
 outputs:
   count_summary: {type: 'File[]', outputSource: count/output_summary}
   bam_out: {type: 'File[]', outputSource: count/bam}
   merged_decontam_matrix: {type: 'File', outputSource: merge/merged_matrix}
+  merged_decontam_object: {type: 'File', outputSource: merge/merged_object}
+  filtered_doublet_histogram: {type: 'File[]', outputSource: scrublet/filtered_doublet_histogram}
+  raw_doublet_histogram: {type: 'File[]', outputSource: scrublet/raw_doublet_histogram}
 
 steps:
 
@@ -56,12 +67,28 @@ steps:
       reference: reference
     out: [filtered_matrix_out, raw_matrix_out, bam, output_summary, molecule_info, whole_output_dir]
 
+  scrublet:
+    run: ../subworkflows/scrublet_subwf.cwl
+    scatter: [count_dir]
+    in:
+      count_dir: count/whole_output_dir
+      output_basename: output_basename
+      expected_doublet_rate: expected_doublet_rate
+      doublet_score_threshold: doublet_score_threshold
+      count_min: count_min
+      cell_min: cell_min
+      min_gene_variability_pctl: min_gene_variability_pctl
+      n_prin_comps: n_prin_comps
+      ram: ram
+      cpus: cpus
+    out: [out_dir, filtered_doublet_histogram, raw_doublet_histogram]
+
   soupx:
     run: ../tools/soupx.cwl
     scatter: [count_dir, sample_name]
     scatterMethod: dotproduct
     in:
-      count_dir: count/whole_output_dir
+      count_dir: scrublet/out_dir
       sample_name: sample_name
     out: [decontaminated_matrix]
 
@@ -70,4 +97,4 @@ steps:
     in:
       matrix_rds_files: soupx/decontaminated_matrix
       output_name: output_basename
-    out: [merged_matrix]
+    out: [merged_matrix, merged_object]

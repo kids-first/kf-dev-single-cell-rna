@@ -25,8 +25,8 @@ outputs:
   filtered_matrix:
     type: File
     outputBinding:
-      glob: './filtered_gene_bc_matrices/GRCh38/*.mtx'
+      glob: filtered_gene_bc_matrices/GRCh38/matrix.mtx.gz
   raw_matrix:
     type: File
     outputBinding:
-      glob: './raw_gene_bc_matrices/GRCh38/*.mtx'
+      glob: raw_gene_bc_matrices/GRCh38/matrix.mtx.gz

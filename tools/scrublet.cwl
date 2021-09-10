@@ -45,7 +45,7 @@ outputs:
     outputBinding:
       glob: $(inputs.output_basename).hist.png
     doc: "Histogram of doublet scores"
-  filtered_matrix:
+  doublet_removed_matrix:
     type: File
     outputBinding:
       glob: $(inputs.output_basename).mtx
