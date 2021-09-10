@@ -35,5 +35,10 @@ outputs:
   merged_matrix:
     type: File
     outputBinding:
-      glob: $(inputs.output_name).merged.RDS
+      glob: $(inputs.output_name).merged_matrix.RDS
     doc: "RDS file containing merged count matrix"
+  merged_object:
+    type: File
+    outputBinding:
+      glob: $(inputs.output_name).merged_object.RDS
+    doc: "RDS file containing merged Seurat object"

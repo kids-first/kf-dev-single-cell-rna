@@ -24,7 +24,7 @@ files <- strsplit(opts$matrix_files, ",")[[1]]
 
 objlist = vector()
 namelist = vector()
-for (f in files) 
+for (f in files)
 {
     pathparts <- strsplit(f, '/')[[1]]
     filename = pathparts[length(pathparts)]
@@ -43,7 +43,10 @@ if (length(objlist) == 1) {
     merged_obj <- merge(objlist[[1]], y=objlist[-1], add.cell.ids=namelist, project=opts$output_name)
 }
 
+#export merged matrix and Seurat object
 merged_matrix <- merged_obj[[]]
-output_file <- paste(opts$output_name, '.merged.RDS', sep="")
-
+output_file <- paste(opts$output_name, '.merged_matrix.RDS', sep="")
 saveRDS(merged_matrix, output_file)
+
+output_file <- paste(opts$output_name, '.merged_object.RDS', sep="")
+saveRDS(merged_obj, output_file)

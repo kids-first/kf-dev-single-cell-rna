@@ -3,13 +3,7 @@
 #this should be more manual, but will let us compare
 #the expected data to the actual
 
-#install packages if not installed.
-list.of.packages <- c("optparse")
-new.packages <- list.of.packages[!(list.of.packages %in%
-  installed.packages()[,"Package"])]
-if (length(new.packages)) suppressMessages(install.packages(new.packages, "."))
-
-suppressMessages(library(optparse, lib.loc = "."))
+suppressMessages(library(optparse))
 suppressMessages(library("tools"))
 suppressMessages(library(patchwork))
 suppressMessages(library(dplyr))
@@ -144,7 +138,7 @@ if (ext == "gz" | ext == "tgz") {
   analysis.data <- Read10X_h5(data_file)
   analysis <- CreateSeuratObject(counts = analysis.data, project = project_name,
     min.cells = 3, min.features = 200)
-} else if (ext == "rds") {
+} else if (ext == "rds" | ext == "RDS") {
   print("using rds file")
   analysis <- readRDS(file = data_file)
 } else {
@@ -245,7 +239,7 @@ analysis.markers <- FindAllMarkers(analysis, only.pos = TRUE, min.pct = 0.25,
 file <- file.path(out_dir, paste0("cluster_markers", ".txt"))
 cluster_markers <- analysis.markers %>%
   group_by(cluster) %>%
-  top_n(n = clust_size, wt = avg_logFC)
+  top_n(n = clust_size, wt = avg_log2FC)
 write.csv(cluster_markers, file = file)
 
 #the next few steps are just examples
@@ -254,7 +248,7 @@ write.csv(cluster_markers, file = file)
 #generate a heat map of the top 10 markers
 top10 <- analysis.markers %>%
   group_by(cluster) %>%
-  top_n(n = 10, wt = avg_logFC)
+  top_n(n = 10, wt = avg_log2FC)
 name <- "cluster_heat"
 cmd <- "DoHeatmap(analysis, features = top10$gene) + NoLegend()"
 save_plot(cmd, name)

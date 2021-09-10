@@ -28,4 +28,4 @@ outputs:
   out_dir:
     type: Directory
     outputBinding:
-      glob: './$(inputs.count_dir.basename)'
+      glob: $(inputs.count_dir.basename)
