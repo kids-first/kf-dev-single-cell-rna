@@ -17,7 +17,9 @@ arguments:
     valueFrom: >-
       -r $(inputs.count_dir.path) . &&
       cp $(inputs.raw_matrix.path) $(inputs.count_dir.basename)/raw_gene_bc_matrices/GRCh38/matrix.mtx &&
-      cp $(inputs.filtered_matrix.path) $(inputs.count_dir.basename)/filtered_gene_bc_matrices/GRCh38/matrix.mtx
+      cp $(inputs.filtered_matrix.path) $(inputs.count_dir.basename)/filtered_gene_bc_matrices/GRCh38/matrix.mtx &&
+      gzip --force $(inputs.count_dir.basename)/raw_gene_bc_matrices/GRCh38/matrix.mtx &&
+      gzip --force $(inputs.count_dir.basename)/filtered_gene_bc_matrices/GRCh38/matrix.mtx
 
 inputs:
   count_dir: {type: Directory, doc: "Directory containing raw and filtered mtx files produced by Cell Ranger count"}

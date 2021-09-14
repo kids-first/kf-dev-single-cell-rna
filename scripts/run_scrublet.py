@@ -88,7 +88,7 @@ def main(args):
     mat_file, out_base, edr, score_thresh, counts, cells, variability, pcs \
         = parse_args(args)
 
-    #read inputs
+    #read matrix file
     count_mat = scipy.io.mmread(mat_file).T.tocsc()
 
     #score doublets
@@ -104,16 +104,14 @@ def main(args):
     plt.savefig(hist_file)
 
     #remove doublets from input matrix
-    to_remove = []
+    out_mat = count_mat.tolil()
     for count, value in enumerate(predicted_doublets):
         if value == True:
-            to_remove.append(count)
-    to_keep = list(set(range(count_mat.shape[1]))-set(to_remove))
-    out_mat = count_mat[:,to_keep]
-
-    #write output file
-    out_file = out_base + ".mtx"
-    scipy.io.mmwrite(out_file, out_mat)
+            out_mat[count, :] = 0
+    #write output files
+    mat_out_file = out_base + ".mtx"
+    out_mat = out_mat.transpose()
+    scipy.io.mmwrite(mat_out_file, out_mat)
 
 if __name__ == "__main__":
     # execute only if run as a script
