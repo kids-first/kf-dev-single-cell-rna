@@ -1,8 +1,9 @@
 '''Compare a new study's QC metrics to a set of studies metrics.'''
 import argparse
 import sys
-import scipy.io
 import matplotlib.pyplot as plt
+import pandas as pd
+import scanpy as sc
 import scrublet as scr
 
 def parse_args(args):
@@ -85,33 +86,28 @@ def parse_args(args):
 
 def main(args):
     '''Main, take args, run script.'''
-    mat_file, out_base, edr, score_thresh, counts, cells, variability, pcs \
+    mat_dir, out_base, edr, score_thresh, counts, cells, variability, pcs \
         = parse_args(args)
 
     #read matrix file
-    count_mat = scipy.io.mmread(mat_file).T.tocsc()
+    count_mat = sc.read_10x_mtx(mat_dir, cache=False)
 
     #score doublets
     scrub = scr.Scrublet(count_mat, expected_doublet_rate=edr)
-    scrub.scrub_doublets(min_counts = counts,
+    count_mat.obs['doublet_scores'], count_mat.obs['predicted_doublets'] = \
+        scrub.scrub_doublets(min_counts = counts,
         min_cells = cells, min_gene_variability_pctl = variability,
         n_prin_comps = pcs, use_approx_neighbors = False)
-    predicted_doublets = scrub.call_doublets(threshold=score_thresh)
+    count_mat.obs['predicted_doublets'] = scrub.call_doublets(threshold=score_thresh)
 
     #plot scores histogram
     hist_file = out_base + ".hist.png"
     scrub.plot_histogram()
     plt.savefig(hist_file)
 
-    #remove doublets from input matrix
-    out_mat = count_mat.tolil()
-    for count, value in enumerate(predicted_doublets):
-        if value == True:
-            out_mat[count, :] = 0
-    #write output files
-    mat_out_file = out_base + ".mtx"
-    out_mat = out_mat.transpose()
-    scipy.io.mmwrite(mat_out_file, out_mat)
+    #write output file with doublet scores and predicted doublets
+    score_out_file = out_base + ".csv"
+    pd.DataFrame(count_mat.obs).to_csv(score_out_file)
 
 if __name__ == "__main__":
     # execute only if run as a script

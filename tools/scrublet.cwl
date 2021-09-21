@@ -28,7 +28,7 @@ arguments:
       run_scrublet.py --matrix $(inputs.input_matrix.path) --output $(inputs.output_basename)
 
 inputs:
-  input_matrix: {type: File}
+  input_matrix: {type: Directory}
   output_basename: {type: string, doc: "Output files basename"}
   expected_doublet_rate: {type: 'float?', inputBinding: {prefix: -e}}
   doublet_score_threshold: {type: 'float?', inputBinding: {prefix: -s}}
@@ -45,8 +45,8 @@ outputs:
     outputBinding:
       glob: $(inputs.output_basename).hist.png
     doc: "Histogram of doublet scores"
-  doublet_removed_matrix:
+  doublets_file:
     type: File
     outputBinding:
-      glob: $(inputs.output_basename).mtx
+      glob: $(inputs.output_basename).csv
     doc: "Expression matrix with doublets removed"
