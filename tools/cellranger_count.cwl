@@ -82,3 +82,7 @@ outputs:
     type: Directory
     outputBinding:
       glob: $(inputs.run_id)/outs
+  cluster_file:
+    type: File
+      glob: $(inputs.run_id)/outs/analysis/clustering/graphclust/clusters.csv
+    doc: "Cluster file, will be used by SoupX"

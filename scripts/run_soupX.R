@@ -10,13 +10,25 @@ if(length(new.packages)) suppressMessages(install.packages(new.packages, repos='
 
 suppressMessages(library(optparse))
 suppressMessages(library(SoupX))
+suppressMessages(library(Seurat))
+suppressMessages(library(DropletUtils))
 
 #process inputs
 option_list <- list(
   make_option(
-    opt_str = "--countmatrixdir",
+    opt_str = "--raw",
     type = "character",
-    help = "Path to directory containing raw and filtered matrix outputs from Cell Ranger count"
+    help = "Path to h5 file containing raw matrix from Cell Ranger count"
+  ),
+  make_option(
+    opt_str = "--fil",
+    type = "character",
+    help = "Path to h5 file containing filtered matrix from Cell Ranger count"
+  ),
+  make_option(
+    opt_str = "--cluster",
+    type = "character",
+    help = "Path to csv file containing barcodes and cluster id from Cell Ranger count"
   ),
   make_option(
     opt_str = "--sample_name",
@@ -27,17 +39,23 @@ option_list <- list(
 
 #parse options
 opts <- parse_args(OptionParser(option_list = option_list))
-countmatrixdir <- opts$countmatrixdir
+raw <- opts$raw
+fil <- opts$fil
+clusters_file <- opts$cluster
 sample_name <- opts$sample_name
 
-# load 10X data
-sc <- load10X(countmatrixdir)
+# load 10X data and convert to Soup Channel (object SoupX uses for analysis)
+fil_mat <- Read10X_h5(fil, use.names = T)
+raw_mat <- Read10X_h5(raw, use.names = T)
+clusters <- read.csv(clusters_file)
+mDat <- data.frame(clusters=clusters$Cluster,row.names=clusters$Barcode)
+sc <- SoupChannel(raw_mat, fil_mat, mDat)
 
 # estimate contamination fraction rho
-sc = autoEstCont(sc)
+sc <- autoEstCont(sc)
 
 # clean the data
-out_matrix = adjustCounts(sc)
+out_matrix <- adjustCounts(sc, roundToInt = T)
 
-output_file <- paste(sample_name, '.decontam.RDS', sep="")
-saveRDS(out_matrix, output_file)
+output_dir <- paste(sample_name, '_decontam', sep="")
+DropletUtils:::write10xCounts(output_dir, out_matrix)
