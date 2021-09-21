@@ -64,12 +64,13 @@ steps:
       fastqs: fastqs_tar
       sample_name: sample_name
       reference: reference
-      return_h5: ${return Boolean(true)}
+      return_h5:
+        valueFrom: ${return Boolean(true)}
     out: [filtered_matrix_out, raw_matrix_out, bam, output_summary, molecule_info, whole_output_dir, cluster_file]
 
   soupx:
     run: ../tools/soupx.cwl
-    scatter: [raw_matrix, filtered_matrix, sample_name]
+    scatter: [raw_matrix, filtered_matrix, sample_name, cluster_file]
     scatterMethod: dotproduct
     in:
       raw_matrix: count/raw_matrix_out
@@ -80,7 +81,7 @@ steps:
 
   scrublet:
     run: ../tools/scrublet.cwl
-    scatter: [count_dir, output_basename]
+    scatter: [input_matrix, output_basename]
     scatterMethod: dotproduct
     in:
       input_matrix: soupx/decontaminated_matrix
@@ -93,12 +94,12 @@ steps:
       n_prin_comps: n_prin_comps
       ram: ram
       cpus: cpus
-    out: [doublet_histogram, doublets_file]
+    out: [score_histogram, doublets_file]
 
   merge:
     run: ../tools/seurat_merge.cwl
     in:
-      matrix_rds_files: soupx/decontaminated_matrix
+      matrix_dirs: soupx/decontaminated_matrix
       doublets_files: scrublet/doublets_file
       output_name: output_basename
     out: [merged_matrix, merged_object]

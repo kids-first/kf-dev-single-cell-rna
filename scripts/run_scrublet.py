@@ -91,9 +91,10 @@ def main(args):
 
     #read matrix file
     count_mat = sc.read_10x_mtx(mat_dir, cache=False)
+    count_mat.var_names_make_unique()
 
     #score doublets
-    scrub = scr.Scrublet(count_mat, expected_doublet_rate=edr)
+    scrub = scr.Scrublet(count_mat.X, expected_doublet_rate=edr)
     count_mat.obs['doublet_scores'], count_mat.obs['predicted_doublets'] = \
         scrub.scrub_doublets(min_counts = counts,
         min_cells = cells, min_gene_variability_pctl = variability,

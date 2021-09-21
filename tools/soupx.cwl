@@ -22,8 +22,7 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      run_soupX.R --raw $(inputs.raw_matrix.path) --fil $(inputs.filtered_matrix.path) \
-      --sample_name $(inputs.sample_name) --cluster $(inputs.cluster_file.path)
+      run_soupX.R --raw $(inputs.raw_matrix.path) --fil $(inputs.filtered_matrix.path) --sample_name $(inputs.sample_name) --cluster $(inputs.cluster_file.path)
 
 inputs:
   raw_matrix:
