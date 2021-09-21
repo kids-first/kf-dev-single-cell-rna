@@ -8,9 +8,14 @@ suppressMessages(library(Seurat))
 #process inputs
 option_list <- list(
   make_option(
-    opt_str = "--matrix_files",
+    opt_str = "--matrix_dirs",
     type = "character",
     help = "Comma-delimited list of RDS objects containing count matrices"
+  ),
+  make_option(
+    opt_str = "--doublets_files",
+    type = "character",
+    help = "Csv files with doublet information"
   ),
   make_option(
     opt_str = "--output_name",
@@ -20,19 +25,38 @@ option_list <- list(
 )
 
 opts <- parse_args(OptionParser(option_list = option_list))
-files <- strsplit(opts$matrix_files, ",")[[1]]
+mats <- strsplit(opts$matrix_dirs, ",")[[1]]
+doubs <- strsplit(opts$doublets_files, ",")[[1]]
 
 objlist = vector()
 namelist = vector()
-for (f in files)
+i <- 0
+for (m in mats)
 {
+    #figure out sample name from file basename
     pathparts <- strsplit(f, '/')[[1]]
     filename = pathparts[length(pathparts)]
     samplename = strsplit(filename, '\\.')[[1]][1]
+
+    #add name to list of names
     namelist <- append(namelist, samplename)
-    countmatrix <- readRDS(f)
+
+    #read in matrix and make seurat object
+    countmatrix <- Read10X(m)
     seuratobj <- CreateSeuratObject(counts=countmatrix, project=samplename)
-    objlist <- append(objlist, seuratobj)
+
+    #read doublet file and remove doublets
+    doublet_file <- doubs[[i]]
+    doublets <- read.table(doublet_file)
+    colnames(doublets) <- c("Doublet_score","Is_doublet")
+    seuratobj <- AddMetaData(srat,doublets)
+    #mark barcodes where Is_doublet column is False as QC Passes
+    seuratobj <- [['QC']] <- ifelse(
+      srat@meta.data$Is_doublet == 'True','Doublet','Pass')
+
+    #add subset of QC passes list of objects
+    objlist <- append(objlist, subset(seuratobjm subset = QC == 'Pass')
+    i <- i + 1
 }
 
 if (length(objlist) == 1) {

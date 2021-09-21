@@ -21,12 +21,16 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      seurat_merge.R --matrix_files $(inputs.matrix_rds_files.map(function(i){return i.path}).join()) --output_name $(inputs.output_name)
+      seurat_merge.R --matrix_dirs $(inputs.matrix_rds_files.map(function(i){return i.path}).join()) \
+      --output_name $(inputs.output_name)
 
 inputs:
-  matrix_rds_files:
+  matrix_dirs:
+    type: Directory[]
+    doc: "Directories containing count matrices filtered by SoupX"
+  doublets_files:
     type: File[]
-    doc: "RDS files containing count matrices filtered by SoupX"
+    doc: "Csv files with barcodes, doublet score, and predicted doublet boolean"
   output_name:
     type: string
     doc: "Name with which to tag output matrix"
