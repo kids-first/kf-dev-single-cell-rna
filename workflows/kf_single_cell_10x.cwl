@@ -51,8 +51,7 @@ outputs:
   bam_out: {type: 'File[]', outputSource: count/bam}
   merged_decontam_matrix: {type: 'File', outputSource: merge/merged_matrix}
   merged_decontam_object: {type: 'File', outputSource: merge/merged_object}
-  filtered_doublet_histogram: {type: 'File[]', outputSource: scrublet/filtered_doublet_histogram}
-  raw_doublet_histogram: {type: 'File[]', outputSource: scrublet/raw_doublet_histogram}
+  doublet_histogram: {type: 'File[]', outputSource: scrublet/score_histogram}
 
 steps:
 
@@ -65,14 +64,27 @@ steps:
       fastqs: fastqs_tar
       sample_name: sample_name
       reference: reference
-    out: [filtered_matrix_out, raw_matrix_out, bam, output_summary, molecule_info, whole_output_dir]
+      return_h5: ${return Boolean(true)}
+    out: [filtered_matrix_out, raw_matrix_out, bam, output_summary, molecule_info, whole_output_dir, cluster_file]
+
+  soupx:
+    run: ../tools/soupx.cwl
+    scatter: [raw_matrix, filtered_matrix, sample_name]
+    scatterMethod: dotproduct
+    in:
+      raw_matrix: count/raw_matrix_out
+      filtered_matrix: count/filtered_matrix_out
+      cluster_file: count/cluster_file
+      sample_name: sample_name
+    out: [decontaminated_matrix]
 
   scrublet:
-    run: ../subworkflows/scrublet_subwf.cwl
-    scatter: [count_dir]
+    run: ../tools/scrublet.cwl
+    scatter: [count_dir, output_basename]
+    scatterMethod: dotproduct
     in:
-      count_dir: count/whole_output_dir
-      output_basename: output_basename
+      input_matrix: soupx/decontaminated_matrix
+      output_basename: sample_name
       expected_doublet_rate: expected_doublet_rate
       doublet_score_threshold: doublet_score_threshold
       count_min: count_min
@@ -81,20 +93,12 @@ steps:
       n_prin_comps: n_prin_comps
       ram: ram
       cpus: cpus
-    out: [out_dir, filtered_doublet_histogram, raw_doublet_histogram]
-
-  soupx:
-    run: ../tools/soupx.cwl
-    scatter: [count_dir, sample_name]
-    scatterMethod: dotproduct
-    in:
-      count_dir: scrublet/out_dir
-      sample_name: sample_name
-    out: [decontaminated_matrix]
+    out: [doublet_histogram, doublets_file]
 
   merge:
     run: ../tools/seurat_merge.cwl
     in:
       matrix_rds_files: soupx/decontaminated_matrix
+      doublets_files: scrublet/doublets_file
       output_name: output_basename
     out: [merged_matrix, merged_object]
