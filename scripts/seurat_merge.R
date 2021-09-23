@@ -30,11 +30,11 @@ doubs <- strsplit(opts$doublets_files, ",")[[1]]
 
 objlist = vector()
 namelist = vector()
-i <- 0
+i <- 1
 for (m in mats)
 {
     #figure out sample name from file basename
-    pathparts <- strsplit(f, '/')[[1]]
+    pathparts <- strsplit(m, '/')[[1]]
     filename = pathparts[length(pathparts)]
     samplename = strsplit(filename, '\\.')[[1]][1]
 
@@ -47,15 +47,15 @@ for (m in mats)
 
     #read doublet file and remove doublets
     doublet_file <- doubs[[i]]
-    doublets <- read.table(doublet_file)
+    doublets <- read.table(doublet_file, sep = ",", , header=F, row.names=1)
     colnames(doublets) <- c("Doublet_score","Is_doublet")
-    seuratobj <- AddMetaData(srat,doublets)
+    seuratobj <- AddMetaData(seuratobj,doublets)
     #mark barcodes where Is_doublet column is False as QC Passes
-    seuratobj <- [['QC']] <- ifelse(
-      srat@meta.data$Is_doublet == 'True','Doublet','Pass')
+    seuratobj[['QC']] <- ifelse(
+      seuratobj@meta.data$Is_doublet == 'True','Doublet','Pass')
 
     #add subset of QC passes list of objects
-    objlist <- append(objlist, subset(seuratobjm subset = QC == 'Pass')
+    objlist <- append(objlist, subset(seuratobj, subset = QC == 'Pass'))
     i <- i + 1
 }
 

@@ -21,8 +21,7 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      seurat_merge.R --matrix_dirs $(inputs.matrix_rds_files.map(function(i){return i.path}).join()) \
-      --output_name $(inputs.output_name)
+      seurat_merge.R --matrix_dirs $(inputs.matrix_dirs.map(function(i){return i.path}).join()) --output_name $(inputs.output_name) --doublets_files $(inputs.doublets_files.map(function(i){return i.path}).join())
 
 inputs:
   matrix_dirs:

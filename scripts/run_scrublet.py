@@ -108,7 +108,7 @@ def main(args):
 
     #write output file with doublet scores and predicted doublets
     score_out_file = out_base + ".csv"
-    pd.DataFrame(count_mat.obs).to_csv(score_out_file)
+    pd.DataFrame(count_mat.obs).to_csv(score_out_file, header = False)
 
 if __name__ == "__main__":
     # execute only if run as a script
