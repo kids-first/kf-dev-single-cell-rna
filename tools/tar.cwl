@@ -4,7 +4,7 @@ id: tar
 requirements:
   - class: InitialWorkDirRequirement
     listing: $(inputs.input_files)
-baseCommand: [tar, xcf]
+baseCommand: [tar, zcf]
 inputs:
   tarfile:
     type: string
