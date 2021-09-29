@@ -6,7 +6,7 @@ doc: "Run Seurat analysis on 10x output"
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'satijalab/seurat:3.2.0'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/soupx_r:4.1.0_SoupX'
   - class: InlineJavascriptRequirement
   - class: InitialWorkDirRequirement
     listing:

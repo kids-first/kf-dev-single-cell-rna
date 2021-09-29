@@ -8,9 +8,14 @@ suppressMessages(library(Seurat))
 #process inputs
 option_list <- list(
   make_option(
-    opt_str = "--matrix_files",
+    opt_str = "--matrix_dirs",
     type = "character",
     help = "Comma-delimited list of RDS objects containing count matrices"
+  ),
+  make_option(
+    opt_str = "--doublets_files",
+    type = "character",
+    help = "Csv files with doublet information"
   ),
   make_option(
     opt_str = "--output_name",
@@ -20,19 +25,38 @@ option_list <- list(
 )
 
 opts <- parse_args(OptionParser(option_list = option_list))
-files <- strsplit(opts$matrix_files, ",")[[1]]
+mats <- strsplit(opts$matrix_dirs, ",")[[1]]
+doubs <- strsplit(opts$doublets_files, ",")[[1]]
 
 objlist = vector()
 namelist = vector()
-for (f in files) 
+i <- 1
+for (m in mats)
 {
-    pathparts <- strsplit(f, '/')[[1]]
+    #figure out sample name from file basename
+    pathparts <- strsplit(m, '/')[[1]]
     filename = pathparts[length(pathparts)]
     samplename = strsplit(filename, '\\.')[[1]][1]
+
+    #add name to list of names
     namelist <- append(namelist, samplename)
-    countmatrix <- readRDS(f)
+
+    #read in matrix and make seurat object
+    countmatrix <- Read10X(m)
     seuratobj <- CreateSeuratObject(counts=countmatrix, project=samplename)
-    objlist <- append(objlist, seuratobj)
+
+    #read doublet file and remove doublets
+    doublet_file <- doubs[[i]]
+    doublets <- read.table(doublet_file, sep = ",", , header=F, row.names=1)
+    colnames(doublets) <- c("Doublet_score","Is_doublet")
+    seuratobj <- AddMetaData(seuratobj,doublets)
+    #mark barcodes where Is_doublet column is False as QC Passes
+    seuratobj[['QC']] <- ifelse(
+      seuratobj@meta.data$Is_doublet == 'True','Doublet','Pass')
+
+    #add subset of QC passes list of objects
+    objlist <- append(objlist, subset(seuratobj, subset = QC == 'Pass'))
+    i <- i + 1
 }
 
 if (length(objlist) == 1) {
@@ -43,7 +67,10 @@ if (length(objlist) == 1) {
     merged_obj <- merge(objlist[[1]], y=objlist[-1], add.cell.ids=namelist, project=opts$output_name)
 }
 
+#export merged matrix and Seurat object
 merged_matrix <- merged_obj[[]]
-output_file <- paste(opts$output_name, '.merged.RDS', sep="")
-
+output_file <- paste(opts$output_name, '.merged_matrix.RDS', sep="")
 saveRDS(merged_matrix, output_file)
+
+output_file <- paste(opts$output_name, '.merged_object.RDS', sep="")
+saveRDS(merged_obj, output_file)
