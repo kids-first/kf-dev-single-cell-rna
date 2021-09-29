@@ -36,7 +36,7 @@ def parse_args(args):
     parser.add_argument(
         "-l", "--min_cell",
         help='Optional, minimum number of cells a gene must be in to be \
-        reatained; default 3',
+        retained; default 3',
         type = int,
         default = 3,
         required=False
