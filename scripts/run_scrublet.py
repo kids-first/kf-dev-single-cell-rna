@@ -95,10 +95,11 @@ def main(args):
 
     #score doublets
     scrub = scr.Scrublet(count_mat.X, expected_doublet_rate=edr)
-    count_mat.obs['doublet_scores'], count_mat.obs['predicted_doublets'] = \
-        scrub.scrub_doublets(min_counts = counts,
+    count_mat.obs['doublet_scores'], count_mat.obs['predicted_doublets'] = scrub.scrub_doublets(
+        min_counts = counts,
         min_cells = cells, min_gene_variability_pctl = variability,
-        n_prin_comps = pcs, use_approx_neighbors = False)
+        n_prin_comps = pcs, use_approx_neighbors = False
+    )
     count_mat.obs['predicted_doublets'] = scrub.call_doublets(threshold=score_thresh)
 
     #plot scores histogram
