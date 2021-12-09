@@ -173,108 +173,110 @@ save_plot(cmd, name)
 analysis <- subset(analysis, subset = nFeature_RNA > min_features &
   nFeature_RNA < max_features & percent.mt < max_mt)
 
-print(dim(analysis)[2])
-
-# fail if there aren't enough samples to do analysis
+# output message with qc status if there aren't enough samples
+qc_status_file = file.path(out_dir, paste0("qc_status", ".txt"))
 if (dim(analysis)[2] < min_samples) {
-  stop("Too few samples remaining after filtering.")
+  # create file with error message
+  write("Too few samples remaining after filtering.", file = qc_status_file)
+} else {
+  write("PASS", file = qc_status_file)
+
+  #normalize data with selected type and scale factor
+  analysis <- NormalizeData(analysis, normalization.method = norm_method,
+    scale.factor = 10000)
+
+  #identify highly variable genes
+  analysis <- FindVariableFeatures(analysis, selection.method = "vst",
+    nfeatures = retain_features)
+
+  # Identify the 10 most highly variable genes
+  top10 <- head(VariableFeatures(analysis), 10)
+
+  #plot variable features with labels
+  plot1 <- VariableFeaturePlot(analysis)
+  plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE)
+  name <- "features"
+  cmd <- "plot2"
+  save_plot(cmd, name)
+
+  ##pca
+
+  #scale data
+  all.genes <- rownames(analysis)
+  analysis <- ScaleData(analysis, features = all.genes)
+
+  #run PCA
+  print("running PCA")
+  analysis <- RunPCA(analysis, features = VariableFeatures(object = analysis))
+  print("done with PCA")
+
+  #create a heat map for the first 10 PCs
+  name <- "heat_map"
+  cmd <- "DimHeatmap(analysis, dims = 1:nheatmap, cells = 500, balanced = TRUE)"
+  save_plot(cmd, name)
+
+  #create an elbow plot for PCA
+  name <- "elbow"
+  cmd <- "ElbowPlot(analysis)"
+  save_plot(cmd, name)
+
+  #run jackstraw to score pcs
+  analysis <- JackStraw(analysis, num.replicate = 100)
+  analysis <- ScoreJackStraw(analysis, dims = 1:20)
+
+  #determine number of pcs to use for clustering
+  scores <- JS(object = analysis[["pca"]], slot = "overall")
+  auto_pcs <- length(which(scores[, "Score"] <= pc_cut))
+  if (num_pcs < auto_pcs) {
+    num_pcs <- auto_pcs
+  }
+
+  #output pca summary
+  file <- file.path(out_dir, paste0("pca_summary", ".txt"))
+  sink(file)
+  print(paste("Number of PCs used in clustering:", num_pcs))
+  print("PCA Summary")
+  print(analysis[["pca"]], dims = 1:7, nfeatures = clust_size)
+  sink()
+
+  ##clustering
+  analysis <- FindNeighbors(analysis, dims = 1:num_pcs)
+  analysis <- FindClusters(analysis, resolution = knn_granularity)
+
+  #run UMAP
+  analysis <- RunUMAP(analysis, dims = 1:num_pcs)
+
+  #plot UMAP
+  name <- "umap"
+  cmd <- "DimPlot(analysis, reduction = \"umap\")"
+  save_plot(cmd, name)
+
+  #could also run tSNE at this point
+
+  ##differential expression
+  #find markers for every cluster compared to all remaining cells,
+  #report only the positive ones
+  analysis.markers <- FindAllMarkers(analysis, only.pos = TRUE, min.pct = 0.25,
+    logfc.threshold = 0.25)
+  file <- file.path(out_dir, paste0("cluster_markers", ".txt"))
+  cluster_markers <- analysis.markers %>%
+    group_by(cluster) %>%
+    top_n(n = clust_size, wt = avg_log2FC)
+  write.csv(cluster_markers, file = file)
+
+  #the next few steps are just examples
+  #eventually, we'll have to figure out what we would want
+
+  #generate a heat map of the top 10 markers
+  top10 <- analysis.markers %>%
+    group_by(cluster) %>%
+    top_n(n = 10, wt = avg_log2FC)
+  name <- "cluster_heat"
+  cmd <- "DoHeatmap(analysis, features = top10$gene) + NoLegend()"
+  save_plot(cmd, name)
+
+  ##save data object
+  out_file <- file.path(out_dir, paste0("analysis", ".rds"))
+  print("saving final data object")
+  saveRDS(analysis, file = out_file)
 }
-
-#normalize data with selected type and scale factor
-analysis <- NormalizeData(analysis, normalization.method = norm_method,
-  scale.factor = 10000)
-
-#identify highly variable genes
-analysis <- FindVariableFeatures(analysis, selection.method = "vst",
-  nfeatures = retain_features)
-
-# Identify the 10 most highly variable genes
-top10 <- head(VariableFeatures(analysis), 10)
-
-#plot variable features with labels
-plot1 <- VariableFeaturePlot(analysis)
-plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE)
-name <- "features"
-cmd <- "plot2"
-save_plot(cmd, name)
-
-##pca
-
-#scale data
-all.genes <- rownames(analysis)
-analysis <- ScaleData(analysis, features = all.genes)
-
-#run PCA
-print("running PCA")
-analysis <- RunPCA(analysis, features = VariableFeatures(object = analysis))
-print("done with PCA")
-
-#create a heat map for the first 10 PCs
-name <- "heat_map"
-cmd <- "DimHeatmap(analysis, dims = 1:nheatmap, cells = 500, balanced = TRUE)"
-save_plot(cmd, name)
-
-#create an elbow plot for PCA
-name <- "elbow"
-cmd <- "ElbowPlot(analysis)"
-save_plot(cmd, name)
-
-#run jackstraw to score pcs
-analysis <- JackStraw(analysis, num.replicate = 100)
-analysis <- ScoreJackStraw(analysis, dims = 1:20)
-
-#determine number of pcs to use for clustering
-scores <- JS(object = analysis[["pca"]], slot = "overall")
-auto_pcs <- length(which(scores[, "Score"] <= pc_cut))
-if (num_pcs < auto_pcs) {
-  num_pcs <- auto_pcs
-}
-
-#output pca summary
-file <- file.path(out_dir, paste0("pca_summary", ".txt"))
-sink(file)
-print(paste("Number of PCs used in clustering:", num_pcs))
-print("PCA Summary")
-print(analysis[["pca"]], dims = 1:7, nfeatures = clust_size)
-sink()
-
-##clustering
-analysis <- FindNeighbors(analysis, dims = 1:num_pcs)
-analysis <- FindClusters(analysis, resolution = knn_granularity)
-
-#run UMAP
-analysis <- RunUMAP(analysis, dims = 1:num_pcs)
-
-#plot UMAP
-name <- "umap"
-cmd <- "DimPlot(analysis, reduction = \"umap\")"
-save_plot(cmd, name)
-
-#could also run tSNE at this point
-
-##differential expression
-#find markers for every cluster compared to all remaining cells,
-#report only the positive ones
-analysis.markers <- FindAllMarkers(analysis, only.pos = TRUE, min.pct = 0.25,
-  logfc.threshold = 0.25)
-file <- file.path(out_dir, paste0("cluster_markers", ".txt"))
-cluster_markers <- analysis.markers %>%
-  group_by(cluster) %>%
-  top_n(n = clust_size, wt = avg_log2FC)
-write.csv(cluster_markers, file = file)
-
-#the next few steps are just examples
-#eventually, we'll have to figure out what we would want
-
-#generate a heat map of the top 10 markers
-top10 <- analysis.markers %>%
-  group_by(cluster) %>%
-  top_n(n = 10, wt = avg_log2FC)
-name <- "cluster_heat"
-cmd <- "DoHeatmap(analysis, features = top10$gene) + NoLegend()"
-save_plot(cmd, name)
-
-##save data object
-out_file <- file.path(out_dir, paste0("analysis", ".rds"))
-print("saving final data object")
-saveRDS(analysis, file = out_file)
