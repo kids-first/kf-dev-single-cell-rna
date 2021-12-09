@@ -101,6 +101,18 @@ option_list <- list(
     default = 0.5,
     type = "numeric",
     help = "KNN clustering granularity parameter"
+  ),
+  make_option(
+    opt_str = "--min_cells",
+    default = 3,
+    type = "numeric",
+    help = "Minimum number of cells a feature must be present in to be retained"
+  ),
+  make_option(
+    opt_str = "--min_samples",
+    default = 100,
+    type = "numeric",
+    help = "Minimum number of samples to continue analysis, used after QC filtering"
   )
 )
 
@@ -120,6 +132,8 @@ nheatmap <- opts$nheatmap
 num_pcs <- opts$num_pcs
 pc_cut <- opts$pc_cut
 knn_granularity <- opts$knn_granularity
+min_cells <- opts$min_cells
+min_samples <- opts$min_samples
 
 #make output directory
 dir.create(out_dir, recursive = "true")
@@ -132,12 +146,12 @@ if (ext == "gz" | ext == "tgz") {
   analysis.data <- Read10X(data.dir = paste("./input_matrix",
     list.files("./input_matrix")[1], sep = "/"))
   analysis <- CreateSeuratObject(counts = analysis.data, project = project_name,
-    min.cells = 3, min.features = 200)
+    min.cells = min_cells, min.features = min_features)
 } else if (ext == "h5") {
   print("using h5 file")
   analysis.data <- Read10X_h5(data_file)
   analysis <- CreateSeuratObject(counts = analysis.data, project = project_name,
-    min.cells = 3, min.features = 200)
+    min.cells = min_cells, min.features = min_features)
 } else if (ext == "rds" | ext == "RDS") {
   print("using rds file")
   analysis <- readRDS(file = data_file)
@@ -158,6 +172,13 @@ save_plot(cmd, name)
 #subset data with desired options
 analysis <- subset(analysis, subset = nFeature_RNA > min_features &
   nFeature_RNA < max_features & percent.mt < max_mt)
+
+print(dim(analysis)[2])
+
+# fail if there aren't enough samples to do analysis
+if (dim(analysis)[2] < min_samples) {
+  stop("Too few samples remaining after filtering.")
+}
 
 #normalize data with selected type and scale factor
 analysis <- NormalizeData(analysis, normalization.method = norm_method,
