@@ -21,7 +21,7 @@ requirements:
 
 inputs:
   final_output_basename: {type: string, doc: "Output basename for workflow output files"}
-  input_tar: {type: 'File', doc: "Tarball with fastq files in a single base directory"}
+  input_dir: {type: 'Directory', doc: "Directory containing fastq files"}
   hisat_genome_ref: {type: 'File', doc: "Hisat 2 genome reference"}
   hisat_trans_ref: {type: 'File', doc: "Hisat 2 transcriptome reference"}
   rnaseqc_gtf: {type: "File", doc: "gtf file used by RNAseQC", "sbg:suggestedValue": {class: 'File', path: '5d8bb21fe4b0950c4028f852', name: 'gencode.v27.primary_assembly.RNAseQC.gtf'}}
@@ -45,24 +45,24 @@ steps:
       wf_strand_param: wf_strand_param
     out: [rsem_std, rnaseqc_std]
 
-  samples_from_tar:
-    run: ../tools/samples_from_tar.cwl
+  separate_samples:
+    run: ../tools/separate_samples.cwl
     in:
-      tar_file: input_tar
+      input_dir: input_dir
       paired: paired
     out: [fastq1s, fastq2s, samples]
 
   build_fastq2_array:
     run: ../tools/build_fastq2_array.cwl
     in:
-      fastq1s: samples_from_tar/fastq1s
-      fastq2s: samples_from_tar/fastq2s
+      fastq1s: separate_samples/fastq1s
+      fastq2s: separate_samples/fastq2s
     out: [fastq2_array]
 
   build_samples_array:
     run: ../tools/build_samples_array.cwl
     in:
-      sample_file: samples_from_tar/samples
+      sample_file: separate_samples/samples
     out: [sample_names]
 
   hisat2_align_genome:
@@ -71,7 +71,7 @@ steps:
     scatterMethod: dotproduct
     in:
       reference: hisat_genome_ref
-      fastq1: samples_from_tar/fastq1s
+      fastq1: separate_samples/fastq1s
       fastq2: build_fastq2_array/fastq2_array
       output_basename: build_samples_array/sample_names
       input_id: build_samples_array/sample_names
@@ -87,7 +87,7 @@ steps:
     scatterMethod: dotproduct
     in:
       reference: hisat_trans_ref
-      fastq1: samples_from_tar/fastq1s
+      fastq1: separate_samples/fastq1s
       fastq2: build_fastq2_array/fastq2_array
       output_basename: build_samples_array/sample_names
       input_id: build_samples_array/sample_names
