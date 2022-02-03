@@ -14,11 +14,9 @@ doc: |-
   [SoupX](https://github.com/constantAmateur/SoupX) is used for subtraction of the RNA background
   [Scrublet](https://github.com/swolock/scrublet) is used to scord and predict doublets
   Decontaminated outputs are aggregated using the [Seurat](https://satijalab.org/seurat/) R package from the Satija lab at the New York Genome Center.
-  Additionally, [scanpy](https://scanpy.readthedocs.io/en/stable/) and [DropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) are used for reading and writing intermediary files
+  Additionally, [scanpy](https://scanpy.readthedocs.io/en/stable/) and [DropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) are used for reading and writing intermediary files.
 
   ### Caveats:
-  1. The fastqs and references inputs must be tarballs of folders containing the
-     relevant files.
   1. The reference file can be downloaded from 10x, however, the directory
      name contains several periods that must be changed before creating the
      reference tarball.
