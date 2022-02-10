@@ -1,7 +1,7 @@
 cwlVersion: v1.2
 class: CommandLineTool
-id: samples_from_tar
-doc: "Take a tarball with fastq files and create array of fastq1s, fastq2s, and sample names."
+id: separate_samples
+doc: "Take a directory with fastq files and create array of fastq1s, fastq2s, and sample names."
 
 requirements:
   - class: ShellCommandRequirement
