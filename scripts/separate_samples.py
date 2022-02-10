@@ -45,10 +45,8 @@ def main(args):
     in_dir, paired = parse_args(args)
 
     # make output directories
-    fastq1 = Path("./fastq1")
-    fastq2 = Path("./fastq2")
-    fastq1.mkdir(exist_ok=True)
-    fastq2.mkdir(exist_ok=True)
+    pathlib.Path("./fastq1").mkdir(exist_ok=True)
+    pathlib.Path("./fastq2").mkdir(exist_ok=True)
 
     # open tarfile, find sample names and extract to correct folder
     sample_names = []
