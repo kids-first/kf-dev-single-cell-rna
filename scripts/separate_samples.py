@@ -45,8 +45,10 @@ def main(args):
     in_dir, paired = parse_args(args)
 
     # make output directories
-    pathlib.Path("./fastq1").mkdir(exist_ok=True)
-    pathlib.Path("./fastq2").mkdir(exist_ok=True)
+    fastq1 = pathlib.Path("./fastq1")
+    fastq1.mkdir(exist_ok=True)
+    fastq2 = pathlib.Path("./fastq2")
+    fastq2.mkdir(exist_ok=True)
 
     # open tarfile, find sample names and extract to correct folder
     sample_names = []
@@ -58,9 +60,9 @@ def main(args):
             sample_name = make_sample_name(entry)
             # remove directory from path to extract file to output directory
             basename = os.path.basename(entry.name)
-            move_path = fastq1 + "/" + basename
+            move_path = fastq1 / basename
             if not paired:
-                shutil.move(entry, move_path)
+                shutil.copy(entry, move_path)
                 sample_names.append(sample_name)
             else:
                 # figure out if the file is read 1 or read 2
@@ -74,11 +76,11 @@ def main(args):
                         sample_name + " has an invalid read number: " + read_number
                     )
                 elif read_number == "R1":
-                    shutil.move(entry, move_path)
+                    shutil.copy(entry, move_path)
                     sample_names_1.append(sample_name)
                 elif read_number == "R2":
-                    move_path = fastq2 + "/" + basename
-                    shutil.move(entry, move_path)
+                    move_path = fastq2 / basename
+                    shutil.copy(entry, move_path)
                     sample_names_2.append(sample_name)
 
     if paired:
