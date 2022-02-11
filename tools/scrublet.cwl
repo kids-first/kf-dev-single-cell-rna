@@ -30,12 +30,12 @@ arguments:
 inputs:
   input_matrix: {type: Directory}
   output_basename: {type: string, doc: "Output files basename"}
-  expected_doublet_rate: {type: 'float?', inputBinding: {prefix: -e}}
-  doublet_score_threshold: {type: 'float?', inputBinding: {prefix: -s}}
-  count_min: {type: 'int?', inputBinding: {prefix: -c}}
-  cell_min: {type: 'int?', inputBinding: {prefix: -l}}
-  min_gene_variability_pctl: {type: 'int?', inputBinding: {prefix: -g}}
-  n_prin_comps: {type: 'int?', inputBinding: {prefix: -p}}
+  expected_doublet_rate: {type: 'float?', default: 0.06, doc: "expected doublet rate, usually specific to the method; default 0.06 for 10X", inputBinding: {prefix: -e}}
+  doublet_score_threshold: {type: 'float?', default: 0.25, doc: "doublet cut-off, cells with greater scores will be labelled as doublets; must be between 0 and 1", inputBinding: {prefix: -s}}
+  count_min: {type: 'int?', default: 2, doc: "minimum expression count to retain a gene", inputBinding: {prefix: -c}}
+  cell_min: {type: 'int?', default: 3, doc: "minimum number of cells a gene must be in to be retained", inputBinding: {prefix: -l}}
+  min_gene_variability_pctl: {type: 'int?', default: 85, doc: "Keep the most highly variable genes (in the top min_gene_variability_pctl percentile), as measured by the v-statistic", inputBinding: {prefix: -g}}
+  n_prin_comps: {type: 'int?', default: 30, doc: "Number of PCs to use for clustering", inputBinding: {prefix: -p}}
   ram: {type: 'int?', default: 16, doc: "In GB"}
   cpus: {type: 'int?', default: 1, doc: "Number of CPUs to request"}
 
