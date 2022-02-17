@@ -14,11 +14,9 @@ doc: |-
   [SoupX](https://github.com/constantAmateur/SoupX) is used for subtraction of the RNA background
   [Scrublet](https://github.com/swolock/scrublet) is used to scord and predict doublets
   Decontaminated outputs are aggregated using the [Seurat](https://satijalab.org/seurat/) R package from the Satija lab at the New York Genome Center.
-  Additionally, [scanpy](https://scanpy.readthedocs.io/en/stable/) and [DropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) are used for reading and writing intermediary files
+  Additionally, [scanpy](https://scanpy.readthedocs.io/en/stable/) and [DropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) are used for reading and writing intermediary files.
 
   ### Caveats:
-  1. The fastqs and references inputs must be tarballs of folders containing the
-     relevant files.
   1. The reference file can be downloaded from 10x, however, the directory
      name contains several periods that must be changed before creating the
      reference tarball.
@@ -36,15 +34,15 @@ requirements:
 
 inputs:
   output_basename: {type: string, doc: "basename used to name output files"}
-  fastqs_tar: {type: 'File[]', doc: "tarball(s) of fastqs being run, one from each sample or well"}
+  fastq_dirs: {type: 'Directory[]', doc: "directories of fastqs being run, one from each sample or well"}
   sample_name: {type: 'string[]', doc: "used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz, one per input fastq in the same order"}
-  reference: {type: File, doc: "tarball of reference files"}
-  expected_doublet_rate: {type: 'float?'}
-  doublet_score_threshold: {type: 'float?'}
-  count_min: {type: 'int?'}
-  cell_min: {type: 'int?'}
-  min_gene_variability_pctl: {type: 'int?'}
-  n_prin_comps: {type: 'int?'}
+  reference: {type: 'Directory', doc: "directory of reference files"}
+  expected_doublet_rate: {type: 'float?', default: 0.06, doc: "expected doublet rate, usually specific to the method; default 0.06 for 10X"}
+  doublet_score_threshold: {type: 'float?', default: 0.25, doc: "doublet cut-off, cells with greater scores will be labelled as doublets; must be between 0 and 1"}
+  count_min: {type: 'int?', default: 2, doc: "minimum expression count to retain a gene"}
+  cell_min: {type: 'int?', default: 3, doc: "minimum number of cells a gene must be in to be retained"}
+  min_gene_variability_pctl: {type: 'int?', default: 85, doc: "Keep the most highly variable genes (in the top min_gene_variability_pctl percentile), as measured by the v-statistic"}
+  n_prin_comps: {type: 'int?', default: 30, doc: "Number of PCs to use for clustering"}
   ram: {type: 'int?', default: 16, doc: "In GB"}
   cpus: {type: 'int?', default: 1, doc: "Number of CPUs to request"}
 
@@ -63,7 +61,7 @@ steps:
     scatterMethod: dotproduct
     in:
       run_id: output_basename
-      fastqs: fastqs_tar
+      fastqs: fastq_dirs
       sample_name: sample_name
       reference: reference
       return_h5:

@@ -12,15 +12,13 @@ requirements:
     coresMin: 16
   - class: InlineJavascriptRequirement
 
-baseCommand: [tar, -xzf]
+baseCommand: [cellranger, count]
 
 arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-     $(inputs.fastqs.path) &&
-     tar -xzf $(inputs.reference.path) &&
-     cellranger count --localcores=16 --id=$(inputs.run_id) --fastqs=./$(inputs.fastqs.nameroot.split('.')[0]) --sample=$(inputs.sample_name) --transcriptome=./$(inputs.reference.nameroot.split('.')[0]) &&
+     --localcores=16 --id=$(inputs.run_id) --fastqs=$(inputs.fastqs.path) --sample=$(inputs.sample_name) --transcriptome=$(inputs.reference.path) &&
      ${
        var sp = inputs.run_id + "/outs/" + inputs.run_id + "." + inputs.sample_name;
        var cmd = "mv " + inputs.run_id + "/outs/molecule_info.h5 " + sp + ".molecule_info.h5 && ";
@@ -47,9 +45,9 @@ arguments:
 
 inputs:
   run_id: {type: string, doc: "run id, used as basename for output"}
-  fastqs: {type: File, doc: "set of fastqs being run"}
+  fastqs: {type: Directory, doc: "directory of fastqs being run"}
   sample_name: {type: string, doc: "sample name, used as prefix for finding fastqs to analyze"}
-  reference: {type: File, doc: "tarball of reference files"}
+  reference: {type: Directory, doc: "directory of reference files"}
   return_h5: {type: 'boolean?', doc: "TRUE: return h5 files or FALSE: return tarred matrix directories?"}
 
 outputs:
