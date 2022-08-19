@@ -31,10 +31,11 @@ doc: |-
 requirements:
   ScatterFeatureRequirement: {}
   StepInputExpressionRequirement: {}
+  InlineJavascriptRequirement: {}
 
 inputs:
   output_basename: {type: string, doc: "basename used to name output files"}
-  fastq_dirs: {type: 'Directory[]', doc: "directories of fastqs being run, one from each sample or well"}
+  fastq_dirs: {type: 'Directory', doc: "directories of fastqs being run, one from each sample or well"}
   sample_name: {type: 'string[]', doc: "used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz, one per input fastq in the same order"}
   reference: {type: 'Directory', doc: "directory of reference files"}
   expected_doublet_rate: {type: 'float?', default: 0.06, doc: "expected doublet rate, usually specific to the method; default 0.06 for 10X"}
@@ -57,8 +58,7 @@ steps:
 
   count:
     run: ../tools/cellranger_count.cwl
-    scatter: [fastqs, sample_name]
-    scatterMethod: dotproduct
+    scatter: sample_name
     in:
       run_id: output_basename
       fastqs: fastq_dirs
