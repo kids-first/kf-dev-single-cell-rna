@@ -30,7 +30,7 @@ arguments:
               ln_cmd = ln_cmd + "ln -s " + file.path + " " + inputs.sample_name + "/" + inputs.corrected_read_1_name + ".fastq.gz && ";
             }
             else {
-              ln_cmd = ln_cmd + "ln -s " + file.path + " " + inputs.sample_name + "/" + file + " && ";
+              ln_cmd = ln_cmd + "ln -s " + file.path + " " + inputs.sample_name + "/" + file.basename + " && ";
             }
           }
           if (file.basename.includes("R2") || file.basename.includes("r2")) {
@@ -38,7 +38,7 @@ arguments:
               ln_cmd = ln_cmd + "ln -s " + file.path + " " + inputs.sample_name + "/" + inputs.corrected_read_2_name + ".fastq.gz && ";
             }
             else {
-              ln_cmd = ln_cmd + "ln -s " + file.path + " " + inputs.sample_name + "/" + file + " && ";
+              ln_cmd = ln_cmd + "ln -s " + file.path + " " + inputs.sample_name + "/" + file.basename + " && ";
             }
           }
         }
