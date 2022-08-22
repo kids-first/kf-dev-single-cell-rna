@@ -12,13 +12,37 @@ requirements:
     coresMin: 16
   - class: InlineJavascriptRequirement
 
-baseCommand: [cellranger, count]
+baseCommand: [mkdir]
 
 arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-     --localcores=16 --id=$(inputs.run_id) --fastqs=$(inputs.fastqs.path) --sample=$(inputs.sample_name) --transcriptome=$(inputs.reference.path) &&
+     "run_fastqs" &&
+     ${
+      var ln_cmd = "";
+      var files = inputs.fastq_dir.listing;
+      for (let i = 0; i < files.length; i++) {
+        var file = files[i];
+        if (file.includes(inputs.sample_name)) {
+          if (file.includes("R1") || file.includes("r1")) {
+            if (inputs.corrected_read_1_name) {
+              ln_cmd = ln_cmd + "ln -s " + file + " " + "run_fastqs/" + inputs.corrected_read_1_name + " && ";
+            }
+            else {
+              ln_cmd = ln_cmd + "ln -s " + file + " " + "run_fastqs/" + file + " && ";
+            }
+            if (inputs.corrected_read_2_name) {
+              ln_cmd = ln_cmd + "ln -s " + file + " " + "run_fastqs/" + inputs.corrected_read_2_name + " && ";
+            }
+            else {
+              ln_cmd = ln_cmd + "ln -s " + file + " " + "run_fastqs/" + file + " && ";
+            }
+          }
+        }
+      }
+     }
+     cellranger count --localcores=16 --id=$(inputs.run_id) --fastqs="run_fastqs" --sample=$(inputs.sample_name) --transcriptome=$(inputs.reference.path) &&
      ${
        var sp = inputs.run_id + "/outs/" + inputs.run_id + "." + inputs.sample_name;
        var cmd = "mv " + inputs.run_id + "/outs/molecule_info.h5 " + sp + ".molecule_info.h5 && ";
@@ -47,6 +71,8 @@ inputs:
   run_id: {type: string, doc: "run id, used as basename for output"}
   fastqs: {type: Directory, doc: "directory of fastqs being run"}
   sample_name: {type: string, doc: "sample name, used as prefix for finding fastqs to analyze"}
+  corrected_read_1_name: {type: "string?", doc: "corrected read one name"}
+  corrected_read_2_name: {type: "string?", doc: "corrected read two name"}
   reference: {type: Directory, doc: "directory of reference files"}
   return_h5: {type: 'boolean?', doc: "TRUE: return h5 files or FALSE: return tarred matrix directories?"}
 
