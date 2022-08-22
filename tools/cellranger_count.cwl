@@ -12,37 +12,40 @@ requirements:
     coresMin: 16
   - class: InlineJavascriptRequirement
 
-baseCommand: [mkdir]
+baseCommand: [mkdir, -p]
 
 arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-     "run_fastqs" &&
+     $(inputs.sample_name) &&
      ${
       var ln_cmd = "";
-      var files = inputs.fastq_dir.listing;
-      for (let i = 0; i < files.length; i++) {
+      var files = inputs.fastqs.listing;
+      for (var i = 0; i < files.length; i++) {
         var file = files[i];
-        if (file.includes(inputs.sample_name)) {
-          if (file.includes("R1") || file.includes("r1")) {
+        if (file.basename.includes(inputs.sample_name)) {
+          if (file.basename.includes("R1") || file.basename.includes("r1")) {
             if (inputs.corrected_read_1_name) {
-              ln_cmd = ln_cmd + "ln -s " + file + " " + "run_fastqs/" + inputs.corrected_read_1_name + " && ";
+              ln_cmd = ln_cmd + "ln -s " + file.path + " " + inputs.sample_name + "/" + inputs.corrected_read_1_name + ".fastq.gz && ";
             }
             else {
-              ln_cmd = ln_cmd + "ln -s " + file + " " + "run_fastqs/" + file + " && ";
+              ln_cmd = ln_cmd + "ln -s " + file.path + " " + inputs.sample_name + "/" + file + " && ";
             }
+          }
+          if (file.basename.includes("R2") || file.basename.includes("r2")) {
             if (inputs.corrected_read_2_name) {
-              ln_cmd = ln_cmd + "ln -s " + file + " " + "run_fastqs/" + inputs.corrected_read_2_name + " && ";
+              ln_cmd = ln_cmd + "ln -s " + file.path + " " + inputs.sample_name + "/" + inputs.corrected_read_2_name + ".fastq.gz && ";
             }
             else {
-              ln_cmd = ln_cmd + "ln -s " + file + " " + "run_fastqs/" + file + " && ";
+              ln_cmd = ln_cmd + "ln -s " + file.path + " " + inputs.sample_name + "/" + file + " && ";
             }
           }
         }
       }
+      return ln_cmd;
      }
-     cellranger count --localcores=16 --id=$(inputs.run_id) --fastqs="run_fastqs" --sample=$(inputs.sample_name) --transcriptome=$(inputs.reference.path) &&
+     cellranger count --localcores=16 --id=$(inputs.run_id) --fastqs=$(inputs.sample_name) --sample=$(inputs.sample_name) --transcriptome=$(inputs.reference.path) &&
      ${
        var sp = inputs.run_id + "/outs/" + inputs.run_id + "." + inputs.sample_name;
        var cmd = "mv " + inputs.run_id + "/outs/molecule_info.h5 " + sp + ".molecule_info.h5 && ";
