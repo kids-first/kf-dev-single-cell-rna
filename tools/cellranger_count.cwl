@@ -12,40 +12,13 @@ requirements:
     coresMin: 16
   - class: InlineJavascriptRequirement
 
-baseCommand: [mkdir, -p]
+baseCommand: [cellranger, count]
 
 arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-     $(inputs.sample_name) &&
-     ${
-      var ln_cmd = "";
-      var files = inputs.fastqs.listing;
-      for (var i = 0; i < files.length; i++) {
-        var file = files[i];
-        if (file.basename.includes(inputs.sample_name)) {
-          if (file.basename.includes("R1") || file.basename.includes("r1")) {
-            if (inputs.corrected_read_1_name) {
-              ln_cmd = ln_cmd + "ln -s " + file.path + " " + inputs.sample_name + "/" + inputs.corrected_read_1_name + ".fastq.gz && ";
-            }
-            else {
-              ln_cmd = ln_cmd + "ln -s " + file.path + " " + inputs.sample_name + "/" + file.basename + " && ";
-            }
-          }
-          if (file.basename.includes("R2") || file.basename.includes("r2")) {
-            if (inputs.corrected_read_2_name) {
-              ln_cmd = ln_cmd + "ln -s " + file.path + " " + inputs.sample_name + "/" + inputs.corrected_read_2_name + ".fastq.gz && ";
-            }
-            else {
-              ln_cmd = ln_cmd + "ln -s " + file.path + " " + inputs.sample_name + "/" + file.basename + " && ";
-            }
-          }
-        }
-      }
-      return ln_cmd;
-     }
-     cellranger count --localcores=16 --id=$(inputs.run_id) --fastqs=$(inputs.sample_name) --sample=$(inputs.sample_name) --transcriptome=$(inputs.reference.path) 1>&2 &&
+     --localcores=16 --id=$(inputs.run_id) --fastqs=$(inputs.fastqs.path) --sample=$(inputs.sample_name) --transcriptome=$(inputs.reference.path) 1>&2 &&
      ${
        var sp = inputs.run_id + "/outs/" + inputs.run_id + "." + inputs.sample_name;
        var cmd = "mv " + inputs.run_id + "/outs/molecule_info.h5 " + sp + ".molecule_info.h5 && ";
@@ -74,8 +47,6 @@ inputs:
   run_id: {type: string, doc: "run id, used as basename for output"}
   fastqs: {type: Directory, doc: "directory of fastqs being run"}
   sample_name: {type: string, doc: "sample name, used as prefix for finding fastqs to analyze"}
-  corrected_read_1_name: {type: "string?", doc: "corrected read one name"}
-  corrected_read_2_name: {type: "string?", doc: "corrected read two name"}
   reference: {type: Directory, doc: "directory of reference files"}
   return_h5: {type: 'boolean?', doc: "TRUE: return h5 files or FALSE: return tarred matrix directories?"}
 
