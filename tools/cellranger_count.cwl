@@ -45,7 +45,7 @@ arguments:
       }
       return ln_cmd;
      }
-     cellranger count --localcores=16 --id=$(inputs.run_id) --fastqs=$(inputs.sample_name) --sample=$(inputs.sample_name) --transcriptome=$(inputs.reference.path) &&
+     cellranger count --localcores=16 --id=$(inputs.run_id) --fastqs=$(inputs.sample_name) --sample=$(inputs.sample_name) --transcriptome=$(inputs.reference.path) 1>&2 &&
      ${
        var sp = inputs.run_id + "/outs/" + inputs.run_id + "." + inputs.sample_name;
        var cmd = "mv " + inputs.run_id + "/outs/molecule_info.h5 " + sp + ".molecule_info.h5 && ";
