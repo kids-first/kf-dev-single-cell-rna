@@ -12,7 +12,7 @@ requirements:
     coresMin: 16
   - class: InlineJavascriptRequirement
   - class: LoadListingRequirement
-    loadListing: deep_listing
+    loadListing: shallow_listing
 
 baseCommand: [mkdir, -p]
 
