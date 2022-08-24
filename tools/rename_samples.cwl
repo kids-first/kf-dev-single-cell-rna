@@ -29,18 +29,18 @@ arguments:
         if (file.basename.includes(inputs.sample_name)) {
           if (file.basename.includes("R1") || file.basename.includes("r1")) {
             if (inputs.corrected_read_1_name) {
-              cp_cmd = cp_cmd + "cp " + file.path + " " + inputs.sample_name + "/" + inputs.corrected_read_1_name + ".fastq.gz && ";
+              cp_cmd = cp_cmd + "cp " + inputs.fastqs.path + "/" + file.basename + " " + inputs.sample_name + "/" + inputs.corrected_read_1_name + ".fastq.gz && ";
             }
             else {
-              cp_cmd = cp_cmd + "cp " + file.path + " " + inputs.sample_name + "/" + file.basename + " && ";
+              cp_cmd = cp_cmd + "cp " + inputs.fastqs.path + "/" + file.basename + " " + inputs.sample_name + "/" + file.basename + " && ";
             }
           }
           if (file.basename.includes("R2") || file.basename.includes("r2")) {
             if (inputs.corrected_read_2_name) {
-              cp_cmd = cp_cmd + "cp " + file.path + " " + inputs.sample_name + "/" + inputs.corrected_read_2_name + ".fastq.gz && ";
+              cp_cmd = cp_cmd + "cp " + inputs.fastqs.path + "/" + file.basename + " " + inputs.sample_name + "/" + inputs.corrected_read_2_name + ".fastq.gz && ";
             }
             else {
-              cp_cmd = cp_cmd + "cp " + file.path + " " + inputs.sample_name + "/" + file.basename + " && ";
+              cp_cmd = cp_cmd + "cp " + inputs.fastqs.path + "/" + file.basename + " " + inputs.sample_name + "/" + file.basename + " && ";
             }
           }
         }
