@@ -58,16 +58,25 @@ outputs:
 
 steps:
 
-  count:
-    run: ../tools/cellranger_count.cwl
+  rename_samples:
+    run: ../tools/rename_samples.cwl
     scatter: [sample_name, corrected_read_1_name, corrected_read_2_name]
     scatterMethod: dotproduct
     in:
-      run_id: output_basename
       fastqs: fastq_dir
       sample_name: sample_name
       corrected_read_1_name: corrected_read_1_name
       corrected_read_2_name: corrected_read_2_name
+    out: [renamed_dir]
+
+  count:
+    run: ../tools/cellranger_count.cwl
+    scatter: [sample_name, fastqs]
+    scatterMethod: dotproduct
+    in:
+      run_id: output_basename
+      fastqs: rename_samples/renamed_dir
+      sample_name: sample_name
       reference: reference
       return_h5:
         valueFrom: ${return Boolean(true)}
