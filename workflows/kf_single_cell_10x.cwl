@@ -37,8 +37,8 @@ inputs:
   output_basename: {type: string, doc: "basename used to name output files"}
   fastq_dir: {type: 'Directory', doc: "directory of fastqs being run"}
   sample_name: {type: 'string[]', doc: "used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz, one per input fastq in the same order"}
-  corrected_read_1_name: {type: 'string[]?', doc: "corrected read one names in the 10x expected formatat 'SampleName_S1_L001_R1_001'. When provided, must be in the same order and same length as the sample name and corrected_read_2_name arrays."}
-  corrected_read_2_name: {type: 'string[]?', doc: "corrected read two names in the 10x expected formatat 'SampleName_S1_L001_R2_001'. When provided, must be in the same order and same length as the sample name and corrected_read_1_name arrays."}
+  corrected_read_1_name: {type: 'string[]?', doc: "corrected read one names in the 10x expected format 'SampleName_S1_L001_R1_001'. When provided, must be in the same order and same length as the sample name and corrected_read_2_name arrays."}
+  corrected_read_2_name: {type: 'string[]?', doc: "corrected read two names in the 10x expected format 'SampleName_S1_L001_R2_001'. When provided, must be in the same order and same length as the sample name and corrected_read_1_name arrays."}
   reference: {type: 'Directory', doc: "directory of reference files"}
   expected_doublet_rate: {type: 'float?', default: 0.06, doc: "expected doublet rate, usually specific to the method; default 0.06 for 10X"}
   doublet_score_threshold: {type: 'float?', default: 0.25, doc: "doublet cut-off, cells with greater scores will be labelled as doublets; must be between 0 and 1"}

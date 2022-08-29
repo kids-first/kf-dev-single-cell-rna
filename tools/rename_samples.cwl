@@ -1,15 +1,12 @@
 cwlVersion: v1.2
 class: CommandLineTool
-id: cellranger_count
-doc: "Run cellranger count on a set of fastq files"
+id: rename_samples
+doc: "Rename fastq files to match cellranger's expected format"
 
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/cellranger:6.0'
-  - class: ResourceRequirement
-    ramMin: 20000
-    coresMin: 16
+    dockerPull: 'ubuntu:22.04'
   - class: InlineJavascriptRequirement
   - class: LoadListingRequirement
     loadListing: shallow_listing
