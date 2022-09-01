@@ -18,7 +18,7 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-     --localcores=16 --id=$(inputs.run_id) --fastqs=$(inputs.fastqs.path) --sample=$(inputs.sample_name) --transcriptome=$(inputs.reference.path) &&
+     --localcores=16 --id=$(inputs.run_id) --fastqs=$(inputs.fastqs.path) --sample=$(inputs.sample_name) --transcriptome=$(inputs.reference.path) 1>&2 &&
      ${
        var sp = inputs.run_id + "/outs/" + inputs.run_id + "." + inputs.sample_name;
        var cmd = "mv " + inputs.run_id + "/outs/molecule_info.h5 " + sp + ".molecule_info.h5 && ";
