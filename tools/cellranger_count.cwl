@@ -18,12 +18,17 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-     --localcores=16 --id=$(inputs.run_id) --fastqs=$(inputs.fastqs.path) --sample=$(inputs.sample_name) --transcriptome=$(inputs.reference.path) 1>&2 &&
-     ${
+     --localcores=16
+  - position: 2
+    shellQuote: false
+    valueFrom: >-
+     1>&2 && ${
        var sp = inputs.run_id + "/outs/" + inputs.run_id + "." + inputs.sample_name;
        var cmd = "mv " + inputs.run_id + "/outs/molecule_info.h5 " + sp + ".molecule_info.h5 && ";
        cmd += "mv " + inputs.run_id + "/outs/web_summary.html " + sp + ".web_summary.html && ";
-       cmd += "mv " + inputs.run_id + "/outs/possorted_genome_bam.bam " + sp + ".bam && ";
+       if ( inputs.bam_out != null){
+         cmd += "mv " + inputs.run_id + "/outs/possorted_genome_bam.bam " + sp + ".bam && ";
+       }
        if (inputs.return_h5){
          cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix.h5 " + sp + ".filtered_feature_bc_matrix.h5 && ";
          cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix.h5 " + sp + ".raw_feature_bc_matrix.h5";
@@ -44,11 +49,17 @@ arguments:
      }
 
 inputs:
-  run_id: {type: string, doc: "run id, used as basename for output"}
-  fastqs: {type: Directory, doc: "directory of fastqs being run"}
-  sample_name: {type: string, doc: "sample name, used as prefix for finding fastqs to analyze"}
-  reference: {type: Directory, doc: "directory of reference files"}
-  return_h5: {type: 'boolean?', doc: "TRUE: return h5 files or FALSE: return tarred matrix directories?"}
+  run_id: { type: string, doc: "run id, used as basename for output", 
+    inputBinding: { position: 1, prefix: "id="} }
+  fastqs: { type: Directory, doc: "directory of fastqs being run", 
+    inputBinding: { position: 1, prefix: "fastqs="} }
+  sample_name: { type: string, doc: "sample name, used as prefix for finding fastqs to analyze", 
+    inputBinding: { position: 1, prefix: "sample="} }
+  reference: { type: Directory, doc: "directory of reference files", 
+    inputBinding: { position: 1, prefix: "transcriptome="} }
+  no_bam: { type: 'boolean?', doc: "Set to skip generating bam output. Good to keep bam for troubleshooting, but adds to computation time",
+    inputBinding: { position: 1, prefix: "--no-bam"} }
+  return_h5: { type: 'boolean?', doc: "TRUE: return h5 files or FALSE: return tarred matrix directories?" }
 
 outputs:
   filtered_matrix_out:
@@ -62,7 +73,7 @@ outputs:
       glob: $(inputs.run_id)/outs/$(inputs.run_id).$(inputs.sample_name).raw_feature_bc_matrix.*
     doc: "File containing the raw feature matrix"
   bam:
-    type: File
+    type: 'File?'
     outputBinding:
       glob: $(inputs.run_id)/outs/*.bam
     doc: "The bam file that was generated"
