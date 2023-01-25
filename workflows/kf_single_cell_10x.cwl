@@ -34,14 +34,19 @@ requirements:
   InlineJavascriptRequirement: {}
 
 inputs:
+  # multi-step
   output_basename: {type: string, doc: "basename used to name output files"}
+  sample_name: {type: 'string', doc: "used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz, one per input fastq in the same order"}
+  # optional concat and rename step
+  corrected_read_1_name: {type: 'string?', doc: "corrected read one names in the 10x expected format 'SampleName_S1_L001_R1_001'. When provided, must be in the same order and same length as the sample name and corrected_read_2_name arrays."}
+  corrected_read_2_name: {type: 'string?', doc: "corrected read two names in the 10x expected format 'SampleName_S1_L001_R2_001'. When provided, must be in the same order and same length as the sample name and corrected_read_1_name arrays."}
+  # cell ranger
   fastq_dir: {type: 'Directory?', doc: "directory of fastqs being run. If formatting needed, use r1 and r2 fastqs input instead"}
   r1_fastqs: { type: 'File[]?', doc: "If fastqs need to be concat from an old format, populate this"}
   r2_fastqs: { type: 'File[]?', doc: "If fastqs need to be concat from an old format, populate this"}
-  sample_name: {type: 'string', doc: "used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz, one per input fastq in the same order"}
-  corrected_read_1_name: {type: 'string?', doc: "corrected read one names in the 10x expected format 'SampleName_S1_L001_R1_001'. When provided, must be in the same order and same length as the sample name and corrected_read_2_name arrays."}
-  corrected_read_2_name: {type: 'string?', doc: "corrected read two names in the 10x expected format 'SampleName_S1_L001_R2_001'. When provided, must be in the same order and same length as the sample name and corrected_read_1_name arrays."}
   reference: {type: 'Directory', doc: "directory of reference files"}
+  no_bam: { type: 'boolean?', doc: "Set to skip generating bam output. Good to keep bam for troubleshooting, but adds to computation time" }
+  # scrublet
   expected_doublet_rate: {type: 'float?', default: 0.06, doc: "expected doublet rate, usually specific to the method; default 0.06 for 10X"}
   doublet_score_threshold: {type: 'float?', default: 0.25, doc: "doublet cut-off, cells with greater scores will be labelled as doublets; must be between 0 and 1"}
   count_min: {type: 'int?', default: 2, doc: "minimum expression count to retain a gene"}
@@ -92,6 +97,7 @@ steps:
         pickValue: first_non_null
       sample_name: sample_name
       reference: reference
+      no_bam: no_bam
       return_h5:
         valueFrom: ${return Boolean(true)}
     out: [filtered_matrix_out, raw_matrix_out, bam, output_summary, molecule_info, whole_output_dir, cluster_file]
