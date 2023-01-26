@@ -8,17 +8,13 @@ requirements:
   - class: DockerRequirement
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/cellranger:6.0'
   - class: ResourceRequirement
-    ramMin: 20000
-    coresMin: 16
+    ramMin: $(inputs.cr_instance_ram * 1000)
+    coresMin: $(inputs.cores)
   - class: InlineJavascriptRequirement
 
 baseCommand: [cellranger, count]
 
 arguments:
-  - position: 1
-    shellQuote: false
-    valueFrom: >-
-     --localcores=16
   - position: 2
     shellQuote: false
     valueFrom: >-
@@ -49,14 +45,17 @@ arguments:
      }
 
 inputs:
+  localcores: { type: 'int?', doc: "Num cores to use", default: 16,
+    inputBinding: {position: 1, prefix: "--localcores", separate: false } }
+  cr_instance_ram: { type: 'int?', doc: 'Ram in GB to make available to cell ranger count step', default: 64}
   run_id: { type: string, doc: "run id, used as basename for output", 
-    inputBinding: { position: 1, prefix: "id="} }
+    inputBinding: { position: 1, prefix: "--id=", separate: false } }
   fastqs: { type: Directory, doc: "directory of fastqs being run", 
-    inputBinding: { position: 1, prefix: "fastqs="} }
+    inputBinding: { position: 1, prefix: "--fastqs=", separate: false } }
   sample_name: { type: string, doc: "sample name, used as prefix for finding fastqs to analyze", 
-    inputBinding: { position: 1, prefix: "sample="} }
+    inputBinding: { position: 1, prefix: "--sample=", separate: false } }
   reference: { type: Directory, doc: "directory of reference files", 
-    inputBinding: { position: 1, prefix: "transcriptome="} }
+    inputBinding: { position: 1, prefix: "--transcriptome=", separate: false } }
   no_bam: { type: 'boolean?', doc: "Set to skip generating bam output. Good to keep bam for troubleshooting, but adds to computation time",
     inputBinding: { position: 1, prefix: "--no-bam"} }
   return_h5: { type: 'boolean?', doc: "TRUE: return h5 files or FALSE: return tarred matrix directories?" }
