@@ -9,7 +9,7 @@ requirements:
     dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/cellranger:6.0'
   - class: ResourceRequirement
     ramMin: $(inputs.cr_instance_ram * 1000)
-    coresMin: $(inputs.cores)
+    coresMin: $(inputs.localcores)
   - class: InlineJavascriptRequirement
 
 baseCommand: [cellranger, count]
@@ -46,7 +46,7 @@ arguments:
 
 inputs:
   localcores: { type: 'int?', doc: "Num cores to use", default: 16,
-    inputBinding: {position: 1, prefix: "--localcores", separate: false } }
+    inputBinding: {position: 1, prefix: "--localcores=", separate: false } }
   cr_instance_ram: { type: 'int?', doc: 'Ram in GB to make available to cell ranger count step', default: 64}
   run_id: { type: string, doc: "run id, used as basename for output", 
     inputBinding: { position: 1, prefix: "--id=", separate: false } }
