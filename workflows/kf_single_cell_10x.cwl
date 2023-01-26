@@ -35,33 +35,35 @@ requirements:
 
 inputs:
   # multi-step
-  output_basename: {type: string, doc: "basename used to name output files"}
-  sample_name: {type: 'string', doc: "used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz, one per input fastq in the same order"}
+  output_basename: { type: string, doc: "basename used to name output files" }
+  sample_name: { type: 'string', doc: "used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz, one per input fastq in the same order" }
   # optional concat and rename step
-  corrected_read_1_name: {type: 'string?', doc: "corrected read one names in the 10x expected format 'SampleName_S1_L001_R1_001'. When provided, must be in the same order and same length as the sample name and corrected_read_2_name arrays."}
-  corrected_read_2_name: {type: 'string?', doc: "corrected read two names in the 10x expected format 'SampleName_S1_L001_R2_001'. When provided, must be in the same order and same length as the sample name and corrected_read_1_name arrays."}
+  corrected_read_1_name: { type: 'string?', doc: "corrected read one names in the 10x expected format 'SampleName_S1_L001_R1_001'. When provided, must be in the same order and same length as the sample name and corrected_read_2_name arrays." }
+  corrected_read_2_name: { type: 'string?', doc: "corrected read two names in the 10x expected format 'SampleName_S1_L001_R2_001'. When provided, must be in the same order and same length as the sample name and corrected_read_1_name arrays." }
   # cell ranger
-  fastq_dir: {type: 'Directory?', doc: "directory of fastqs being run. If formatting needed, use r1 and r2 fastqs input instead"}
-  r1_fastqs: { type: 'File[]?', doc: "If fastqs need to be concat from an old format, populate this"}
-  r2_fastqs: { type: 'File[]?', doc: "If fastqs need to be concat from an old format, populate this"}
-  reference: {type: 'Directory', doc: "directory of reference files"}
+  cr_localcores: { type: 'int?', doc: "Num cores to use for cell ranger", default: 16 }
+  cr_instance_ram: { type: 'int?', doc: 'Ram in GB to make avaialable to cell ranger count step', default: 64}
+  fastq_dir: { type: 'Directory?', doc: "directory of fastqs being run. If formatting needed, use r1 and r2 fastqs input instead" }
+  r1_fastqs: { type: 'File[]?', doc: "If fastqs need to be concat from an old format, populate this" }
+  r2_fastqs: { type: 'File[]?', doc: "If fastqs need to be concat from an old format, populate this" }
+  reference: { type: 'Directory', doc: "directory of reference files" }
   no_bam: { type: 'boolean?', doc: "Set to skip generating bam output. Good to keep bam for troubleshooting, but adds to computation time" }
   # scrublet
-  expected_doublet_rate: {type: 'float?', default: 0.06, doc: "expected doublet rate, usually specific to the method; default 0.06 for 10X"}
-  doublet_score_threshold: {type: 'float?', default: 0.25, doc: "doublet cut-off, cells with greater scores will be labelled as doublets; must be between 0 and 1"}
-  count_min: {type: 'int?', default: 2, doc: "minimum expression count to retain a gene"}
-  cell_min: {type: 'int?', default: 3, doc: "minimum number of cells a gene must be in to be retained"}
-  min_gene_variability_pctl: {type: 'int?', default: 85, doc: "Keep the most highly variable genes (in the top min_gene_variability_pctl percentile), as measured by the v-statistic"}
-  n_prin_comps: {type: 'int?', default: 30, doc: "Number of PCs to use for clustering"}
-  ram: {type: 'int?', default: 16, doc: "In GB"}
-  cpus: {type: 'int?', default: 1, doc: "Number of CPUs to request"}
+  expected_doublet_rate: { type: 'float?', default: 0.06, doc: "expected doublet rate, usually specific to the method; default 0.06 for 10X" }
+  doublet_score_threshold: { type: 'float?', default: 0.25, doc: "doublet cut-off, cells with greater scores will be labelled as doublets; must be between 0 and 1" }
+  count_min: { type: 'int?', default: 2, doc: "minimum expression count to retain a gene" }
+  cell_min: { type: 'int?', default: 3, doc: "minimum number of cells a gene must be in to be retained" }
+  min_gene_variability_pctl: { type: 'int?', default: 85, doc: "Keep the most highly variable genes (in the top min_gene_variability_pctl percentile), as measured by the v-statistic" }
+  n_prin_comps: { type: 'int?', default: 30, doc: "Number of PCs to use for clustering" }
+  ram: { type: 'int?', default: 16, doc: "In GB" }
+  cpus: { type: 'int?', default: 1, doc: "Number of CPUs to request" }
 
 outputs:
-  count_summary: {type: File, outputSource: count/output_summary}
-  bam_out: {type: File, outputSource: count/bam}
-  decontam_matrix: {type: Directory, outputSource: soupx/decontaminated_matrix}
-  decontam_object: {type: File, outputSource: scrublet/doublets_file}
-  doublet_histogram: {type: File, outputSource: scrublet/score_histogram}
+  count_summary: { type: File, outputSource: count/output_summary }
+  bam_out: { type: 'File?', outputSource: count/bam }
+  decontam_matrix: { type: File, outputSource: seurat_merge/merged_matrix }
+  decontam_object: { type: File, outputSource: seurat_merge/merged_object }
+  doublet_histogram: { type: File, outputSource: scrublet/score_histogram }
 
 steps:
 
@@ -91,6 +93,8 @@ steps:
     # scatter: [sample_name, fastqs]
     # scatterMethod: dotproduct
     in:
+      localcores: cr_localcores
+      cr_instance_ram: cr_instance_ram
       run_id: output_basename
       fastqs: 
         source: [concat_rename_fastq/renamed_dir, fastq_dir]
@@ -130,10 +134,16 @@ steps:
       cpus: cpus
     out: [score_histogram, doublets_file]
 
-  # merge:
-  #   run: ../tools/seurat_merge.cwl
-  #   in:
-  #     matrix_dirs: soupx/decontaminated_matrix
-  #     doublets_files: scrublet/doublets_file
-  #     output_name: output_basename
-  #   out: [merged_matrix, merged_object]
+  seurat_merge:
+    run: ../tools/seurat_merge.cwl
+    in:
+      matrix_dirs: 
+        source: soupx/decontaminated_matrix
+        valueFrom: |
+          $([self])
+      doublets_files:
+        source: scrublet/doublets_file
+        valueFrom: |
+          $([self])
+      output_name: output_basename
+    out: [merged_matrix, merged_object]
