@@ -41,8 +41,8 @@ inputs:
   corrected_read_1_name: { type: 'string?', doc: "corrected read one names in the 10x expected format 'SampleName_S1_L001_R1_001'. When provided, must be in the same order and same length as the sample name and corrected_read_2_name arrays." }
   corrected_read_2_name: { type: 'string?', doc: "corrected read two names in the 10x expected format 'SampleName_S1_L001_R2_001'. When provided, must be in the same order and same length as the sample name and corrected_read_1_name arrays." }
   # cell ranger
-  cr_localcores: { type: 'int?', doc: "Num cores to use for cell ranger", default: 16 }
-  cr_instance_ram: { type: 'int?', doc: 'Ram in GB to make avaialable to cell ranger count step', default: 64}
+  cr_localcores: { type: 'int?', doc: "Num cores to use for cell ranger", default: 36 }
+  cr_instance_ram: { type: 'int?', doc: 'Ram in GB to make available to cell ranger count step', default: 64}
   fastq_dir: { type: 'Directory?', doc: "directory of fastqs being run. If formatting needed, use r1 and r2 fastqs input instead" }
   r1_fastqs: { type: 'File[]?', doc: "If fastqs need to be concat from an old format, populate this" }
   r2_fastqs: { type: 'File[]?', doc: "If fastqs need to be concat from an old format, populate this" }
@@ -67,16 +67,6 @@ outputs:
 
 steps:
 
-  # rename_samples:
-  #   run: ../tools/rename_samples.cwl
-  #   scatter: [sample_name, corrected_read_1_name, corrected_read_2_name]
-  #   scatterMethod: dotproduct
-  #   in:
-  #     fastqs: fastq_dir
-  #     sample_name: sample_name
-  #     corrected_read_1_name: corrected_read_1_name
-  #     corrected_read_2_name: corrected_read_2_name
-  #   out: [renamed_dir]
   concat_rename_fastq:
     run: ../tools/concat_rename_fastq.cwl
     when: $(inputs.r1_fastqs != null)
@@ -90,8 +80,6 @@ steps:
 
   count:
     run: ../tools/cellranger_count.cwl
-    # scatter: [sample_name, fastqs]
-    # scatterMethod: dotproduct
     in:
       localcores: cr_localcores
       cr_instance_ram: cr_instance_ram
@@ -108,8 +96,6 @@ steps:
 
   soupx:
     run: ../tools/soupx.cwl
-    # scatter: [raw_matrix, filtered_matrix, sample_name, cluster_file]
-    # scatterMethod: dotproduct
     in:
       raw_matrix: count/raw_matrix_out
       filtered_matrix: count/filtered_matrix_out
@@ -119,8 +105,6 @@ steps:
 
   scrublet:
     run: ../tools/scrublet.cwl
-    # scatter: [input_matrix, output_basename]
-    # scatterMethod: dotproduct
     in:
       input_matrix: soupx/decontaminated_matrix
       output_basename: sample_name
