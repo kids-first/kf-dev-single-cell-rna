@@ -24,8 +24,8 @@ inputs:
   input_dir: {type: 'Directory', doc: "Directory containing fastq files"}
   hisat_genome_ref: {type: 'File', doc: "Hisat 2 genome reference"}
   hisat_trans_ref: {type: 'File', doc: "Hisat 2 transcriptome reference"}
-  rnaseqc_gtf: {type: "File", doc: "gtf file used by RNAseQC", "sbg:suggestedValue": {class: 'File', path: '5d8bb21fe4b0950c4028f852', name: 'gencode.v27.primary_assembly.RNAseQC.gtf'}}
-  rsem_reference: {type: "File", doc: "RSEM reference file", "sbg:suggestedValue": {class: 'File', path: '5d8bb21fe4b0950c4028f851', name: 'RSEM_GENCODE27.tar.gz'}}
+  rnaseqc_gtf: {type: "File", doc: "gtf file used by RNAseQC", "sbg:suggestedValue": {class: 'File', path: '62853e7ad63f7c6d8d7ae5a3', name: 'gencode.v39.primary_assembly.rnaseqc.stranded.gtf'}}
+  rsem_reference: {type: "File", doc: "RSEM reference file", "sbg:suggestedValue": {class: 'File', path: '62853e7ad63f7c6d8d7ae5a5', name: 'RSEM_GENCODE39.tar.gz'}}
   hisat_cpus: { type: 'int?', default: 4, doc: "CPUs to allocate to call task"}
   hisat_ram: { type: 'int?', default: 8, doc: "RAM to allocate to call task in gb"}
   rsem_cpus: { type: 'int?', default: 4, doc: "CPUs to allocate to run rsem"}
