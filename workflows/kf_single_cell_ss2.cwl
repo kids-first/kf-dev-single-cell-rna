@@ -45,7 +45,7 @@ steps:
     run: ../tools/expression_parse_strand_param.cwl
     in:
       wf_strand_param: wf_strand_param
-    out: [rsem_std, rnaseqc_std]
+    out: [rsem_std, rnaseqc_std, hisat2_std]
 
   separate_samples:
     run: ../tools/separate_samples.cwl
@@ -68,9 +68,6 @@ steps:
     out: [sample_names]
 
   hisat2_align_genome:
-    hints:
-      - class: 'sbg:AWSInstanceType'
-        value: c5.4xlarge
     run: ../tools/hisat2_align.cwl
     scatter: [fastq1, fastq2, output_basename, input_id]
     scatterMethod: dotproduct
@@ -87,9 +84,6 @@ steps:
     out: [log_file, met_file, bam]
 
   hisat2_align_trans:
-    hints:
-      - class: 'sbg:AWSInstanceType'
-        value: c5.4xlarge
     run: ../tools/hisat2_align.cwl
     scatter: [fastq1, fastq2, output_basename, input_id]
     scatterMethod: dotproduct
@@ -98,6 +92,7 @@ steps:
       fastq1: separate_samples/fastq1s
       fastq2: build_fastq2_array/fastq2_array
       output_basename: build_samples_array/sample_names
+      rna_strandness: strand_parse/hisat2_std
       input_id: build_samples_array/sample_names
       strict:
         valueFrom: ${return Boolean(true)}
@@ -106,9 +101,6 @@ steps:
     out: [log_file, met_file, bam]
 
   rnaseqc:
-    hints:
-      - class: 'sbg:AWSInstanceType'
-        value: c5.4xlarge
     run: ../tools/rnaseqc.cwl
     scatter: input_bam
     in:
@@ -119,9 +111,6 @@ steps:
     out: [metrics, gene_TPM, gene_count, exon_count]
 
   rsem:
-    hints:
-      - class: 'sbg:AWSInstanceType'
-        value: c5.4xlarge
     run: ../tools/rsem_calc_express.cwl
     scatter: [input_bam, output_basename]
     scatterMethod: dotproduct
@@ -173,3 +162,5 @@ $namespaces:
 hints:
   - class: 'sbg:maxNumberOfParallelInstances'
     value: 4
+  - class: 'sbg:AWSInstanceType'
+    value: c5.9xlarge
