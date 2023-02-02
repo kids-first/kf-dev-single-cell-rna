@@ -34,6 +34,9 @@ arguments:
         else {
           cmd += "-U " + inputs.fastq1.path;
         }
+        if (inputs.rna_strandness){
+          cmd += " --rna-strandness " + inputs.rna_strandness;
+        }
         if (inputs.strict){
           cmd += " --mp 1,1 --np 1 --score-min L,0,-0.1 --no-mixed --no-softclip --no-discordant --rdg 99999999,99999999 --rfg 99999999,99999999 --no-spliced-alignment && " +
           "samtools view -S -b " + inputs.output_basename + "_unsorted.sam > " + inputs.output_basename + ".bam"
@@ -51,6 +54,7 @@ inputs:
   reference: {type: File, doc: "tarball of reference files"}
   fastq1: {type: File, doc: "gzipped read 1 fq file"}
   fastq2: {type: "File?", doc: "gzipped read 2 fq file"}
+  rna_strandness:  { type: ['null', {type: enum, name: rna_strandness, symbols: ["FR", "RF", "F", "R"]}]}
   output_basename: {type: string, doc: "Output file basename"}
   input_id: {type: string, doc: "Sample name"}
   strict: {type: "boolean?", doc: "Flag to use a stricter alignment to make input bam for RSEM"}

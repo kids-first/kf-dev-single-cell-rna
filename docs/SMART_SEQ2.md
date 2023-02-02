@@ -1,5 +1,6 @@
 ## Smart Seq 2 Workflow
 The workflow uses [HISAT2](http://daehwankimlab.github.io/hisat2/) for alignment, [RNAseQC](https://github.com/getzlab/rnaseqc) to collect sequencing metrics, and [RSEM](https://deweylab.github.io/RSEM/) to calculate gene expression.
+The HISAT2 + RSEM run paramaters were guided by the [Human Cell Atlas Data Portal](https://data.humancellatlas.org/pipelines/smart-seq2-workflow).
 The outputs of the workflow are a matrix of cells gene counts in a loom file, a tarball containing a matrix of the gene counts in Matrix Market format, and a tsv with collected sequencing metrics from all cells analyzed.
 Basic functionality includes removal of abnormal cells, dimensionality reduction, identification of differentially expressed features, and clustering.
 
