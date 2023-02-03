@@ -21,7 +21,7 @@ arguments:
       $(inputs.reference.path) &&
 
       ${
-        var cmd = "hisat2 -t -x " + inputs.reference.nameroot.split('.')[0] +
+        var cmd = "hisat2 -t -x " + inputs.reference.path +
         "/" + inputs.reference.nameroot.split('.')[0] + " --rg-id=" +
         inputs.input_id + " --rg SM:" + inputs.input_id + " --rg LB:" +
         inputs.input_id + " --rg PL:ILLUMINA --rg PU:" + inputs.input_id +
@@ -51,7 +51,7 @@ arguments:
        }
 
 inputs:
-  reference: {type: File, doc: "tarball of reference files"}
+  reference: {type: Directory, doc: "Dir of hisat index files"}
   fastq1: {type: File, doc: "gzipped read 1 fq file"}
   fastq2: {type: "File?", doc: "gzipped read 2 fq file"}
   rna_strandness:  { type: ['null', {type: enum, name: rna_strandness, symbols: ["FR", "RF", "F", "R"]}]}

@@ -54,6 +54,18 @@ steps:
       paired: paired
     out: [fastq1s, fastq2s, samples]
 
+  untar_genome:
+    run: ../tools/untar_dir.cwl
+    in: 
+      tarfile: hisat_genome_ref
+    out: [outdir]
+
+  untar_trans:
+    run: ../tools/untar_dir.cwl
+    in: 
+      tarfile: hisat_trans_ref
+    out: [outdir]
+
   build_fastq2_array:
     run: ../tools/build_fastq2_array.cwl
     in:
@@ -72,7 +84,7 @@ steps:
     scatter: [fastq1, fastq2, output_basename, input_id]
     scatterMethod: dotproduct
     in:
-      reference: hisat_genome_ref
+      reference: untar_genome/outdir
       fastq1: separate_samples/fastq1s
       fastq2: build_fastq2_array/fastq2_array
       output_basename: build_samples_array/sample_names
@@ -88,7 +100,7 @@ steps:
     scatter: [fastq1, fastq2, output_basename, input_id]
     scatterMethod: dotproduct
     in:
-      reference: hisat_trans_ref
+      reference: untar_trans/outdir
       fastq1: separate_samples/fastq1s
       fastq2: build_fastq2_array/fastq2_array
       output_basename: build_samples_array/sample_names
@@ -163,4 +175,4 @@ hints:
   - class: 'sbg:maxNumberOfParallelInstances'
     value: 4
   - class: 'sbg:AWSInstanceType'
-    value: c5.9xlarge
+    value: c5.4xlarge
