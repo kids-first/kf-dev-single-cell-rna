@@ -29,3 +29,13 @@ matrix_loom: {type: 'File', outputSource: merge_looms/output_file}
 matrix_tar: {type: 'File', outputSource: loom_to_mtx/output_tar}
 alignment_metrics_report: {type: 'File', outputSource: merge_rnaseqc_results/output_file}
 ```
+
+### Custom reference building
+#### hisat_genome_ref
+The name is confusing as it includes a transcript refrence as part of th ebuild process, but uses the fasta genome fa. Built using tools/hisat2_build_index.cwl, with the following preprocessing steps to generate inputs
+ - Used GENCODE39 primary reference and tools/hisat2_format_gtf_ref.cwl tool to generate `exon` and `splice` inputs
+ - Followed instructions from https://daehwankimlab.github.io/hisat2/howto/#build-hgfm-index-with-snps, but skipped awk command as 
+    used snp151 instead of 144 to generate `snp` input locally
+#### hisat_trans_ref
+Used for alignment against a transcriptome fasta only for RSEM quant.
+Built using tools/hisat2_build_index.cwl with the fasta file inside the RSEM tar ball reference used as fasta input. No other inputs aside from output basename given.
