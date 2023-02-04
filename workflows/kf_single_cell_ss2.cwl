@@ -88,6 +88,7 @@ steps:
       fastq1: separate_samples/fastq1s
       fastq2: build_fastq2_array/fastq2_array
       output_basename: build_samples_array/sample_names
+      rna_strandness: strand_parse/hisat2_std
       input_id: build_samples_array/sample_names
       strict:
         valueFrom: ${return Boolean(false)}
