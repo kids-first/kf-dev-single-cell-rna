@@ -41,6 +41,8 @@ inputs:
     inputBinding: { prefix: "--snp", position: 5 } }
   haplotype: {type: 'File?', doc: "HISAT2 format haplotype (.haplotype) file, if including haplotypes",
     inputBinding: { prefix: "--haplotype", position: 5 } }
+  large_index: { type: 'boolean?', doc: "If fasta >= 4BN bp or snp addition causes failure, make large index", default: false,
+    inputBinding: { prefix: "--large-index", position: 6} }
   fasta: { type: File, doc: "reference fasta file",
     inputBinding: { position: 7 } }
   output_basename: {type: string, doc: "Output file basename. Recommend hisat2_gencodeNN_{snp and/or hap}_{trans/genome}"}

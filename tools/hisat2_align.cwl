@@ -12,17 +12,15 @@ requirements:
     coresMin: $(inputs.cpus)
   - class: InlineJavascriptRequirement
 
-baseCommand: [tar, xf]
+baseCommand: []
 
 arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      $(inputs.reference.path) &&
-
       ${
         var cmd = "hisat2 -t -x " + inputs.reference.path +
-        "/" + inputs.reference.nameroot.split('.')[0] + " --rg-id=" +
+        "/" + inputs.reference.basename + " --rg-id=" +
         inputs.input_id + " --rg SM:" + inputs.input_id + " --rg LB:" +
         inputs.input_id + " --rg PL:ILLUMINA --rg PU:" + inputs.input_id +
         " --new-summary --summary-file " + inputs.output_basename +
