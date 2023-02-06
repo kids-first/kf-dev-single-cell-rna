@@ -46,6 +46,17 @@ inputs:
   fasta: { type: File, doc: "reference fasta file",
     inputBinding: { position: 7 } }
   output_basename: {type: string, doc: "Output file basename. Recommend hisat2_gencodeNN_{snp and/or hap}_{trans/genome}"}
+  # advanced - if auto params cause memory errors
+  noauto: { type: 'boolean?', default: false, doc: "Disable the default behavior whereby hisat2-build automatically selects values for the --bmax, --dcv and [--packed] parameters according to available memory",
+    inputBinding: { prefix: "--noauto", position: 3 } }
+  bmax: { type: 'int?', doc: "The maximum number of suffixes allowed in a block. Allowing more suffixes per block makes indexing faster, but increases peak memory usage. Setting this option overrides any previous setting for --bmax, or --bmaxdivn. Default (in terms of the --bmaxdivn parameter) is --bmaxdivn 4",
+    inputBinding: { prefix: "--bmax", position: 3 } }
+  bmaxdivn: { type: 'int?', doc: "The maximum number of suffixes allowed in a block, expressed as a fraction of the length of the reference. Setting this option overrides any previous setting for --bmax, or --bmaxdivn. Default: --bmaxdivn 4",
+    inputBinding: { prefix: "--bmaxdivn", position: 3 } }
+  dcv: { type: 'int?', doc: "Use <int> as the period for the difference-cover sample. A larger period yields less memory overhead, but may make suffix sorting slower, especially if repeats are present. Must be a power of 2 no greater than 4096. Default: 1024",
+    inputBinding: { prefix: "--dcv", position: 3 } }
+  nodc: { type: 'boolean?', doc: "Disable use of the difference-cover sample. Suffix sorting becomes quadratic-time in the worst case (where the worst case is an extremely repetitive reference). Default: off",
+    inputBinding: { prefix: "--nodc", position: 3 } }
 
 outputs:
   hisat_trans_tar:
