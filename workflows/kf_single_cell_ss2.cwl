@@ -26,8 +26,10 @@ inputs:
   hisat_trans_ref: {type: 'File', doc: "Hisat 2 transcriptome reference"}
   rnaseqc_gtf: {type: "File", doc: "gtf file used by RNAseQC", "sbg:suggestedValue": {class: 'File', path: '62853e7ad63f7c6d8d7ae5a3', name: 'gencode.v39.primary_assembly.rnaseqc.stranded.gtf'}}
   rsem_reference: {type: "File", doc: "RSEM reference file", "sbg:suggestedValue": {class: 'File', path: '62853e7ad63f7c6d8d7ae5a5', name: 'RSEM_GENCODE39.tar.gz'}}
-  hisat_cpus: { type: 'int?', default: 4, doc: "CPUs to allocate to call task"}
-  hisat_ram: { type: 'int?', default: 8, doc: "RAM to allocate to call task in gb"}
+  hisat_gen_cpus: { type: 'int?', default: 4, doc: "CPUs to allocate to call genome align task"}
+  hisat_gen_ram: { type: 'int?', default: 8, doc: "RAM to allocate to call genome align task in gb"}
+  hisat_rsem_cpus: { type: 'int?', default: 4, doc: "CPUs to allocate to call RSEM transcriptome align task"}
+  hisat_rsem_ram: { type: 'int?', default: 8, doc: "RAM to allocate to call RSEM transcriptome align task in gb"}
   rsem_cpus: { type: 'int?', default: 4, doc: "CPUs to allocate to run rsem"}
   rsem_ram: { type: 'int?', default: 8, doc: "RAM to allocate to run rsem in gb"}
   wf_strand_param: {type: [{type: enum, name: wf_strand_param, symbols: ["default", "rf-stranded", "fr-stranded"]}], doc: "use 'default' for unstranded/auto, 'rf-stranded' if read1 in the fastq read pairs is reverse complement to the transcript, 'fr-stranded' if read1 same sense as transcript"}
@@ -92,8 +94,8 @@ steps:
       input_id: build_samples_array/sample_names
       strict:
         valueFrom: ${return Boolean(false)}
-      ram: hisat_ram
-      cpus: hisat_cpus
+      ram: hisat_gen_ram
+      cpus: hisat_gen_cpus
     out: [log_file, met_file, bam]
 
   hisat2_align_trans:
@@ -109,8 +111,8 @@ steps:
       input_id: build_samples_array/sample_names
       strict:
         valueFrom: ${return Boolean(true)}
-      ram: hisat_ram
-      cpus: hisat_cpus
+      ram: hisat_rsem_ram
+      cpus: hisat_rsem_cpus
     out: [log_file, met_file, bam]
 
   rnaseqc:
