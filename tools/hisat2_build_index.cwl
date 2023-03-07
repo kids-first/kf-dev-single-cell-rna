@@ -6,7 +6,7 @@ doc: "Build HiSAT2 Index. If gtf or snps added - will be an HGFM reference. Else
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0'
+    dockerPull: 'pgc-images.sbgenomics.com/brownm28/hisat2:2.2.1'
   - class: ResourceRequirement
     ramMin: ${return inputs.ram * 1000}
     coresMin: $(inputs.cpus)
