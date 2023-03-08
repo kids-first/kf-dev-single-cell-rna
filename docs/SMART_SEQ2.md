@@ -7,7 +7,7 @@ Basic functionality includes removal of abnormal cells, dimensionality reduction
 Data are aligned to both the genome and the transcriptome. Genome aligned data are used to collect sequencing metrics and transcriptome aligned data are used to calculate expression.
 
 ### Tools Ran
-- HISAT2 2.1.0
+- HISAT2 2.2.1
 - RNASeQC 2.4.2
 - RSEM 1.3.1
 
@@ -18,8 +18,10 @@ Data are aligned to both the genome and the transcriptome. Genome aligned data a
  - hisat_trans_ref: Hisat 2 transcriptome reference
  - rnaseqc_gtf: gtf file used by RNAseQC, recommend gencode.v39.primary_assembly.rnaseqc.stranded.gtf
  - rsem_reference: RSEM reference file, recommend RSEM_GENCODE39.tar.gz
- - cpus: CPUs to allocate to call task
- - ram: RAM to allocate to call task in gb
+ - hisat_gen_cpus: CPUs to allocate to call genome align task
+ - hisat_gen_ram: RAM to allocate to call genome align task in gb
+ - hisat_rsem_cpus: CPUs to allocate to call transriptome align task
+ - hisat_rsem_ram: RAM to allocate to call transriptome align task in gb
  - wf_strand_param: use 'default' for unstranded/auto, 'rf-stranded' if read1 in the fastq read pairs is reverse complement to the transcript, 'fr-stranded' if read1 same sense as transcript
  - paired: Flag for paired data, separate from wf_strand_param which describes the orientation of paired data [False]
 
@@ -32,10 +34,9 @@ alignment_metrics_report: {type: 'File', outputSource: merge_rnaseqc_results/out
 
 ### Custom reference building
 #### hisat_genome_ref
-The name is confusing as it includes a transcript refrence as part of th ebuild process, but uses the fasta genome fa. Built using tools/hisat2_build_index.cwl, with the following preprocessing steps to generate inputs
+The name is confusing as it includes a transcript reference as part of the build process, but uses the fasta genome fa. Built using tools/hisat2_build_index.cwl, with the following preprocessing steps to generate inputs
  - Used GENCODE39 primary reference and tools/hisat2_format_gtf_ref.cwl tool to generate `exon` and `splice` inputs
- - Followed instructions from https://daehwankimlab.github.io/hisat2/howto/#build-hgfm-index-with-snps, but skipped awk command as 
-    used snp151 instead of 144 to generate `snp` input locally
+ - Followed instructions from https://daehwankimlab.github.io/hisat2/howto/#prepare-data, but skipped awk command as used snp151 instead of 144 to generate `snp` input locally
 #### hisat_trans_ref
 Used for alignment against a transcriptome fasta only for RSEM quant.
 Built using tools/hisat2_build_index.cwl with the fasta file inside the RSEM tar ball reference used as fasta input. No other inputs aside from output basename given.
