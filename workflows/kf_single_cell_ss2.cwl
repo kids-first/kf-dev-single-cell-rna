@@ -24,10 +24,14 @@ inputs:
   input_dir: {type: 'Directory', doc: "Directory containing fastq files"}
   hisat_genome_ref: {type: 'File', doc: "Hisat 2 genome reference"}
   hisat_trans_ref: {type: 'File', doc: "Hisat 2 transcriptome reference"}
-  rnaseqc_gtf: {type: "File", doc: "gtf file used by RNAseQC", "sbg:suggestedValue": {class: 'File', path: '5d8bb21fe4b0950c4028f852', name: 'gencode.v27.primary_assembly.RNAseQC.gtf'}}
-  rsem_reference: {type: "File", doc: "RSEM reference file", "sbg:suggestedValue": {class: 'File', path: '5d8bb21fe4b0950c4028f851', name: 'RSEM_GENCODE27.tar.gz'}}
-  cpus: { type: 'int?', default: 4, doc: "CPUs to allocate to call task"}
-  ram: { type: 'int?', default: 8, doc: "RAM to allocate to call task in gb"}
+  rnaseqc_gtf: {type: "File", doc: "gtf file used by RNAseQC", "sbg:suggestedValue": {class: 'File', path: '62853e7ad63f7c6d8d7ae5a3', name: 'gencode.v39.primary_assembly.rnaseqc.stranded.gtf'}}
+  rsem_reference: {type: "File", doc: "RSEM reference file", "sbg:suggestedValue": {class: 'File', path: '62853e7ad63f7c6d8d7ae5a5', name: 'RSEM_GENCODE39.tar.gz'}}
+  hisat_gen_cpus: { type: 'int?', default: 4, doc: "CPUs to allocate to call genome align task"}
+  hisat_gen_ram: { type: 'int?', default: 8, doc: "RAM to allocate to call genome align task in gb"}
+  hisat_rsem_cpus: { type: 'int?', default: 4, doc: "CPUs to allocate to call RSEM transcriptome align task"}
+  hisat_rsem_ram: { type: 'int?', default: 8, doc: "RAM to allocate to call RSEM transcriptome align task in gb"}
+  rsem_cpus: { type: 'int?', default: 4, doc: "CPUs to allocate to run rsem"}
+  rsem_ram: { type: 'int?', default: 8, doc: "RAM to allocate to run rsem in gb"}
   wf_strand_param: {type: [{type: enum, name: wf_strand_param, symbols: ["default", "rf-stranded", "fr-stranded"]}], doc: "use 'default' for unstranded/auto, 'rf-stranded' if read1 in the fastq read pairs is reverse complement to the transcript, 'fr-stranded' if read1 same sense as transcript"}
   paired: {type: 'boolean?', default: False, doc: "Flag for paired data, separate from wf_strand_param which describes the orientation of paired data [False]"}
 
@@ -43,7 +47,7 @@ steps:
     run: ../tools/expression_parse_strand_param.cwl
     in:
       wf_strand_param: wf_strand_param
-    out: [rsem_std, rnaseqc_std]
+    out: [rsem_std, rnaseqc_std, hisat2_std]
 
   separate_samples:
     run: ../tools/separate_samples.cwl
@@ -51,6 +55,18 @@ steps:
       input_dir: input_dir
       paired: paired
     out: [fastq1s, fastq2s, samples]
+
+  untar_genome:
+    run: ../tools/untar_dir.cwl
+    in: 
+      tarfile: hisat_genome_ref
+    out: [outdir]
+
+  untar_trans:
+    run: ../tools/untar_dir.cwl
+    in: 
+      tarfile: hisat_trans_ref
+    out: [outdir]
 
   build_fastq2_array:
     run: ../tools/build_fastq2_array.cwl
@@ -70,15 +86,16 @@ steps:
     scatter: [fastq1, fastq2, output_basename, input_id]
     scatterMethod: dotproduct
     in:
-      reference: hisat_genome_ref
+      reference: untar_genome/outdir
       fastq1: separate_samples/fastq1s
       fastq2: build_fastq2_array/fastq2_array
       output_basename: build_samples_array/sample_names
+      rna_strandness: strand_parse/hisat2_std
       input_id: build_samples_array/sample_names
       strict:
         valueFrom: ${return Boolean(false)}
-      ram: ram
-      cpus: cpus
+      ram: hisat_gen_ram
+      cpus: hisat_gen_cpus
     out: [log_file, met_file, bam]
 
   hisat2_align_trans:
@@ -86,15 +103,16 @@ steps:
     scatter: [fastq1, fastq2, output_basename, input_id]
     scatterMethod: dotproduct
     in:
-      reference: hisat_trans_ref
+      reference: untar_trans/outdir
       fastq1: separate_samples/fastq1s
       fastq2: build_fastq2_array/fastq2_array
       output_basename: build_samples_array/sample_names
+      rna_strandness: strand_parse/hisat2_std
       input_id: build_samples_array/sample_names
       strict:
         valueFrom: ${return Boolean(true)}
-      ram: ram
-      cpus: cpus
+      ram: hisat_rsem_ram
+      cpus: hisat_rsem_cpus
     out: [log_file, met_file, bam]
 
   rnaseqc:
@@ -105,8 +123,6 @@ steps:
       collapsed_gtf: rnaseqc_gtf
       strand: strand_parse/rnaseqc_std
       paired: paired
-      ram: ram
-      cpus: cpus
     out: [metrics, gene_TPM, gene_count, exon_count]
 
   rsem:
@@ -118,6 +134,8 @@ steps:
       reference: rsem_reference
       output_basename: build_samples_array/sample_names
       paired: paired
+      cpus: rsem_cpus
+      ram: rsem_ram
     out: [gene_out, isoform_out, cnt_out, model_out, theta_out]
 
   make_single_loom:
@@ -158,4 +176,6 @@ $namespaces:
   sbg: https://sevenbridges.com
 hints:
   - class: 'sbg:maxNumberOfParallelInstances'
-    value: 2
+    value: 4
+  - class: 'sbg:AWSInstanceType'
+    value: c5.4xlarge

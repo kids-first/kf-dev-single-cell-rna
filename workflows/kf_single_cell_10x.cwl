@@ -34,36 +34,49 @@ requirements:
   InlineJavascriptRequirement: {}
 
 inputs:
-  output_basename: {type: string, doc: "basename used to name output files"}
-  fastq_dir: {type: 'Directory', doc: "directory of fastqs being run"}
-  sample_name: {type: 'string[]', doc: "used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz, one per input fastq in the same order"}
-  corrected_read_1_name: {type: 'string[]?', doc: "corrected read one names in the 10x expected format 'SampleName_S1_L001_R1_001'. When provided, must be in the same order and same length as the sample name and corrected_read_2_name arrays."}
-  corrected_read_2_name: {type: 'string[]?', doc: "corrected read two names in the 10x expected format 'SampleName_S1_L001_R2_001'. When provided, must be in the same order and same length as the sample name and corrected_read_1_name arrays."}
-  reference: {type: 'Directory', doc: "directory of reference files"}
-  expected_doublet_rate: {type: 'float?', default: 0.06, doc: "expected doublet rate, usually specific to the method; default 0.06 for 10X"}
-  doublet_score_threshold: {type: 'float?', default: 0.25, doc: "doublet cut-off, cells with greater scores will be labelled as doublets; must be between 0 and 1"}
-  count_min: {type: 'int?', default: 2, doc: "minimum expression count to retain a gene"}
-  cell_min: {type: 'int?', default: 3, doc: "minimum number of cells a gene must be in to be retained"}
-  min_gene_variability_pctl: {type: 'int?', default: 85, doc: "Keep the most highly variable genes (in the top min_gene_variability_pctl percentile), as measured by the v-statistic"}
-  n_prin_comps: {type: 'int?', default: 30, doc: "Number of PCs to use for clustering"}
-  ram: {type: 'int?', default: 16, doc: "In GB"}
-  cpus: {type: 'int?', default: 1, doc: "Number of CPUs to request"}
+  # multi-step
+  output_basename: { type: string, doc: "basename used to name output files" }
+  sample_name: { type: 'string', doc: "used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz, one per input fastq in the same order" }
+  # optional concat and rename step
+  corrected_read_1_name: { type: 'string?', doc: "corrected read one names in the 10x expected format 'SampleName_S1_L001_R1_001'. When provided, must be in the same order and same length as the sample name and corrected_read_2_name arrays." }
+  corrected_read_2_name: { type: 'string?', doc: "corrected read two names in the 10x expected format 'SampleName_S1_L001_R2_001'. When provided, must be in the same order and same length as the sample name and corrected_read_1_name arrays." }
+  # cell ranger
+  cr_localcores: { type: 'int?', doc: "Num cores to use for cell ranger", default: 36 }
+  cr_instance_ram: { type: 'int?', doc: 'Ram in GB to make available to cell ranger count step', default: 64}
+  fastq_dir: { type: 'Directory?', doc: "directory of fastqs being run. If formatting needed, use r1 and r2 fastqs input instead" }
+  r1_fastqs: { type: 'File[]?', doc: "If fastqs need to be concat from an old format, populate this" }
+  r2_fastqs: { type: 'File[]?', doc: "If fastqs need to be concat from an old format, populate this" }
+  reference: { type: 'Directory', doc: "directory of reference files" }
+  no_bam: { type: 'boolean?', doc: "Set to skip generating bam output. Good to keep bam for troubleshooting, but adds to computation time" }
+  include_introns: { type: 'boolean?', doc: "Include intronic reads in count", default: false }
+  chemistry: { type: ['null', {type: enum, name: chemistry, symbols: ["auto","threeprime","fiveprime","SC3Pv2","SC3Pv3","SC3Pv3LT","SC3Pv3HT","SC5P-PE","SC5P-R2","SC3Pv1","ARC-v1"]}],
+    default: "auto", doc: "Chemistry used. auto is usually best. See README for exceptions" }
+
+  # scrublet
+  expected_doublet_rate: { type: 'float?', default: 0.06, doc: "expected doublet rate, usually specific to the method; default 0.06 for 10X" }
+  doublet_score_threshold: { type: 'float?', default: 0.25, doc: "doublet cut-off, cells with greater scores will be labelled as doublets; must be between 0 and 1" }
+  count_min: { type: 'int?', default: 2, doc: "minimum expression count to retain a gene" }
+  cell_min: { type: 'int?', default: 3, doc: "minimum number of cells a gene must be in to be retained" }
+  min_gene_variability_pctl: { type: 'int?', default: 85, doc: "Keep the most highly variable genes (in the top min_gene_variability_pctl percentile), as measured by the v-statistic" }
+  n_prin_comps: { type: 'int?', default: 30, doc: "Number of PCs to use for clustering" }
+  ram: { type: 'int?', default: 16, doc: "In GB" }
+  cpus: { type: 'int?', default: 1, doc: "Number of CPUs to request" }
 
 outputs:
-  count_summary: {type: 'File[]', outputSource: count/output_summary}
-  bam_out: {type: 'File[]', outputSource: count/bam}
-  merged_decontam_matrix: {type: 'File', outputSource: merge/merged_matrix}
-  merged_decontam_object: {type: 'File', outputSource: merge/merged_object}
-  doublet_histogram: {type: 'File[]', outputSource: scrublet/score_histogram}
+  count_summary: { type: File, outputSource: count/output_summary }
+  bam_out: { type: 'File?', outputSource: count/bam }
+  decontam_matrix: { type: File, outputSource: seurat_merge/merged_matrix }
+  decontam_object: { type: File, outputSource: seurat_merge/merged_object }
+  doublet_histogram: { type: File, outputSource: scrublet/score_histogram }
 
 steps:
 
-  rename_samples:
-    run: ../tools/rename_samples.cwl
-    scatter: [sample_name, corrected_read_1_name, corrected_read_2_name]
-    scatterMethod: dotproduct
+  concat_rename_fastq:
+    run: ../tools/concat_rename_fastq.cwl
+    when: $(inputs.r1_fastqs != null)
     in:
-      fastqs: fastq_dir
+      r1_fastqs: r1_fastqs
+      r2_fastqs: r2_fastqs
       sample_name: sample_name
       corrected_read_1_name: corrected_read_1_name
       corrected_read_2_name: corrected_read_2_name
@@ -71,21 +84,24 @@ steps:
 
   count:
     run: ../tools/cellranger_count.cwl
-    scatter: [sample_name, fastqs]
-    scatterMethod: dotproduct
     in:
+      localcores: cr_localcores
+      cr_instance_ram: cr_instance_ram
       run_id: output_basename
-      fastqs: rename_samples/renamed_dir
+      fastqs: 
+        source: [concat_rename_fastq/renamed_dir, fastq_dir]
+        pickValue: first_non_null
       sample_name: sample_name
       reference: reference
+      no_bam: no_bam
       return_h5:
         valueFrom: ${return Boolean(true)}
+      include_introns: include_introns
+      chemistry: chemistry
     out: [filtered_matrix_out, raw_matrix_out, bam, output_summary, molecule_info, whole_output_dir, cluster_file]
 
   soupx:
     run: ../tools/soupx.cwl
-    scatter: [raw_matrix, filtered_matrix, sample_name, cluster_file]
-    scatterMethod: dotproduct
     in:
       raw_matrix: count/raw_matrix_out
       filtered_matrix: count/filtered_matrix_out
@@ -95,8 +111,6 @@ steps:
 
   scrublet:
     run: ../tools/scrublet.cwl
-    scatter: [input_matrix, output_basename]
-    scatterMethod: dotproduct
     in:
       input_matrix: soupx/decontaminated_matrix
       output_basename: sample_name
@@ -110,10 +124,16 @@ steps:
       cpus: cpus
     out: [score_histogram, doublets_file]
 
-  merge:
+  seurat_merge:
     run: ../tools/seurat_merge.cwl
     in:
-      matrix_dirs: soupx/decontaminated_matrix
-      doublets_files: scrublet/doublets_file
+      matrix_dirs: 
+        source: soupx/decontaminated_matrix
+        valueFrom: |
+          $([self])
+      doublets_files:
+        source: scrublet/doublets_file
+        valueFrom: |
+          $([self])
       output_name: output_basename
     out: [merged_matrix, merged_object]

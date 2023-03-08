@@ -6,23 +6,21 @@ doc: "Run HISAT2 alignment"
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/hisat2:2.2.1'
   - class: ResourceRequirement
     ramMin: ${return inputs.ram * 1000}
     coresMin: $(inputs.cpus)
   - class: InlineJavascriptRequirement
 
-baseCommand: [tar, xf]
+baseCommand: []
 
 arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      $(inputs.reference.path) &&
-
       ${
-        var cmd = "hisat2 -t -x " + inputs.reference.nameroot.split('.')[0] +
-        "/" + inputs.reference.nameroot.split('.')[0] + " --rg-id=" +
+        var cmd = "hisat2 -t -x " + inputs.reference.path +
+        "/" + inputs.reference.basename + " --rg-id=" +
         inputs.input_id + " --rg SM:" + inputs.input_id + " --rg LB:" +
         inputs.input_id + " --rg PL:ILLUMINA --rg PU:" + inputs.input_id +
         " --new-summary --summary-file " + inputs.output_basename +
@@ -33,6 +31,9 @@ arguments:
         }
         else {
           cmd += "-U " + inputs.fastq1.path;
+        }
+        if (inputs.rna_strandness){
+          cmd += " --rna-strandness " + inputs.rna_strandness;
         }
         if (inputs.strict){
           cmd += " --mp 1,1 --np 1 --score-min L,0,-0.1 --no-mixed --no-softclip --no-discordant --rdg 99999999,99999999 --rfg 99999999,99999999 --no-spliced-alignment && " +
@@ -48,9 +49,10 @@ arguments:
        }
 
 inputs:
-  reference: {type: File, doc: "tarball of reference files"}
+  reference: {type: Directory, doc: "Dir of hisat index files"}
   fastq1: {type: File, doc: "gzipped read 1 fq file"}
   fastq2: {type: "File?", doc: "gzipped read 2 fq file"}
+  rna_strandness:  { type: ['null', {type: enum, name: rna_strandness, symbols: ["FR", "RF", "F", "R"]}]}
   output_basename: {type: string, doc: "Output file basename"}
   input_id: {type: string, doc: "Sample name"}
   strict: {type: "boolean?", doc: "Flag to use a stricter alignment to make input bam for RSEM"}
