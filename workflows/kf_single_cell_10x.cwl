@@ -48,6 +48,10 @@ inputs:
   r2_fastqs: { type: 'File[]?', doc: "If fastqs need to be concat from an old format, populate this" }
   reference: { type: 'Directory', doc: "directory of reference files" }
   no_bam: { type: 'boolean?', doc: "Set to skip generating bam output. Good to keep bam for troubleshooting, but adds to computation time" }
+  include_introns: { type: 'boolean?', doc: "Include intronic reads in count", default: false }
+  chemistry: { type: ['null', {type: enum, name: chemistry, symbols: ["auto","threeprime","fiveprime","SC3Pv2","SC3Pv3","SC3Pv3LT","SC3Pv3HT","SC5P-PE","SC5P-R2","SC3Pv1","ARC-v1"]}],
+    default: "auto", doc: "Chemistry used. auto is usually best. See README for exceptions" }
+
   # scrublet
   expected_doublet_rate: { type: 'float?', default: 0.06, doc: "expected doublet rate, usually specific to the method; default 0.06 for 10X" }
   doublet_score_threshold: { type: 'float?', default: 0.25, doc: "doublet cut-off, cells with greater scores will be labelled as doublets; must be between 0 and 1" }
@@ -92,6 +96,8 @@ steps:
       no_bam: no_bam
       return_h5:
         valueFrom: ${return Boolean(true)}
+      include_introns: include_introns
+      chemistry: chemistry
     out: [filtered_matrix_out, raw_matrix_out, bam, output_summary, molecule_info, whole_output_dir, cluster_file]
 
   soupx:
