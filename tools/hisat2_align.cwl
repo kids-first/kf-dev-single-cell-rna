@@ -6,7 +6,7 @@ doc: "Run HISAT2 alignment"
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/brownm28/hisat2:2.2.1'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/hisat2:2.2.1'
   - class: ResourceRequirement
     ramMin: ${return inputs.ram * 1000}
     coresMin: $(inputs.cpus)

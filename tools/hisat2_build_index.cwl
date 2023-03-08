@@ -6,7 +6,7 @@ doc: "Build HiSAT2 Index. If gtf or snps added - will be an HGFM reference. Else
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/brownm28/hisat2:2.2.1'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/hisat2:2.2.1'
   - class: ResourceRequirement
     ramMin: ${return inputs.ram * 1000}
     coresMin: $(inputs.cpus)
@@ -30,8 +30,8 @@ arguments:
       tar -czf $(inputs.output_basename).tar.gz $(inputs.output_basename)
 
 inputs:
-  ram: {type: ['null', int], default: 200, doc: "In GB. Use 32 GB if just building a HFM reference"}
-  cpus: {type: ['null', int], default: 16, doc: "Number of CPUs to request",
+  ram: {type: 'int?', default: 200, doc: "In GB. Use 32 GB if just building a HFM reference"}
+  cpus: {type: 'int?', default: 16, doc: "Number of CPUs to request",
     inputBinding: { prefix: "-p", position: 3 } }
   exon: {type: 'File?', doc: "HISAT2 format exon file, if adding transcripts",
     inputBinding: { prefix: "--exon", position: 4 } }
