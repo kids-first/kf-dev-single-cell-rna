@@ -6,7 +6,7 @@ doc: "Convert gtf to HISAT2 format exon and splice files. Needed to build HGFM r
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/hisat2:2.2.1'
   - class: ResourceRequirement
     ramMin: 8000
     coresMin: 4
