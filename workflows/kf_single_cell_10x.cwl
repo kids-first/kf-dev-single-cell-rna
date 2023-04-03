@@ -1,6 +1,7 @@
 cwlVersion: v1.2
 class: Workflow
 id: kf_single_cell_10x
+label: "KFDRC single cell RNA 10x workflow"
 
 doc: |-
   # KFDRC single cell RNA 10x workflow
@@ -68,6 +69,7 @@ outputs:
   decontam_matrix: { type: File, outputSource: seurat_merge/merged_matrix }
   decontam_object: { type: File, outputSource: seurat_merge/merged_object }
   doublet_histogram: { type: File, outputSource: scrublet/score_histogram }
+  debug_cr_file_outputs: { type: 'File[]?', outputSource: [count/filtered_matrix_out, count/raw_matrix_out, count/molecule_info, count/cluster_file] }
 
 steps:
 
