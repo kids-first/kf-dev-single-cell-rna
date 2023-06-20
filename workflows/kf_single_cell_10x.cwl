@@ -69,7 +69,7 @@ outputs:
   decontam_matrix: { type: File, outputSource: seurat_merge/merged_matrix }
   decontam_object: { type: File, outputSource: seurat_merge/merged_object }
   doublet_histogram: { type: File, outputSource: scrublet/score_histogram }
-  debug_cr_file_outputs: { type: 'File[]?', outputSource: [count/filtered_matrix_out, count/raw_matrix_out, count/molecule_info, count/cluster_file] }
+  debug_cr_file_outputs: { type: 'Directory?', outputSource: count/whole_output_dir }
 
 steps:
 
