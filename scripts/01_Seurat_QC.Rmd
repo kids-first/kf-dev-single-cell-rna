@@ -50,7 +50,7 @@ library(GGally)
 library(stringr)
 library(ggpmisc)
 library(ggrepel)
-load_all(scooter_path) # PATH TO SCOOTER or to git repo with it: https://github.com/igordot/scooter
+load_all(scooter_path)
 theme_set(theme_bw())
 
 # # evaluate Seurat R expressions asynchronously when possible (such as ScaleData) using future package
