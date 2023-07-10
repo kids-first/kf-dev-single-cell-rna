@@ -49,7 +49,7 @@ knitr::opts_chunk$set(echo = FALSE,
                       fig.path = file.path(out_path, paste0("Seurat_QC-", sample_name, "/")),
                       fig.height = 10, 
                       fig.width = 15,
-                      dev = c("pdf"))
+                      dev = c("png", "pdf"))
 ```
 
 ```{r load_libraries}
