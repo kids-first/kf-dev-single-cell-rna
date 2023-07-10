@@ -7,6 +7,7 @@ params:
   data_path: "/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/00-alignment/7316-2594_include_introns/outs/filtered_feature_bc_matrix/" # path to the directory with the filtered_feature_bc_matrix
   sample_name: "7316-2594_include_introns"   # name of the current sample
   samples: sample_name
+  scooter_path: './'
   hashtag_ID: NULL # names of the hashtags to keep (if the hashtags are NOT separate from the gene expression data)
   hashtags_to_keep: NULL # names of the hashtags to keep (if the hashtags are NOT separate from the gene expression data)
   hashtag_file: NULL # path to hashtag file (if it is separate from the gene expression data)
@@ -49,7 +50,7 @@ library(GGally)
 library(stringr)
 library(ggpmisc)
 library(ggrepel)
-load_all("/Users/chronia/CHOP/GitHub/scooter") # PATH TO SCOOTER or to git repo with it: https://github.com/igordot/scooter
+load_all(scooter_path) # PATH TO SCOOTER or to git repo with it: https://github.com/igordot/scooter
 theme_set(theme_bw())
 
 # # evaluate Seurat R expressions asynchronously when possible (such as ScaleData) using future package
