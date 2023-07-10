@@ -10,9 +10,9 @@ output:
     toc: yes
     df_print: paged
 params:
-  out_path: "/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/data/01_QC_objects/" # path to dir to save all files
-  data_path: "/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/00-alignment/7316-2594_include_introns/outs/filtered_feature_bc_matrix/" # path to the directory with the filtered_feature_bc_matrix
-  sample_name: "7316-2594_include_introns"   # name of the current sample
+  out_path: './' # path to dir to save all output files
+  data_path: '/path/to/10x/output/dir/filtered_feature_bc_matrix/' # path to the directory with the filtered_feature_bc_matrix
+  sample_name: "sample_name"   # name of the current sample
   samples: sample_name
   scooter_path: './'
   hashtag_ID: NULL # names of the hashtags to keep (if the hashtags are NOT separate from the gene expression data)
@@ -34,7 +34,11 @@ params:
 ---
 
 ```
-Rscript -e "rmarkdown::render('01_Seurat_QC.Rmd', clean = TRUE)"
+Rscript -e "rmarkdown::render('01_Seurat_QC.Rmd', clean = TRUE,
+            params=list(scooter_path = '/Users/chronia/CHOP/GitHub/scooter', 
+                        out_path='/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/data/01_QC_objects/', 
+                        data_path='/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/00-alignment/7316-2594_include_introns/outs/filtered_feature_bc_matrix/', 
+                        sample_name='7316-2594_include_introns'))"
 ```
 
 ```{r setup, include=FALSE}
