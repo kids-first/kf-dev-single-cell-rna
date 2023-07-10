@@ -2,6 +2,13 @@
 title: "Seurat QC and Object for `r params$sample_name`"
 author: 'User ID: `r Sys.getenv("USER")`'
 date: "`r Sys.Date()`"
+output:
+  html_document:
+    fig_height: 7
+    fig_width: 9
+    keep_md: yes
+    toc: yes
+    df_print: paged
 params:
   out_path: "/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/data/01_QC_objects/" # path to dir to save all files
   data_path: "/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/00-alignment/7316-2594_include_introns/outs/filtered_feature_bc_matrix/" # path to the directory with the filtered_feature_bc_matrix
