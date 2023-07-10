@@ -10,15 +10,13 @@ output:
     toc: yes
     df_print: paged
 params:
-  data_path: "/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/00-alignment/7316-2594_include_introns/outs/filtered_feature_bc_matrix/" # path to the directory with the outs file
-  out_path: "/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/data/01_QC_objects/" # output path where the outputs will be stored
   sample_name: "7316-2594_include_introns"   # name of the current sample
   samples: sample_name
-  hashtag_ID: NULL # names of the hashtags to keep (if the hashtags are NOT separate from the gene expression data)
-  hashtags_to_keep: NULL # names of the hashtags to keep (if the hashtags are NOT separate from the gene expression data)
-  hashtag_file: NULL # path to hashtag file (if it is separate from the gene expression data)
-  ADT_file: NULL # path to ADT file if (it is separate from the gene expression data)
-  ADT: TRUE   # logical value. TRUE if there are ADTs in the 10x outs file, FALSE if there are not
+  #hashtag_ID: NULL # names of the hashtags to keep (if the hashtags are NOT separate from the gene expression data)
+  #hashtags_to_keep: NULL # names of the hashtags to keep (if the hashtags are NOT separate from the gene expression data)
+  #hashtag_file: NULL # path to hashtag file (if it is separate from the gene expression data)
+  #ADT_file: NULL # path to ADT file if (it is separate from the gene expression data)
+  #ADT: TRUE   # logical value. TRUE if there are ADTs in the 10x outs file, FALSE if there are not
   assay: "RNA"   # Assay we are working with
   grouping: "orig.ident" # grouping for plots
   hash_grouping: "hash.ID" # grouping for plots hashtags but doesnt work with anythin else right now
@@ -36,19 +34,18 @@ params:
 
 
 ```
-Rscript -e "rmarkdown::render('7316-2594_include_introns-CREATE-v2.Rmd', clean = TRUE)"
+Rscript -e "rmarkdown::render('01_Seurat_QC.Rmd', clean = TRUE)"
 ```
 
 ```{r setup, include=FALSE}
-
 attach(params) 
 knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE, 
                       message = FALSE, 
-                      fig.path = file.path(out_path, paste0("Create-", sample_name, "/")),
+                      fig.path = file.path(plots_dir, paste0("Create-", sample_name, "/")),
                       fig.height = 10, 
                       fig.width = 15,
-                      dev = c("png", "pdf"))
+                      dev = c("pdf"))
 ```
 
 ```{r load_libraries}
@@ -70,16 +67,39 @@ options(future.globals.maxSize = 30 * 1024 ^ 3)
 
 ```
 
-```{r process_params}
+## Directories and File Inputs/Outputs
+```{r set-dir-and-file-names}
 # Create a new directory for this sample. Error is that directory already exists
-out_path = file.path(out_path, paste0("Create-", sample_name, "/"))
+# Detect the ".git" folder -- this will be in the project root directory.
+# Use this as the root directory to ensure proper sourcing of functions no
+# matter where this is called from
 
-if (!dir.exists(out_path)) {
-  dir.create(out_path)
+root_dir <- rprojroot::find_root(rprojroot::has_dir(".git"))
+setwd(root_dir)
+
+data_path: "/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/00-alignment/7316-2594_include_introns/outs/filtered_feature_bc_matrix/" # path to the directory with the outs file
+
+# Inputs
+input_metadata <- file.path(input_dir, "histologies.tsv")
+input_cols <- file.path(input_dir, "PBTA-germline-histology-groups-plot-mapping.tsv")
+
+
+# File path to results directory
+results_dir <-
+  file.path(analysis_dir, "results", paste0("Create-", sample_name, "/"))
+if (!dir.exists(results_dir)) {
+  dir.create(results_dir)
 }
 
-yaml::write_yaml(params, glue("{out_path}/params.yml"))
-log_file = file.path(out_path, "log")
+# File path to plots directory
+plots_dir <-
+  file.path(analysis_dir, "plots")
+if (!dir.exists(plots_dir)) {
+  dir.create(plots_dir)
+}
+
+yaml::write_yaml(params, glue("{results_dir}/params.yml"))
+log_file = file.path(results_dir, "log")
 ```
 
 
@@ -154,9 +174,9 @@ if(!is.null(hashtag_ID)) {
 
 ```{r save_rds_raw}
 # save final Seurat object
-saveRDS(seurat_obj, file = paste0(out_path, "/", "seurat_obj_raw.rds"))
+saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj_raw.rds"))
 ```
-The seurat object  was saved as `r paste0(out_path, "/", "seurat_obj_raw.rds")`
+The seurat object  was saved as `r paste0(results_dir, "/", "seurat_obj_raw.rds")`
 
 
 
@@ -265,7 +285,7 @@ if(!is.null(hashtag_ID) | !is.null(hashtag_file)) {
     theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 12)))
 
   #save seurat_obj for doublet removal:
-  saveRDS(seurat_obj, file = paste0(out_path, "/", "seurat_obj_doublet.rds"))
+  saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj_doublet.rds"))
   
   # subset everything that isn't a singlet
   seurat_obj <- subset(seurat_obj,
@@ -598,7 +618,7 @@ for(i in 1:nrow(possibilities)) {
 }
 ```
 
-Save metadata as a csv to `r glue("{out_path}/metadata_create_{sample_name}.csv")`
+Save metadata as a csv to `r glue("{results_dir}/metadata_create_{sample_name}.csv")`
 
 ```{r save_metadata}
 # Export the reductions to Seurat and save dimensionality reduction and
@@ -608,7 +628,7 @@ reduction_names <- c(paste0("umap", "ndim", possibilities[,1], "nn", possibiliti
 metadata <- as_data_frame_seurat(seurat_obj, reduction = reduction_names,
                                  metadata = TRUE)
 
-write_excel_csv(metadata, path = glue("{out_path}/metadata_create_{sample_name}.csv"))
+write_excel_csv(metadata, path = glue("{results_dir}/metadata_create_{sample_name}.csv"))
 ```
 
 Plot dimensionality reduction.
@@ -621,11 +641,11 @@ plot_dr <- data.frame(X = paste0(reduction_names, "_1"),
                       Y = paste0(reduction_names, "_2"),
                       stringsAsFactors = FALSE)
 
-dir.create(file.path(out_path, "dr"), showWarnings = FALSE)
+dir.create(file.path(results_dir, "scratch"), showWarnings = FALSE)
 
 for(i in 1:nrow(plot_dr)){
   print(current_plot <- plot_scatter(metadata = metadata,
-                               out_path = file.path(out_path, "dr"),
+                               results_dir = file.path(results_dir, "scratch"),
                                proj_name = sample_name,
                                log_file = log_file,
                                X = plot_dr[i,1],
@@ -634,7 +654,7 @@ for(i in 1:nrow(plot_dr)){
                                write = TRUE))
   
     print(current_plot <- plot_scatter(metadata = metadata,
-                               out_path = file.path(out_path, "dr"),
+                               results_dir = file.path(results_dir, "scratch"),
                                proj_name = sample_name,
                                log_file = log_file,
                                X = plot_dr[i,1],
@@ -643,7 +663,7 @@ for(i in 1:nrow(plot_dr)){
                                write = TRUE))
     
     print(current_plot <- plot_scatter(metadata = metadata,
-                           out_path = file.path(out_path, "dr"),
+                           results_dir = file.path(results_dir, "scratch"),
                            proj_name = sample_name,
                            log_file = log_file,
                            X = plot_dr[i,1],
@@ -652,7 +672,7 @@ for(i in 1:nrow(plot_dr)){
                            write = TRUE))
     
     print(current_plot <- plot_scatter(metadata = metadata,
-                       out_path = file.path(out_path, "dr"),
+                       results_dir = file.path(results_dir, "scratch"),
                        proj_name = sample_name,
                        log_file = log_file,
                        X = plot_dr[i,1],
@@ -662,11 +682,11 @@ for(i in 1:nrow(plot_dr)){
 }
 ```
 
-Save rds to `r paste0(out_path, "/", "seurat_obj.rds")`
+Save rds to `r paste0(results_dir, "/", "seurat_obj.rds")`
 
 ```{r save_rds}
 # save final Seurat object
 seurat_obj@meta.data$samples <- sample_name
-saveRDS(seurat_obj, file = paste0(out_path, "/", "seurat_obj.rds"))
+saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj.rds"))
 ```
 
