@@ -59,17 +59,27 @@ inputs:
   count_min: { type: 'int?', default: 2, doc: "minimum expression count to retain a gene" }
   cell_min: { type: 'int?', default: 3, doc: "minimum number of cells a gene must be in to be retained" }
   min_gene_variability_pctl: { type: 'int?', default: 85, doc: "Keep the most highly variable genes (in the top min_gene_variability_pctl percentile), as measured by the v-statistic" }
-  n_prin_comps: { type: 'int?', default: 30, doc: "Number of PCs to use for clustering" }
+  n_prin_comps: { type: 'int?', default: 10, doc: "Number of PCs to use for clustering" }
   ram: { type: 'int?', default: 16, doc: "In GB" }
   cpus: { type: 'int?', default: 1, doc: "Number of CPUs to request" }
 
+  # seurat qc
+  seurat_qc_min_genes: { type: "int?", doc: "minimum number of genes per cell", default: 400 }
+  seurat_qc_max_genes: { type: "int?", doc: "maximum number of genes per cell", default: 4000 }
+  seurat_qc_max_mt: { type: "int?", doc: "maximum percent mitochondrial reads per cell", default: 5 }
+  seurat_qc_normalize_method: { type: ['null', {type: enum, name: normalize_method, symbols: ["log_norm","sct"]}],
+    default: "log_norm", doc: "normalization method. One of log_norm or sct" }
+  seurat_qc_nfeatures: { type: "int?", doc: "number of variable features to extract", default: 2000 }
+  seurat_qc_num_pcs: { type: "int?", doc: "number of PCs to calculate", default: 30 }
+
+
 outputs:
-  count_summary: { type: File, outputSource: count/output_summary }
   bam_out: { type: 'File?', outputSource: count/bam }
   decontam_matrix: { type: File, outputSource: seurat_merge/merged_matrix }
   decontam_object: { type: File, outputSource: seurat_merge/merged_object }
   doublet_histogram: { type: File, outputSource: scrublet/score_histogram }
   debug_cr_file_outputs: { type: 'Directory?', outputSource: count/whole_output_dir }
+  seurat_qc_html: { type: File, outputSource: seurat_qc/summary_html}
 
 steps:
 
@@ -100,7 +110,7 @@ steps:
         valueFrom: ${return Boolean(true)}
       include_introns: include_introns
       chemistry: chemistry
-    out: [filtered_matrix_out, raw_matrix_out, bam, output_summary, molecule_info, whole_output_dir, cluster_file]
+    out: [filtered_matrix_out, raw_matrix_out, bam, whole_output_dir, cluster_file]
 
   soupx:
     run: ../tools/soupx.cwl
@@ -139,3 +149,16 @@ steps:
           $([self])
       output_name: output_basename
     out: [merged_matrix, merged_object]
+
+  seurat_qc:
+    run: ../tools/seurat_qc.cwl
+    in:
+      filtered_bc_matrix_dir: count/whole_output_dir
+      sample_name: sample_name
+      min_genes: seurat_qc_min_genes
+      max_genes: seurat_qc_max_genes
+      max_mt: seurat_qc_max_mt
+      normalize_method: seurat_qc_normalize_method
+      nfeatures: seurat_qc_nfeatures
+      num_pcs: seurat_qc_num_pcs
+    out: [result_dir, summary_html]
