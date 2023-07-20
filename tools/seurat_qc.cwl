@@ -6,7 +6,7 @@ doc: "Run custom QC on 10X output"
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/brownm28/scrna_qc:v1.0.0'
+    dockerPull: "pgc-images.sbgenomics.com/brownm28/scrna_qc:v1.0.0"
   - class: InlineJavascriptRequirement
   - class: InitialWorkDirRequirement
     listing:
@@ -18,25 +18,35 @@ requirements:
     ramMin: 16000
 
 baseCommand: [Rscript, -e]
-
 arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
       "rmarkdown::render('01_Seurat_QC.Rmd', clean = TRUE,
-            params=list(scooter_path = '/scooter', 
+            params=list(scooter_path='/scooter', 
                         out_path='.', 
                         data_path='$(inputs.filtered_bc_matrix_dir.path)', 
-                        sample_name='$(inputs.sample_name)'))"
+                        sample_name='$(inputs.sample_name)',
+                        min_genes=$(inputs.min_genes),
+                        max_genes=$(inputs.max_genes),
+                        max_mt=$(inputs.max_mt),
+                        normalize_method='$(inputs.normalize_method)'
+                        ))"
   - position: 2
     shellQuote: false
     valueFrom: >-
       && mv 01_Seurat_QC.html Seurat_QC-$(inputs.sample_name).html
-
-
 inputs:
-  filtered_bc_matrix_dir: { type: Directory}
-  sample_name: {type: string }
+  filtered_bc_matrix_dir: { type: Directory }
+  sample_name: { type: string }
+  min_genes: { type: "int?", doc: "minimum number of genes per cell", default: 400 }
+  max_genes: { type: "int?", doc: "maximum number of genes per cell", default: 4000 }
+  max_mt: { type: "int?", doc: "maximum percent mitochondrial reads per cell", default: 5 }
+  normalize_method: { type: ['null', {type: enum, name: normalize_method, symbols: ["log_norm","sct"]}],
+    default: "log_norm", doc: "normalization method. One of log_norm or sct" }
+  nfeatures: { type: "int?", doc: "number of variable features to extract", default: 2000 }
+  num_pcs: { type: "int?", doc: "number of PCs to calculate", default: 30 }
+
 outputs:
   result_dir:
     type: Directory
