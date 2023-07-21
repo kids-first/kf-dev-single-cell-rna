@@ -21,7 +21,7 @@ Cell ranger count performs alignment, barcode counting, and filtering.
 [SoupX](https://github.com/constantAmateur/SoupX) is used for subtraction of the RNA background.
 [Scrublet](https://github.com/swolock/scrublet) is used to score and predict doublets.
 Decontaminated outputs are aggregated using the [Seurat](https://satijalab.org/seurat/) R package from the Satija lab at the New York Genome Center.
-
+A custom QC R markdown notebook developed by @AntoniaChroni is also run, which includes as it's main engine Seurat and [scooter](https://github.com/igordot/scooter)
 
 
 ## [Smart Seq 2 Workflow](docs/SMART_SEQ2.md)
