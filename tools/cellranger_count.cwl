@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: cellranger_count
 doc: "Run cellranger count on a set of fastq files"
@@ -18,31 +18,9 @@ arguments:
   - position: 2
     shellQuote: false
     valueFrom: >-
-     1>&2 && ${
-       var sp = inputs.run_id + "/outs/" + inputs.run_id + "." + inputs.sample_name;
-       var cmd = "mv " + inputs.run_id + "/outs/molecule_info.h5 " + sp + ".molecule_info.h5 && ";
-       cmd += "mv " + inputs.run_id + "/outs/web_summary.html " + sp + ".web_summary.html && ";
-       if ( inputs.bam_out != null){
-         cmd += "mv " + inputs.run_id + "/outs/possorted_genome_bam.bam " + sp + ".bam && ";
-       }
-       if (inputs.return_h5){
-         cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix.h5 " + sp + ".filtered_feature_bc_matrix.h5 && ";
-         cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix.h5 " + sp + ".raw_feature_bc_matrix.h5";
-       }
-       else {
-         cmd += "mv " + inputs.run_id + "/outs/raw_feature_bc_matrix " + inputs.run_id + "/outs/raw_gene_bc_matrices && ";
-         cmd += "mv " + inputs.run_id + "/outs/filtered_feature_bc_matrix " + inputs.run_id + "/outs/filtered_gene_bc_matrices && ";
-         cmd += "mkdir " + inputs.run_id + "/outs/filtered_gene_bc_matrices/" + "GRCh38 && ";
-         cmd += "mkdir " + inputs.run_id + "/outs/raw_gene_bc_matrices/" + "GRCh38 && ";
-         cmd += "mv " + inputs.run_id + "/outs/filtered_gene_bc_matrices/*.gz " + inputs.run_id + "/outs/filtered_gene_bc_matrices/" + "GRCh38/ && ";
-         cmd += "mv " + inputs.run_id + "/outs/raw_gene_bc_matrices/*.gz " + inputs.run_id + "/outs/raw_gene_bc_matrices/" + "GRCh38/ && ";
-         cmd += "cp -r " + inputs.run_id + "/outs/filtered_gene_bc_matrices " + sp + ".filtered_feature_bc_matrix && ";
-         cmd += "cp -r  " + inputs.run_id + "/outs/raw_gene_bc_matrices " + sp + ".raw_feature_bc_matrix && ";
-         cmd += "tar -czf " + sp + ".filtered_feature_bc_matrix.tar.gz " + sp + ".filtered_feature_bc_matrix && ";
-         cmd += "tar -czf " + sp + ".raw_feature_bc_matrix.tar.gz " + sp + ".raw_feature_bc_matrix";
-       }
-       return cmd;
-     }
+     1>&2
+     && mkdir $(inputs.sample_name)
+     && mv $(inputs.run_id)/outs $(inputs.sample_name)/
 
 inputs:
   localcores: { type: 'int?', doc: "Num cores to use", default: 16,
@@ -53,7 +31,7 @@ inputs:
   fastqs: { type: Directory, doc: "directory of fastqs being run", 
     inputBinding: { position: 1, prefix: "--fastqs=", separate: false } }
   sample_name: { type: string, doc: "sample name, used as prefix for finding fastqs to analyze", 
-    inputBinding: { position: 1, prefix: "--sample=", separate: false } }
+    inputBinding: { position: 1, prefix: "--sample=", separate: false, shellQuote: false } }
   reference: { type: Directory, doc: "directory of reference files", 
     inputBinding: { position: 1, prefix: "--transcriptome=", separate: false } }
   no_bam: { type: 'boolean?', doc: "Set to skip generating bam output. Good to keep bam for troubleshooting, but adds to computation time",
@@ -68,34 +46,25 @@ outputs:
   filtered_matrix_out:
     type: File
     outputBinding:
-      glob: $(inputs.run_id)/outs/$(inputs.run_id).$(inputs.sample_name).filtered_feature_bc_matrix.*
+      glob: $(inputs.sample_name)/outs/filtered_feature_bc_matrix.*
     doc: "File containing the filtered feature matrix"
   raw_matrix_out:
     type: File
     outputBinding:
-      glob: $(inputs.run_id)/outs/$(inputs.run_id).$(inputs.sample_name).raw_feature_bc_matrix.*
+      glob: $(inputs.sample_name)/outs/raw_feature_bc_matrix.*
     doc: "File containing the raw feature matrix"
   bam:
     type: 'File?'
     outputBinding:
       glob: $(inputs.run_id)/outs/*.bam
     doc: "The bam file that was generated"
-  output_summary:
-    type: File
-    outputBinding:
-      glob: $(inputs.run_id)/outs/$(inputs.run_id).$(inputs.sample_name).web_summary.html
-    doc: "HTML alignment summary"
-  molecule_info:
-    type: File
-    outputBinding:
-      glob: $(inputs.run_id)/outs/$(inputs.run_id).$(inputs.sample_name).molecule_info.h5
-    doc: "Molecule info file, used by cellranger aggr"
   whole_output_dir:
     type: Directory
     outputBinding:
-      glob: $(inputs.run_id)/outs
+      loadListing: deep_listing
+      glob: $(inputs.sample_name)
   cluster_file:
     type: File
     outputBinding:
-      glob: $(inputs.run_id)/outs/analysis/clustering/graphclust/clusters.csv
+      glob: $(inputs.sample_name)/outs/analysis/clustering/graphclust/clusters.csv
     doc: "Cluster file, will be used by SoupX"
