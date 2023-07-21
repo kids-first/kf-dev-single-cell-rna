@@ -1,7 +1,7 @@
 cwlVersion: v1.2
 class: CommandLineTool
 id: cellranger_mkref
-doc: "Make a custom reference for cellranger"
+doc: "Make a custom reference for cellranger. Adjusting the attributes field will subset the gtf file to limit the reference to include only genes meeting that criteria"
 
 requirements:
   - class: ShellCommandRequirement
@@ -31,10 +31,10 @@ arguments:
      ${
         var cmd = "";
         if (inputs.attribute != null){
-            cmd = " && cellranger mkref --genes=" + inputs.genes.nameroot + ".filtered.gtf";;
+            cmd = " && cellranger mkref --genes=" + inputs.genes.nameroot + ".filtered.gtf";
         }
         else{
-            cmd = " cellranger mkref --genes=" + inputs.genes.path;
+            cmd = "cellranger mkref --genes=" + inputs.genes.path;
         }
         return cmd;
      }

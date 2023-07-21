@@ -6,7 +6,7 @@ doc: "Run cellranger count on a set of fastq files"
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/brownm28/cellranger:6.1.2'
+    dockerPull: "pgc-images.sbgenomics.com/d3b-bixu/cellranger:6.1.2"
   - class: ResourceRequirement
     ramMin: $(inputs.cr_instance_ram * 1000)
     coresMin: $(inputs.localcores)
