@@ -1,0 +1,95 @@
+---
+title: "Filter Seurat Object, add SoupX count, split individuals for `r params$sample_name`"
+author: 'User ID: `r Sys.getenv("USER")`'
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    fig_height: 7
+    fig_width: 9
+    keep_md: yes
+    toc: yes
+    df_print: paged
+params:
+  out_path: "/gpfs/data/aifantislab/home/chrona01/projects/WT1/analysis/01_RNA/data/"
+  data_path: "/gpfs/data/aifantislab/home/chrona01/projects/WT1/analysis/01_RNA/data/merged_seurat.rds" 
+  SoupX_data_path: "/gpfs/data/aifantislab/home/chrona01/projects/WT1/analysis/01_RNA/data/SoupX_0.05_default/soupX_count_mtx_combined.rds" 
+  scDblFinder_hash_path: NULL
+  scDblFinder_nonhash_path: "/gpfs/data/aifantislab/home/chrona01/projects/WT1/analysis/01_RNA/data/scDblFinder_non_hashed/non_hashed_doublets_to_filter_combined.csv" 
+  sample_name: sample_name
+  samples_remove: "NA"
+  log_file: "log" # log file
+  filter_ADT: FALSE
+---
+
+```{r setup, include=FALSE}
+attach(params) 
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE, 
+                      message = FALSE, 
+                      fig.path = file.path(out_path, paste0("Filtered-Seurat-obj-", sample_name, "/")),
+                      fig.height = 10, 
+                      fig.width = 15,
+                      dev = c("png", "pdf"))
+```
+
+```{r load_libraries}
+library(future)
+library(Seurat)
+library(stringr)
+library(dplyr)
+library(tibble)
+library(RColorBrewer)
+library(ggplot2)
+source("./scripts/helper.R")
+
+# # evaluate Seurat R expressions asynchronously when possible (such as ScaleData) using future package
+plan("multiprocess", workers = 4)
+# # increase the limit of the data to be shuttled between the processes from default 500MB to 50GB
+options(future.globals.maxSize = 64 * 1024^2 *1000)
+
+out_path <- file.path(out_path, paste0("Filtered-Seurat-obj-", sample_name, "/"))
+dir.create(out_path)
+```
+
+# Load seurat_obj
+Object is loaded from `r data_path`.
+
+```{r load_seurat_obj}
+seurat_obj <- readRDS(data_path)
+```
+
+# Add SoupX assay to seurat_obj
+SoupX filters ambient RNA from scRNAseq data. We are using the filtered data as a new assys that will be used instead of the 'RNA' assay
+in dimensionality reduction, and DE analysis.
+
+```{r Add_SoupX_count_mtx}
+mtx <- readRDS(SoupX_data_path)
+
+colnames(seurat_obj)[which(!(colnames(seurat_obj) %in% colnames(mtx) ))]
+seurat_obj <- subset(seurat_obj, cells=colnames(seurat_obj)[which(!(colnames(seurat_obj) %in% colnames(mtx) ))], invert=TRUE)
+
+mtx <- mtx[,colnames(seurat_obj)]
+
+seurat_obj[["RNA_soupx"]] <- CreateAssayObject(counts = mtx)
+```
+
+# Filter seurat_obj based on scDblFinder results 
+We used scDblFinder package to detect doublets in our data. In hashed libraries we used a method that takes the hashed doublets and identifies intra-patient doublets by association with the doublets identified by hashing, 
+in the 5 single patient libraries, we ran regular doublet detection based on cluster-based generation of artifical doublets.
+
+```{r Filter_scDblFinder}
+scDblFinder_hash <- read.csv(scDblFinder_hash_path, stringsAsFactors=FALSE, row.names=1)
+scDblFinder_nonhash <- read.csv(scDblFinder_nonhash_path, stringsAsFactors=FALSE, row.names=1)
+
+filter <- c(scDblFinder_hash$cell, scDblFinder_nonhash$cell)
+
+num_doublets_in_s_obj <- sum(colnames(seurat_obj) %in% filter)
+cell_doublets <- colnames(seurat_obj)[which(colnames(seurat_obj) %in% filter)]
+```
+There are `r num_doublets_in_s_obj` doublets in our current seurat_obj identifies by scDoubletFinder.
+
+The final seurat_obj has `r dim(seurat_obj)[2]` cells. The object is saved as `r paste0(out_path, "seurat_obj_filtered.rds")`.
+
+```{r save_seurat_obj_filtered}
+saveRDS(seurat_obj, paste0(out_path, "seurat_obj_filtered.rds"))
+```
