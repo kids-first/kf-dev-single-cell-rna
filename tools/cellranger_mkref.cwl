@@ -56,5 +56,6 @@ outputs:
   cellranger_reference:
     type: Directory
     outputBinding:
+      loadListing: deep_listing
       glob: $(inputs.genome)
     doc: "Cell ranger ref dir"

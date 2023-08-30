@@ -26,6 +26,7 @@ arguments:
 inputs:
   matrix_dirs:
     type: Directory[]
+    loadListing: deep_listing
     doc: "Directories containing count matrices filtered by SoupX"
   doublets_files:
     type: File[]

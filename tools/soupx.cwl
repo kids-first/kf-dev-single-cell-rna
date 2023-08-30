@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: soupx
 doc: >-
@@ -42,5 +42,10 @@ outputs:
   decontaminated_matrix:
     type: Directory
     outputBinding:
+      loadListing: deep_listing
       glob: $(inputs.sample_name)_decontam
     doc: "Directory containing decontaminated matrix"
+  rplots:
+    type: File
+    outputBinding:
+      glob: "Rplots.pdf"

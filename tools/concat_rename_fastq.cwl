@@ -45,5 +45,6 @@ outputs:
   renamed_dir:
     type: Directory
     outputBinding:
+      loadListing: deep_listing
       glob: $(inputs.sample_name)
     doc: "Directory containing renamed fastq file"

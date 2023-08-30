@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: scrublet
 doc: >-
@@ -28,7 +28,7 @@ arguments:
       run_scrublet.py --matrix $(inputs.input_matrix.path) --output $(inputs.output_basename)
 
 inputs:
-  input_matrix: {type: Directory}
+  input_matrix: {type: Directory, loadListing: deep_listing}
   output_basename: {type: string, doc: "Output files basename"}
   expected_doublet_rate: {type: 'float?', default: 0.06, doc: "expected doublet rate, usually specific to the method; default 0.06 for 10X", inputBinding: {prefix: -e, position: 2}}
   doublet_score_threshold: {type: 'float?', default: 0.25, doc: "doublet cut-off, cells with greater scores will be labelled as doublets; must be between 0 and 1", inputBinding: {prefix: -s, position: 2}}

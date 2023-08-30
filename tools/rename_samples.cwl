@@ -47,7 +47,7 @@ arguments:
      echo "Done"
 
 inputs:
-  fastqs: {type: Directory, doc: "directory of fastqs being run"}
+  fastqs: {type: Directory, loadListing: deep_listing, doc: "directory of fastqs being run"}
   sample_name: {type: string, doc: "sample name, used as prefix for finding fastqs to analyze"}
   corrected_read_1_name: {type: "string?", doc: "corrected read one name"}
   corrected_read_2_name: {type: "string?", doc: "corrected read two name"}
@@ -56,5 +56,6 @@ outputs:
   renamed_dir:
     type: Directory
     outputBinding:
+      loadListing: deep_listing
       glob: $(inputs.sample_name)
     doc: "Directory containing renamed fastq files"

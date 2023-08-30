@@ -15,3 +15,4 @@ outputs:
     type: Directory
     outputBinding:
       glob: $(inputs.tarfile.nameroot.split('.')[0])
+      loadListing: deep_listing

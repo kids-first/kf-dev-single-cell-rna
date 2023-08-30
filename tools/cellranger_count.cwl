@@ -28,11 +28,11 @@ inputs:
   cr_instance_ram: { type: 'int?', doc: 'Ram in GB to make available to cell ranger count step', default: 64}
   run_id: { type: string, doc: "run id, used as basename for output", 
     inputBinding: { position: 1, prefix: "--id=", separate: false } }
-  fastqs: { type: Directory, doc: "directory of fastqs being run", 
+  fastqs: { type: Directory, loadListing: deep_listing, doc: "directory of fastqs being run", 
     inputBinding: { position: 1, prefix: "--fastqs=", separate: false } }
   sample_name: { type: string, doc: "sample name, used as prefix for finding fastqs to analyze", 
     inputBinding: { position: 1, prefix: "--sample=", separate: false, shellQuote: false } }
-  reference: { type: Directory, doc: "directory of reference files", 
+  reference: { type: Directory, loadListing: deep_listing, doc: "directory of reference files", 
     inputBinding: { position: 1, prefix: "--transcriptome=", separate: false } }
   no_bam: { type: 'boolean?', doc: "Set to skip generating bam output. Good to keep bam for troubleshooting, but adds to computation time",
     inputBinding: { position: 1, prefix: "--no-bam"} }
