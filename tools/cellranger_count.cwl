@@ -37,7 +37,7 @@ inputs:
   no_bam: { type: 'boolean?', doc: "Set to skip generating bam output. Good to keep bam for troubleshooting, but adds to computation time",
     inputBinding: { position: 1, prefix: "--no-bam"} }
   return_h5: { type: 'boolean?', doc: "TRUE: return h5 files or FALSE: return tarred matrix directories?" }
-  include_introns: { type: 'boolean', doc: "Include intronic reads in count", default: false,
+  include_introns: { type: 'boolean?', doc: "Include intronic reads in count",
     inputBinding: { position: 1, prefix: "--include-introns" } }
   chemistry: { type: ['null', {type: enum, name: chemistry, symbols: ["auto","threeprime","fiveprime","SC3Pv2","SC3Pv3","SC3Pv3LT","SC3Pv3HT","SC5P-PE","SC5P-R2","SC3Pv1","ARC-v1"]}],
     default: "auto", doc: "Chemistry used. auto is usually best. See README for exceptions", inputBinding: { position: 1, prefix: "--chemistry" } }

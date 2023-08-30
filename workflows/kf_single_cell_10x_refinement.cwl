@@ -36,10 +36,10 @@ doc: |
    - `cpus`: Number of CPUs to request
 
   ### Outputs
-  - `soupx_rplots`: PDF R plot made by soupX 
-  - `scrublet_histogram`: PNG histogram made by scrublet 
+  - `soupx_rplots`: PDF R plot made by soupX
+  - `scrublet_histogram`: PNG histogram made by scrublet
   - `scrublet_doublets`: CSV containing expression matrix with doublets removed by scrublet
-  - `decontam_matrix`: RDS file containing merged count matrix from Seurat 
+  - `decontam_matrix`: RDS file containing merged count matrix from Seurat
   - `decontam_object`: RDS file containing merged Seurat R object
 requirements:
   ScatterFeatureRequirement: {}
@@ -82,9 +82,9 @@ steps:
   soupx:
     run: ../tools/soupx.cwl
     in:
-      raw_matrix: count/raw_matrix_out
-      filtered_matrix: count/filtered_matrix_out
-      cluster_file: count/cluster_file
+      raw_matrix: cellranger_raw_matrix
+      filtered_matrix: cellranger_filtered_matrix
+      cluster_file: cellranger_cluster
       sample_name: sample_name
     out: [decontaminated_matrix, rplots]
   scrublet:
@@ -116,3 +116,5 @@ steps:
     out: [merged_matrix, merged_object]
 sbg:license: Apache License 2.0
 sbg:publisher: KFDRC
+$namespaces:
+  sbg: https://sevenbridges.com
