@@ -105,6 +105,9 @@ inputs:
 outputs:
   bam_out: {type: 'File?', outputSource: count/bam}
   debug_cr_file_outputs: {type: 'File', outputSource: tar_count_outdir/output}
+  cellranger_matrix_raw: {type: 'File', outputSource: count/raw_matrix_out }
+  cellranger_matrix_filtered: {type: 'File', outputSource: count/filtered_matrix_out }
+  cellranger_cluster: {type: 'File', outputSource: count/cluster_file }
   seurat_qc_html: {type: File, outputSource: seurat_qc/summary_html}
   seurat_qc_rds: {type: File, outputSource: seurat_qc/rds}
 steps:
@@ -159,3 +162,6 @@ sbg:license: Apache License 2.0
 sbg:publisher: KFDRC
 $namespaces:
   sbg: https://sevenbridges.com
+hints:
+  - class: 'sbg:maxNumberOfParallelInstances'
+    value: 2

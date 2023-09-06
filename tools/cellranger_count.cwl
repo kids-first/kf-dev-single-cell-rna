@@ -56,7 +56,7 @@ outputs:
   bam:
     type: 'File?'
     outputBinding:
-      glob: $(inputs.run_id)/outs/*.bam
+      glob: $(inputs.sample_name)/outs/*.bam
     doc: "The bam file that was generated"
   whole_output_dir:
     type: Directory

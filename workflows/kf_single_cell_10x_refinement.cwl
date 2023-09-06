@@ -48,9 +48,9 @@ requirements:
 inputs:
   # multi-step
   output_basename: {type: string, doc: "basename used to name output files"}
-  cellranger_raw_matrix: {type: 'File', doc: "raw_feature_bc_matrix file from cellranger
+  cellranger_matrix_raw: {type: 'File', doc: "raw_feature_bc_matrix file from cellranger
       count"}
-  cellranger_filtered_matrix: {type: 'File', doc: "filtered_feature_bc_matrix file
+  cellranger_matrix_filtered: {type: 'File', doc: "filtered_feature_bc_matrix file
       from cellranger count"}
   cellranger_cluster: {type: 'File', doc: "clusters.csv file from cellranger count"}
   sample_name: {type: 'string', doc: "used as prefix for finding fastqs to analyze,
@@ -82,8 +82,8 @@ steps:
   soupx:
     run: ../tools/soupx.cwl
     in:
-      raw_matrix: cellranger_raw_matrix
-      filtered_matrix: cellranger_filtered_matrix
+      raw_matrix: cellranger_matrix_raw
+      filtered_matrix: cellranger_matrix_filtered
       cluster_file: cellranger_cluster
       sample_name: sample_name
     out: [decontaminated_matrix, rplots]
