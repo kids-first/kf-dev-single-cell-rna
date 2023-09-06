@@ -103,13 +103,13 @@ inputs:
     default: 2000}
   seurat_qc_num_pcs: {type: "int?", doc: "number of PCs to calculate", default: 30}
 outputs:
-  bam_out: {type: 'File?', outputSource: count/bam}
-  debug_cr_file_outputs: {type: 'File', outputSource: tar_count_outdir/output}
-  cellranger_matrix_raw: {type: 'File', outputSource: count/raw_matrix_out }
-  cellranger_matrix_filtered: {type: 'File', outputSource: count/filtered_matrix_out }
-  cellranger_cluster: {type: 'File', outputSource: count/cluster_file }
-  seurat_qc_html: {type: File, outputSource: seurat_qc/summary_html}
-  seurat_qc_rds: {type: File, outputSource: seurat_qc/rds}
+  debug_cr_file_outputs: {type: 'File', outputSource: tar_count_outdir/output }
+  cellranger_bam: {type: 'File?', outputSource: rename_bam/renamed_file }
+  cellranger_matrix_filtered: {type: 'File', outputSource: rename_matrix_filtered/renamed_file }
+  cellranger_matrix_raw: {type: 'File', outputSource: rename_matrix_raw/renamed_file }
+  cellranger_cluster: {type: 'File', outputSource: rename_clusters/renamed_file }
+  seurat_qc_html: {type: File, outputSource: rename_seurat_html/renamed_file }
+  seurat_qc_rds: {type: File, outputSource: rename_seurat_rds/renamed_file }
 steps:
   concat_rename_fastq:
     run: ../tools/concat_rename_fastq.cwl
@@ -121,7 +121,7 @@ steps:
       corrected_read_1_name: corrected_read_1_name
       corrected_read_2_name: corrected_read_2_name
     out: [renamed_dir]
-  count:
+  cellranger_count:
     run: ../tools/cellranger_count.cwl
     in:
       localcores: cr_localcores
@@ -138,18 +138,50 @@ steps:
       include_introns: include_introns
       chemistry: chemistry
     out: [filtered_matrix_out, raw_matrix_out, bam, whole_output_dir, cluster_file]
+  rename_bam:
+    run: ../tools/rename_file.cwl
+    in:
+      in_file: cellranger_count/bam
+      out_filename:
+        source: output_basename
+        valueFrom: $(self).cellranger.count.possorted.genome.bam
+    out: [renamed_file]
+  rename_clusters:
+    run: ../tools/rename_file.cwl
+    in:
+      in_file: cellranger_count/cluster_file
+      out_filename:
+        source: output_basename
+        valueFrom: $(self).cellranger.count.clusters.csv
+    out: [renamed_file]
+  rename_matrix_filtered:
+    run: ../tools/rename_file.cwl
+    in:
+      in_file: cellranger_count/filtered_matrix_out
+      out_filename:
+        source: output_basename
+        valueFrom: $(self).cellranger.count.filtered_feature_bc_matrix.h5
+    out: [renamed_file]
+  rename_matrix_raw:
+    run: ../tools/rename_file.cwl
+    in:
+      in_file: cellranger_count/raw_matrix_out
+      out_filename:
+        source: output_basename
+        valueFrom: $(self).cellranger.count.raw_feature_bc_matrix.h5
+    out: [renamed_file]
   tar_count_outdir:
     run: ../tools/tar.cwl
     in:
       output_filename:
         source: output_basename
-        valueFrom: $(self).cellranger_count.tar.gz
-      input_dir: count/whole_output_dir
+        valueFrom: $(self).cellranger.count.tar.gz
+      input_dir: cellranger_count/whole_output_dir
     out: [output]
   seurat_qc:
     run: ../tools/seurat_qc.cwl
     in:
-      filtered_bc_matrix_dir: count/whole_output_dir
+      filtered_bc_matrix_dir: cellranger_count/whole_output_dir
       sample_name: sample_name
       min_genes: seurat_qc_min_genes
       max_genes: seurat_qc_max_genes
@@ -158,6 +190,22 @@ steps:
       nfeatures: seurat_qc_nfeatures
       num_pcs: seurat_qc_num_pcs
     out: [result_dir, summary_html, rds]
+  rename_seurat_html:
+    run: ../tools/rename_file.cwl
+    in:
+      in_file: seurat_qc/summary_html
+      out_filename:
+        source: output_basename
+        valueFrom: $(self).seurat.qc.html
+    out: [renamed_file]
+  rename_seurat_rds:
+    run: ../tools/rename_file.cwl
+    in:
+      in_file: seurat_qc/rds
+      out_filename:
+        source: output_basename
+        valueFrom: $(self).seurat.qc.rds
+    out: [renamed_file]
 sbg:license: Apache License 2.0
 sbg:publisher: KFDRC
 $namespaces:

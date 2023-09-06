@@ -73,9 +73,9 @@ inputs:
   scrublet_cpus: {type: 'int?', default: 1, doc: "Number of CPUs to request"}
   scrublet_ram: {type: 'int?', default: 16, doc: "In GB"}
 outputs:
-  soupx_rplots: {type: File, outputSource: soupx/rplots}
-  scrublet_histogram: {type: File, outputSource: scrublet/score_histogram}
-  scrublet_doublets: {type: File, outputSource: scrublet/doublets_file}
+  soupx_rplots: {type: File, outputSource: rename_rplots/renamed_file}
+  scrublet_doublets: {type: File, outputSource: rename_doublets/renamed_file}
+  scrublet_histogram: {type: File, outputSource: rename_histogram/renamed_file}
   decontam_matrix: {type: File, outputSource: seurat_merge/merged_matrix}
   decontam_object: {type: File, outputSource: seurat_merge/merged_object}
 steps:
@@ -87,6 +87,14 @@ steps:
       cluster_file: cellranger_cluster
       sample_name: sample_name
     out: [decontaminated_matrix, rplots]
+  rename_rplots:
+    run: ../tools/rename_file.cwl
+    in:
+      in_file: soupx/rplots
+      out_filename:
+        source: output_basename
+        valueFrom: $(self).soupx.rplots.pdf
+    out: [renamed_file]
   scrublet:
     run: ../tools/scrublet.cwl
     in:
@@ -101,6 +109,22 @@ steps:
       ram: scrublet_ram
       cpus: scrublet_cpus
     out: [score_histogram, doublets_file]
+  rename_doublets:
+    run: ../tools/rename_file.cwl
+    in:
+      in_file: scrublet/doublets_file
+      out_filename:
+        source: output_basename
+        valueFrom: $(self).scrublet.doublets.csv
+    out: [renamed_file]
+  rename_histogram:
+    run: ../tools/rename_file.cwl
+    in:
+      in_file: scrublet/score_histogram
+      out_filename:
+        source: output_basename
+        valueFrom: $(self).scrublet.hist.png
+    out: [renamed_file]
   seurat_merge:
     run: ../tools/seurat_merge.cwl
     in:
@@ -118,3 +142,6 @@ sbg:license: Apache License 2.0
 sbg:publisher: KFDRC
 $namespaces:
   sbg: https://sevenbridges.com
+hints:
+  - class: 'sbg:maxNumberOfParallelInstances'
+    value: 2
