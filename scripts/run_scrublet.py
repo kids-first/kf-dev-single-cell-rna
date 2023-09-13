@@ -67,7 +67,7 @@ def parse_args(args):
         )
     required_args.add_argument(
         "--matrix",
-        help="Input matrix file",
+        help="Input matrix file. Can be output dir from cell ranger filtered_feature_bc_matrix or h5 file ",
         required=True
         )
 
@@ -86,12 +86,15 @@ def parse_args(args):
 
 def main(args):
     '''Main, take args, run script.'''
-    mat_dir, out_base, edr, score_thresh, counts, cells, variability, pcs \
+    matrix, out_base, edr, score_thresh, counts, cells, variability, pcs \
         = parse_args(args)
 
     #read matrix file
-    count_mat = sc.read_10x_mtx(mat_dir, cache=False)
-    count_mat.var_names_make_unique()
+    if matrix.endswith('.h5'):
+        count_mat = sc.read_10x_h5(matrix)      
+    else:  
+        count_mat = sc.read_10x_mtx(matrix, cache=False)
+    # count_mat.var_names_make_unique()
 
     #score doublets
     scrub = scr.Scrublet(count_mat.X, expected_doublet_rate=edr)
