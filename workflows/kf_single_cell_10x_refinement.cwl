@@ -74,6 +74,7 @@ inputs:
   scrublet_ram: {type: 'int?', default: 16, doc: "In GB"}
 outputs:
   soupx_rplots: {type: File, outputSource: rename_rplots/renamed_file}
+  soupx_rds: { type: File, outputSource: rename_soupx_rds/renamed_file }
   scrublet_doublets: {type: File, outputSource: rename_doublets/renamed_file}
   scrublet_histogram: {type: File, outputSource: rename_histogram/renamed_file}
   decontam_matrix: {type: File, outputSource: seurat_merge/merged_matrix}
@@ -86,7 +87,7 @@ steps:
       filtered_matrix: cellranger_matrix_filtered
       cluster_file: cellranger_cluster
       sample_name: sample_name
-    out: [decontaminated_matrix, rplots]
+    out: [decontaminated_matrix_dir, decontaminated_matrix_rds, rplots]
   rename_rplots:
     run: ../tools/rename_file.cwl
     in:
@@ -94,6 +95,14 @@ steps:
       out_filename:
         source: output_basename
         valueFrom: $(self).soupx.rplots.pdf
+    out: [renamed_file]
+  rename_soupx_rds:
+    run: ../tools/rename_file.cwl
+    in:
+      in_file: soupx/decontaminated_matrix_rds
+      out_filename:
+        source: output_basename
+        valueFrom: $(self).soupx.decontaminated_matrix.rds
     out: [renamed_file]
   scrublet:
     run: ../tools/scrublet.cwl
@@ -129,7 +138,7 @@ steps:
     run: ../tools/seurat_merge.cwl
     in:
       matrix_dirs:
-        source: soupx/decontaminated_matrix
+        source: soupx/decontaminated_matrix_dir
         valueFrom: |
           $([self])
       doublets_files:

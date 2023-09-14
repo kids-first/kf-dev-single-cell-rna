@@ -39,12 +39,18 @@ inputs:
     doc: "Name of this sample"
 
 outputs:
-  decontaminated_matrix:
+  decontaminated_matrix_dir:
     type: Directory
     outputBinding:
       loadListing: deep_listing
-      glob: $(inputs.sample_name)_decontam
+      glob: $(inputs.sample_name)
     doc: "Directory containing decontaminated matrix"
+  decontaminated_matrix_rds:
+    type: File
+    outputBinding:
+      loadListing: deep_listing
+      glob: $(inputs.sample_name).rds
+    doc: "rds containing decontaminated matrix"
   rplots:
     type: File
     outputBinding:

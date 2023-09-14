@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import scanpy as sc
 import scrublet as scr
+import pdb
 
 def parse_args(args):
     '''Get arguments.'''
@@ -57,6 +58,11 @@ def parse_args(args):
         default = 30,
         required=False
         )
+    parser.add_argument(
+        "--sample_name",
+        help="If given, will be prepended to barcodes",
+        required=False
+        )
 
     #required args
     required_args = parser.add_argument_group("required arguments")
@@ -81,13 +87,13 @@ def parse_args(args):
     cells = args.min_cell
     variability = args.min_gene_variability_pctl
     pcs = args.n_prin_comps
+    sample_name = args.sample_name
 
-    return matrix, output, edr, score, counts, cells, variability, pcs
+    return matrix, output, edr, score, counts, cells, variability, pcs, sample_name
 
 def main(args):
     '''Main, take args, run script.'''
-    matrix, out_base, edr, score_thresh, counts, cells, variability, pcs \
-        = parse_args(args)
+    matrix, out_base, edr, score_thresh, counts, cells, variability, pcs, sample_name = parse_args(args)
 
     #read matrix file
     if matrix.endswith('.h5'):
@@ -104,6 +110,13 @@ def main(args):
         n_prin_comps = pcs, use_approx_neighbors = False
     )
     count_mat.obs['predicted_doublets'] = scrub.call_doublets(threshold=score_thresh)
+    pdb.set_trace()
+    # reindex if sample name given for downstream compatibility
+    if sample_name:
+        new_index = [ sample_name + x[:-2] for x in list(count_mat.obs.index) ]
+        count_mat.obs.reset_index(inplace=True)
+        count_mat.obs['index'] = new_index
+        count_mat.obs.set_index('index', inplace=True)
 
     #plot scores histogram
     hist_file = out_base + ".hist.png"
