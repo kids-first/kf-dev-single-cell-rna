@@ -57,5 +57,4 @@ sc <- autoEstCont(sc)
 # clean the data
 out_matrix <- adjustCounts(sc, roundToInt = T)
 
-output_dir <- paste(sample_name, '_decontam', sep="")
-DropletUtils:::write10xCounts(output_dir, out_matrix)
+DropletUtils:::write10xCounts(sample_name, out_matrix)

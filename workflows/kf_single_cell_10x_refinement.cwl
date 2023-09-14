@@ -98,7 +98,7 @@ steps:
   scrublet:
     run: ../tools/scrublet.cwl
     in:
-      input_matrix: soupx/decontaminated_matrix
+      input_matrix: cellranger_matrix_filtered
       output_basename: sample_name
       expected_doublet_rate: expected_doublet_rate
       doublet_score_threshold: doublet_score_threshold
