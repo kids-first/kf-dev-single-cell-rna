@@ -57,14 +57,14 @@ for (m in mats)
     colnames(doublets) <- c("Doublet_score","Is_doublet")
     seuratobj <- AddMetaData(seuratobj,doublets)
 
+    #mark barcodes where Is_doublet column is False as QC Passes
+    seuratobj[['QC']] <- ifelse(
+    seuratobj@meta.data$Is_doublet == 'True','Doublet','Pass')
+
     # read align QC file and merge
     align_qc_fn <- align_qcs[[i]]
     align_qc = readRDS(align_qc_fn)
     seuratobj <- merge(seuratobj, align_qc)
-
-    #mark barcodes where Is_doublet column is False as QC Passes
-    seuratobj[['QC']] <- ifelse(
-    seuratobj@meta.data$Is_doublet == 'True','Doublet','Pass')
 
     #add subset of QC passes list of objects
     objlist <- append(objlist, subset(seuratobj, subset = QC == 'Pass'))

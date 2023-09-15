@@ -21,7 +21,7 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      seurat_merge.R --matrix_dirs $(inputs.matrix_dirs.map(function(i){return i.path}).join()) --output_name $(inputs.output_name) --doublets_files $(inputs.doublets_files.map(function(i){return i.path}).join()) --align_qcs $(inputs.align_qc_files.map(function(i){return i.path}).join())
+      seurat_merge.R --matrix_dirs $(inputs.matrix_dirs.map(function(i){return i.path}).join()) --output_name $(inputs.output_name) --doublets_files $(inputs.doublets_files.map(function(i){return i.path}).join()) --align_qc_files $(inputs.align_qc_files.map(function(i){return i.path}).join())
 
 inputs:
   matrix_dirs:
