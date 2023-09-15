@@ -53,6 +53,7 @@ inputs:
   cellranger_matrix_filtered: {type: 'File', doc: "filtered_feature_bc_matrix file
       from cellranger count"}
   cellranger_cluster: {type: 'File', doc: "clusters.csv file from cellranger count"}
+  align_qc_rds: { type: File, doc: "Align QC file frm D3b 10X alignment workflow" }
   sample_name: {type: 'string', doc: "used as prefix for finding fastqs to analyze,
       e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs
       are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz,
@@ -108,7 +109,8 @@ steps:
     run: ../tools/scrublet.cwl
     in:
       input_matrix: cellranger_matrix_filtered
-      output_basename: sample_name
+      output_basename: output_basename
+      sample_name: sample_name
       expected_doublet_rate: expected_doublet_rate
       doublet_score_threshold: doublet_score_threshold
       count_min: count_min
@@ -143,6 +145,10 @@ steps:
           $([self])
       doublets_files:
         source: scrublet/doublets_file
+        valueFrom: |
+          $([self])
+      align_qc_files:
+        source: align_qc_rds
         valueFrom: |
           $([self])
       output_name: output_basename

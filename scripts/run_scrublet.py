@@ -110,10 +110,9 @@ def main(args):
         n_prin_comps = pcs, use_approx_neighbors = False
     )
     count_mat.obs['predicted_doublets'] = scrub.call_doublets(threshold=score_thresh)
-    pdb.set_trace()
     # reindex if sample name given for downstream compatibility
     if sample_name:
-        new_index = [ sample_name + x[:-2] for x in list(count_mat.obs.index) ]
+        new_index = [ sample_name + ":" + x[:-2] for x in list(count_mat.obs.index) ]
         count_mat.obs.reset_index(inplace=True)
         count_mat.obs['index'] = new_index
         count_mat.obs.set_index('index', inplace=True)

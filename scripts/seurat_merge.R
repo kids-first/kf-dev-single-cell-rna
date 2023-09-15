@@ -18,6 +18,11 @@ option_list <- list(
     help = "Csv files with doublet information"
   ),
   make_option(
+    opt_str = "--align_qc_files",
+    type = "character",
+    help = "QC RDS file from D3b alignment workflow"
+  ),
+  make_option(
     opt_str = "--output_name",
     type = "character",
     help = "Name to tag output matrix file with"
@@ -27,6 +32,7 @@ option_list <- list(
 opts <- parse_args(OptionParser(option_list = option_list))
 mats <- strsplit(opts$matrix_dirs, ",")[[1]]
 doubs <- strsplit(opts$doublets_files, ",")[[1]]
+align_qcs <- strsplit(opts$align_qc_files, ",")[[1]]
 
 objlist = vector()
 namelist = vector()
@@ -50,9 +56,15 @@ for (m in mats)
     doublets <- read.table(doublet_file, sep = ",", , header=F, row.names=1)
     colnames(doublets) <- c("Doublet_score","Is_doublet")
     seuratobj <- AddMetaData(seuratobj,doublets)
+
+    # read align QC file and merge
+    align_qc_fn <- align_qcs[[i]]
+    align_qc = readRDS(align_qc_fn)
+    seuratobj <- merge(seuratobj, align_qc)
+
     #mark barcodes where Is_doublet column is False as QC Passes
     seuratobj[['QC']] <- ifelse(
-      seuratobj@meta.data$Is_doublet == 'True','Doublet','Pass')
+    seuratobj@meta.data$Is_doublet == 'True','Doublet','Pass')
 
     #add subset of QC passes list of objects
     objlist <- append(objlist, subset(seuratobj, subset = QC == 'Pass'))

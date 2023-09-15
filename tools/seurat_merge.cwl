@@ -21,7 +21,7 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      seurat_merge.R --matrix_dirs $(inputs.matrix_dirs.map(function(i){return i.path}).join()) --output_name $(inputs.output_name) --doublets_files $(inputs.doublets_files.map(function(i){return i.path}).join())
+      seurat_merge.R --matrix_dirs $(inputs.matrix_dirs.map(function(i){return i.path}).join()) --output_name $(inputs.output_name) --doublets_files $(inputs.doublets_files.map(function(i){return i.path}).join()) --align_qcs $(inputs.align_qc_files.map(function(i){return i.path}).join())
 
 inputs:
   matrix_dirs:
@@ -31,6 +31,9 @@ inputs:
   doublets_files:
     type: File[]
     doc: "Csv files with barcodes, doublet score, and predicted doublet boolean"
+  align_qc_files:
+    type: File[]
+    doc: "Align QC files from D3b 10X alignment workflow"
   output_name:
     type: string
     doc: "Name with which to tag output matrix"
