@@ -27,13 +27,13 @@ suppressPackageStartupMessages({
 ## Directories and paths to file Inputs/Outputs
 ```{r set-dir-and-file-names, echo=TRUE}
 # Inputs
-qc_data_path <- file.path("/Users/chronia/CHOP/GitHub/achroni/merge-qc-objects-draft/data/delme_test_alignment.seurat.qc.rds")
-soupx_data_path <- file.path("/Users/chronia/CHOP/GitHub/achroni/merge-qc-objects-draft/data/prod_candidate.soupx.decontaminated_matrix.rds")
-scrublet_path <- file.path("/Users/chronia/CHOP/GitHub/achroni/merge-qc-objects-draft/data/prod_candidate.scrublet.doublets.csv")
+qc_data_path <- file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/data/delme_test_alignment.seurat.qc.rds")
+soupx_data_path <- file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/data/prod_candidate.soupx.decontaminated_matrix.rds")
+scrublet_path <- file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/data/prod_candidate.scrublet.doublets.csv")
 
 # File path to results directory
 results_dir <-
-  file.path("/Users/chronia/CHOP/GitHub/achroni/merge-qc-objects-draft", "results")
+  file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example", "results")
 if (!dir.exists(results_dir)) {
   dir.create(results_dir)
 }
