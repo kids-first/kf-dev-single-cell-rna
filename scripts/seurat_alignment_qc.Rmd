@@ -308,11 +308,17 @@ for(i in 1:nrow(possibilities)) {
                      num_dim_use = num_dim, assay = "RNA", num_neighbors = num_neighbors,
                      prefix = glue("ndim{num_dim}nn{num_neighbors}{prefix}"))
 }
+
+# Generate metadata
+reduction_names <- c(paste0("umap", "ndim", possibilities[,1], "nn", possibilities[,2], prefix), paste0("pca", prefix)) # Export the reductions to Seurat
+
+metadata <- as_data_frame_seurat(seurat_obj, reduction = reduction_names,
+                                 metadata = TRUE)
 ```
 
-Plot dimensionality reduction.
+# Plot UMAP
 
-```{r plotdr, echo=TRUE}
+```{r plot-UMAP, echo=TRUE}
 # plot the first two PCs, and all of the different UMAPs
 reduction_names <- c(paste0("UMAP", "ndim", possibilities[,1], "nn", possibilities[,2], prefix), paste0("PC", prefix))
 
@@ -322,40 +328,40 @@ plot_dr <- data.frame(X = paste0(reduction_names, "_1"),
 
 for(i in 1:nrow(plot_dr)){
   print(current_plot <- plot_scatter(metadata = metadata,
-                               results_dir = file.path(results_dir, "dr"),
-                               proj_name = sample_name,
-                               log_file = log_file,
-                               X = plot_dr[i,1],
-                               Y = plot_dr[i,2],
-                               color = grouping,
-                               write = TRUE))
+                                     scratch_dir,
+                                     proj_name = sample_name,
+                                     log_file = log_file,
+                                     X = plot_dr[i,1],
+                                     Y = plot_dr[i,2],
+                                     color = grouping,
+                                     write = TRUE))
   
     print(current_plot <- plot_scatter(metadata = metadata,
-                               results_dir = file.path(results_dir, "dr"),
-                               proj_name = sample_name,
-                               log_file = log_file,
-                               X = plot_dr[i,1],
-                               Y = plot_dr[i,2],
-                               color = "nFeature_RNA",
-                               write = TRUE))
+                                       scratch_dir,
+                                       proj_name = sample_name,
+                                       log_file = log_file,
+                                       X = plot_dr[i,1],
+                                       Y = plot_dr[i,2],
+                                       color = "nFeature_RNA",
+                                       write = TRUE))
     
     print(current_plot <- plot_scatter(metadata = metadata,
-                           results_dir = file.path(results_dir, "dr"),
-                           proj_name = sample_name,
-                           log_file = log_file,
-                           X = plot_dr[i,1],
-                           Y = plot_dr[i,2],
-                           color = "nCount_RNA",
-                           write = TRUE))
+                                       scratch_dir,
+                                       proj_name = sample_name,
+                                       log_file = log_file,
+                                       X = plot_dr[i,1],
+                                       Y = plot_dr[i,2],
+                                       color = "nCount_RNA",
+                                       write = TRUE))
     
     print(current_plot <- plot_scatter(metadata = metadata,
-                       results_dir = file.path(results_dir, "dr"),
-                       proj_name = sample_name,
-                       log_file = log_file,
-                       X = plot_dr[i,1],
-                       Y = plot_dr[i,2],
-                       color = "pct_mito",
-                       write = TRUE))
+                                       scratch_dir,
+                                       proj_name = sample_name,
+                                       log_file = log_file,
+                                       X = plot_dr[i,1],
+                                       Y = plot_dr[i,2],
+                                       color = "pct_mito",
+                                       write = TRUE))
 }
 ```
 
@@ -365,11 +371,6 @@ We will save the filtered seurat object to be used for further downstream analys
 
 ```{r save-seurat-obj, echo=TRUE}
 # Save metadata
-reduction_names <- c(paste0("umap", "ndim", possibilities[,1], "nn", possibilities[,2], prefix), paste0("pca", prefix)) # Export the reductions to Seurat
-
-metadata <- as_data_frame_seurat(seurat_obj, reduction = reduction_names,
-                                 metadata = TRUE)
-
 write_tsv(metadata, path = glue("{results_dir}/metadata_create_{sample_name}.tsv"))
 
 # Save Seurat object
