@@ -7,7 +7,6 @@ output:
     toc: TRUE
     toc_float: TRUE
     params:
-  out_path: './' # path to dir to save all output files
   data_path: '/path/to/10x/output/dir/filtered_feature_bc_matrix/' # path to the directory with the filtered_feature_bc_matrix
   sample_name: "sample_name"   # name of the current sample
   samples: sample_name
@@ -41,7 +40,7 @@ To run the Rscript from the command line sequentially, use:
 ```
 Rscript -e "rmarkdown::render('01_Seurat_QC.Rmd', clean = TRUE,
             params=list(scooter_path = '/Users/chronia/CHOP/GitHub/scooter', 
-                        out_path='/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/data/01_QC_objects/', 
+                        results_dir='/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/data/01_QC_objects/', 
                         data_path='/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/00-alignment/7316-2594_include_introns/outs/filtered_feature_bc_matrix/', 
                         sample_name='7316-2594_include_introns'))"
 ```
@@ -51,7 +50,7 @@ attach(params)
 knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE, 
                       message = FALSE, 
-                      fig.path = file.path(out_path, paste0("Seurat_QC-", sample_name, "/")),
+                      fig.path = file.path(results_dir, paste0("Seurat_QC-", sample_name, "/")),
                       fig.height = 10, 
                       fig.width = 15,
                       dev = c("png", "pdf"))
@@ -81,15 +80,16 @@ options(future.globals.maxSize = 30 * 1024 ^ 3)
 ## Directories and paths to file Inputs/Outputs
 ```{r set-dir-and-file-names, echo=TRUE}
 # File path to results directory
-out_path <-
-  file.path(out_path, paste0("Seurat-QC-", sample_name, "/"))
-if (!dir.exists(out_path)) {
-  dir.create(out_path)
+results_dir <-
+  file.path(results_dir, paste0("Seurat-QC-", sample_name, "/"))
+if (!dir.exists(results_dir)) {
+  dir.create(results_dir)
 }
 
+
 # File path to scratch directory
-scratch_dir <-
-  file.path(out_path, "dr")
+scratch_dir <- 
+  file.path(results_dir, "dr")
 if (!dir.exists(scratch_dir)) {
   dir.create(scratch_dir)
 }
@@ -156,7 +156,7 @@ Let us save the Seurat object with the raw count data (unfiltered; "seurat_obj_r
 
 ```{r save-rds-raw, echo=TRUE}
 # save raw Seurat object
-saveRDS(seurat_obj, file = paste0(out_path, "/", "seurat_obj_raw.rds"))
+saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj_raw.rds"))
 ```
 
 ## Preprocessing of unfiltered data
@@ -264,7 +264,7 @@ if(!is.null(hashtag_ID) | !is.null(hashtag_file)) {
     theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 12)))
 
   #save seurat_obj for doublet removal:
-  saveRDS(seurat_obj, file = paste0(out_path, "/", "seurat_obj_doublet.rds"))
+  saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj_doublet.rds"))
   
   # subset everything that isn't a singlet
   seurat_obj <- subset(seurat_obj,
@@ -588,7 +588,7 @@ for(i in 1:nrow(possibilities)) {
 }
 ```
 
-Let us save metadata as a csv to `r glue("{out_path}/metadata_create_{sample_name}.csv")`
+Let us save metadata as a csv to `r glue("{results_dir}/metadata_create_{sample_name}.csv")`
 
 ```{r save-metadata, echo=TRUE}
 # Export the reductions to Seurat and save dimensionality reduction and
@@ -598,7 +598,7 @@ reduction_names <- c(paste0("umap", "ndim", possibilities[,1], "nn", possibiliti
 metadata <- as_data_frame_seurat(seurat_obj, reduction = reduction_names,
                                  metadata = TRUE)
 
-write_excel_csv(metadata, path = glue("{out_path}/metadata_create_{sample_name}.csv"))
+write_excel_csv(metadata, path = glue("{results_dir}/metadata_create_{sample_name}.csv"))
 ```
 
 Plot dimensionality reduction.
@@ -613,7 +613,7 @@ plot_dr <- data.frame(X = paste0(reduction_names, "_1"),
 
 for(i in 1:nrow(plot_dr)){
   print(current_plot <- plot_scatter(metadata = metadata,
-                               out_path = file.path(out_path, "dr"),
+                               results_dir = file.path(results_dir, "dr"),
                                proj_name = sample_name,
                                log_file = log_file,
                                X = plot_dr[i,1],
@@ -622,7 +622,7 @@ for(i in 1:nrow(plot_dr)){
                                write = TRUE))
   
     print(current_plot <- plot_scatter(metadata = metadata,
-                               out_path = file.path(out_path, "dr"),
+                               results_dir = file.path(results_dir, "dr"),
                                proj_name = sample_name,
                                log_file = log_file,
                                X = plot_dr[i,1],
@@ -631,7 +631,7 @@ for(i in 1:nrow(plot_dr)){
                                write = TRUE))
     
     print(current_plot <- plot_scatter(metadata = metadata,
-                           out_path = file.path(out_path, "dr"),
+                           results_dir = file.path(results_dir, "dr"),
                            proj_name = sample_name,
                            log_file = log_file,
                            X = plot_dr[i,1],
@@ -640,7 +640,7 @@ for(i in 1:nrow(plot_dr)){
                            write = TRUE))
     
     print(current_plot <- plot_scatter(metadata = metadata,
-                       out_path = file.path(out_path, "dr"),
+                       results_dir = file.path(results_dir, "dr"),
                        proj_name = sample_name,
                        log_file = log_file,
                        X = plot_dr[i,1],
@@ -650,11 +650,18 @@ for(i in 1:nrow(plot_dr)){
 }
 ```
 
+# Save object
+
 We will save the filtered seurat object to be used for further downstream analysis ("seurat_obj.rds").
 
-```{r save-rds, echo=TRUE}
+```{r save-seurat-obj, echo=TRUE}
 # save filtered Seurat object
 seurat_obj@meta.data$samples <- sample_name
-saveRDS(seurat_obj, file = paste0(out_path, "/", "seurat_obj.rds"))
+saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj.rds"))
 ```
+
+```{r}
+sessionInfo()
+```
+
 
