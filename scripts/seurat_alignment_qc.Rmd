@@ -187,62 +187,6 @@ plot_grid(title,
 
 We will plot only singlets per each HTO.
 
-```{r unfiltered-singlet-violin-qc, echo=TRUE}
-if(!is.null(hashtag_ID)) {
-
-  # plot number of genes
-  genes_sing <- plot_distribution(seurat_obj, 
-                                features = "nFeature_RNA", 
-                                grouping = grouping) +
-  geom_hline(yintercept=min_genes, color = "red", size = 2) +
-  geom_hline(yintercept=max_genes, color = "red", size = 2) +
-  annotate(geom="text", x=0.7, y=max_genes - 200, label= glue("Max genes: {max_genes}"),
-              color="red") +
-  annotate(geom="text", x=0.7, y=min_genes - 200, label=glue("Min genes: {min_genes}"),
-              color="red")
-
-  # plot number of UMIs
-  umi_sing <- plot_distribution(seurat_obj,
-                                features = "nCount_RNA",
-                                grouping = grouping)
-
-  # plot percent mitochondrial reads
-  mito_sing <- plot_distribution(seurat_obj, 
-                               features = "pct_mito",
-                               grouping = grouping) +
-  geom_hline(yintercept=max_mt, color = "red", size = 2) +
-  annotate(geom="text", x=0.7, y=max_mt + 5, label=glue("Max pct mito: {max_mt}"),
-              color="red")
-
-  # get the legend for one of the plots to use as legend for the combined plot
-  legend_grid <- get_legend(mito_sing)
-
-  # Combine plots
-  plot_row <- plot_grid(genes_sing + theme(legend.position = "none"),
-            umi_sing + theme(legend.position = "none"),
-            mito_sing + theme(legend.position = "none"),
-            legend_grid,
-            ncol = 4)
-  
-  title <- ggdraw() + 
-  draw_label(
-    "Unfiltered-data-singlets",
-    fontface = 'bold',
-    x = 0,
-    hjust = 0
-  ) +
-  theme(
-    # add margin on the left of the drawing canvas,
-    # so title is aligned with left edge of first plot
-    plot.margin = margin(0, 0, 0, 7)
-  )
-
-    plot_grid(title,
-            plot_row,
-            ncol = 1,
-            rel_heights = c(0.1, 1))
-}
-```
 
 ```{r unfiltered-singlet-hash-qc, echo=TRUE}
 if(!is.null(hashtag_ID)) {
