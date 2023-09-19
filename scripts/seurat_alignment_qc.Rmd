@@ -59,13 +59,6 @@ if (!dir.exists(results_dir)) {
   dir.create(results_dir)
 }
 
-# File path to scratch directory
-scratch_dir <- 
-  file.path(results_dir, "dr")
-if (!dir.exists(scratch_dir)) {
-  dir.create(scratch_dir)
-}
-
 # File path to scooter directory
 #scooter_path <- './'
 scooter_path <- file.path("/Users/chronia/CHOP/GitHub/scooter")
@@ -329,7 +322,6 @@ plot_dr <- data.frame(X = paste0(reduction_names, "_1"),
 
 for(i in 1:nrow(plot_dr)){
   print(current_plot <- plot_scatter(metadata = metadata,
-                                     scratch_dir,
                                      proj_name = sample_name,
                                      log_file = log_file,
                                      X = plot_dr[i,1],
@@ -338,7 +330,6 @@ for(i in 1:nrow(plot_dr)){
                                      write = TRUE))
   
     print(current_plot <- plot_scatter(metadata = metadata,
-                                       scratch_dir,
                                        proj_name = sample_name,
                                        log_file = log_file,
                                        X = plot_dr[i,1],
@@ -347,7 +338,6 @@ for(i in 1:nrow(plot_dr)){
                                        write = TRUE))
     
     print(current_plot <- plot_scatter(metadata = metadata,
-                                       scratch_dir,
                                        proj_name = sample_name,
                                        log_file = log_file,
                                        X = plot_dr[i,1],
@@ -356,7 +346,6 @@ for(i in 1:nrow(plot_dr)){
                                        write = TRUE))
     
     print(current_plot <- plot_scatter(metadata = metadata,
-                                       scratch_dir,
                                        proj_name = sample_name,
                                        log_file = log_file,
                                        X = plot_dr[i,1],
