@@ -10,14 +10,10 @@ output:
   data_path: '/path/to/10x/output/dir/filtered_feature_bc_matrix/' # path to the directory with the filtered_feature_bc_matrix
   sample_name: "sample_name"   # name of the current sample
   samples: sample_name
-  #hashtag_ID: NULL # names of the hashtags to keep (if the hashtags are NOT separate from the gene expression data)
-  #hashtags_to_keep: NULL # names of the hashtags to keep (if the hashtags are NOT separate from the gene expression data)
-  #hashtag_file: NULL # path to hashtag file (if it is separate from the gene expression data)
   assay: "RNA"   # Assay we are working with
   grouping: "orig.ident" # grouping for plots
-  #hash_grouping: "hash.ID" # grouping for plots hashtags but doesnt work with anythin else right now
-  min_genes: 400 # minimum number of genes per cell
-  max_genes: 4000 # maximum number of genes per cell
+  min_genes: 200 # minimum number of genes per cell
+  max_genes: 6000 # maximum number of genes per cell
   max_mt: 5  # maximum percent mitochondrial reads per cell
   normalize_method: "log_norm" # normalization method. One of log_norm or sct
   nfeatures: 2000 # number of variable features to extract
