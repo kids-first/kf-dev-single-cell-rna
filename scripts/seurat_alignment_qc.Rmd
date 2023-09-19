@@ -77,14 +77,11 @@ options(future.globals.maxSize = 30 * 1024 ^ 3)
 })
 ```
 
-
-
-
-## Directories and File Inputs/Outputs
-```{r set-dir-and-file-names}
+## Directories and paths to file Inputs/Outputs
+```{r set-dir-and-file-names, echo=TRUE}
 # File path to results directory
 out_path <-
-  file.path(out_path, paste0("Seurat_QC-", sample_name, "/"))
+  file.path(out_path, paste0("Seurat-QC-", sample_name, "/"))
 if (!dir.exists(out_path)) {
   dir.create(out_path)
 }
@@ -96,6 +93,7 @@ if (!dir.exists(scratch_dir)) {
   dir.create(scratch_dir)
 }
 ```
+
 
 
 ## Create RMD
