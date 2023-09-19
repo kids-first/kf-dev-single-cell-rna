@@ -6,11 +6,9 @@ output:
   html_notebook:
     toc: TRUE
     toc_float: TRUE
-  params:
-  data_path: '/path/to/10x/output/dir/filtered_feature_bc_matrix/' # path to the directory with the filtered_feature_bc_matrix
-  sample_name: "sample_name"   # name of the current sample
-  samples: sample_name
-  assay: "RNA"   # Assay we are working with
+params:
+  sample_name: "sample_name"   # name of the sample in the library
+  assay: "RNA"   # Assay 
   grouping: "orig.ident" # grouping for plots
   min_genes: 200 # minimum number of genes per cell
   max_genes: 6000 # maximum number of genes per cell
@@ -48,7 +46,7 @@ knitr::opts_chunk$set(echo = FALSE,
                       fig.path = file.path(results_dir, paste0("Seurat_QC-", sample_name, "/")),
                       fig.height = 10, 
                       fig.width = 15,
-                      dev = c("png", "pdf"))
+                      dev = c("png"))
 ```
 
 # Set up
@@ -74,7 +72,7 @@ options(future.globals.maxSize = 30 * 1024 ^ 3)
 
 ## Directories and paths to file Inputs/Outputs
 ```{r set-dir-and-file-names, echo=TRUE}
-# File path to data
+# File path to data with the filtered_feature_bc_matrix
 data_path <- file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/data/pbmc_1k_v3/outs/filtered_feature_bc_matrix")
 if (dir.exists(data_path)) {
     cat(paste(c("", sprintf("`%s`", list.files(paste(data_path, "/outs"), full.names = TRUE))),
@@ -121,8 +119,12 @@ seurat_obj <- create_seurat_obj(counts_matrix = counts_mat[["Gene Expression"]],
 
 # Save raw Seurat object
 saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj_raw.rds"))
+
+# How many cells are in the seurat object?
+cells_so_num <- ncol(seurat_obj)
 ```
 
+There are `r cells_so_num` cells in the raw seurat object.
 
 # Plot unfiltered data
 Plot distribution of the number of genes, UMI, and percent mitochondrial reads per cell. 
@@ -180,14 +182,20 @@ plot_grid(title,
           ncol = 1,
           rel_heights = c(0.1, 1))
 ```
-
+                                          
 # Filter data
 Let us filter the data.
 
 ```{r filter-data, echo=TRUE}
 # filter data
 seurat_obj <- subset(seurat_obj, subset = nFeature_RNA > min_genes & nFeature_RNA < max_genes & pct_mito < max_mt)
+
+# How many cells are in the seurat object after filtering?
+cells_so_after_filter_num <- ncol(seurat_obj)
 ```
+
+There are `r cells_so_after_filter_num` cells in the seurat object after filtering.
+
 
 # Process data
 Let us calculate how many cells express a specific gene.
@@ -208,6 +216,7 @@ ggplot(data = p, aes(x = gene_means, y = pct_cells, label = gene)) +
 ```
 
 Let us estimate the number of expressed genes in the sequencing library.
+
 ```{r cell-activity, echo=TRUE}
 # number of expressed genes
 num_genes <- apply(as.data.frame(seurat_obj@assays$RNA@counts), 2, function(x) (sum(x != 0)))
@@ -376,5 +385,3 @@ saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj.rds"))
 ```{r}
 sessionInfo()
 ```
-
-
