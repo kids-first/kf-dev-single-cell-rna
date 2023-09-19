@@ -56,23 +56,29 @@ knitr::opts_chunk$set(echo = FALSE,
                       dev = c("png", "pdf"))
 ```
 
-```{r load_libraries}
-library(future)
-library(cowplot)
-library(devtools)
-library(forcats)
-library(GGally)
-library(stringr)
-library(ggpmisc)
-library(ggrepel)
-load_all(scooter_path)
-theme_set(theme_bw())
-
-# # evaluate Seurat R expressions asynchronously when possible (such as ScaleData) using future package
+# Set up
+```{r load-library}
+suppressPackageStartupMessages({
+  library(future)
+  library(cowplot)
+  library(devtools)
+  library(forcats)
+  library(GGally)
+  library(stringr)
+  library(ggpmisc)
+  library(ggrepel)
+  load_all(scooter_path)
+  theme_set(theme_bw())
+  
+# evaluate Seurat R expressions asynchronously when possible (such as ScaleData) using future package
 plan("multisession", workers = 4)
-# # increase the limit of the data to be shuttled between the processes from default 500MB to 50GB
+# increase the limit of the data to be shuttled between the processes from default 500MB to 50GB
 options(future.globals.maxSize = 30 * 1024 ^ 3)
+})
 ```
+
+
+
 
 ## Directories and File Inputs/Outputs
 ```{r set-dir-and-file-names}
