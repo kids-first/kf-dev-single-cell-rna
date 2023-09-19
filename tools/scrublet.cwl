@@ -28,7 +28,7 @@ arguments:
       run_scrublet.py
 
 inputs:
-  input_matrix: {type: 'File?', loadListing: deep_listing, doc: "Cell ranger filtered h5 count matrix dir if preferred or matrix dir not available",
+  input_matrix: {type: 'File?', doc: "Cell ranger filtered h5 count matrix dir if preferred or matrix dir not available",
     inputBinding: { prefix: "--matrix", position: 1}}
   input_matrix_dir: {type: 'Directory?', loadListing: deep_listing, doc: "Cell ranger filtered count matrix dir if preferred or h5 not available",
     inputBinding: { prefix: "--matrix", position: 1}}
