@@ -6,7 +6,7 @@ output:
   html_notebook:
     toc: TRUE
     toc_float: TRUE
-    params:
+  params:
   data_path: '/path/to/10x/output/dir/filtered_feature_bc_matrix/' # path to the directory with the filtered_feature_bc_matrix
   sample_name: "sample_name"   # name of the current sample
   samples: sample_name
@@ -15,7 +15,7 @@ output:
   #hashtag_file: NULL # path to hashtag file (if it is separate from the gene expression data)
   assay: "RNA"   # Assay we are working with
   grouping: "orig.ident" # grouping for plots
-  hash_grouping: "hash.ID" # grouping for plots hashtags but doesnt work with anythin else right now
+  #hash_grouping: "hash.ID" # grouping for plots hashtags but doesnt work with anythin else right now
   min_genes: 400 # minimum number of genes per cell
   max_genes: 4000 # maximum number of genes per cell
   max_mt: 5  # maximum percent mitochondrial reads per cell
@@ -27,7 +27,7 @@ output:
   prefix: "lognorm"   # prefix to add to UMAP. Useful if you are doing different normalizations, or using different subsets of the data
   log_file: "log" # log file
 ---
-
+  
 # Information about this notebook
 This script creates Seurat object from the aligned count data, performs QC based on Seurat functions (doublet estimation and removal). For more information or updates on Seurat, please see: https://satijalab.org/seurat/articles/pbmc3k_tutorial.html
 
@@ -79,6 +79,7 @@ options(future.globals.maxSize = 30 * 1024 ^ 3)
 ## Directories and paths to file Inputs/Outputs
 ```{r set-dir-and-file-names, echo=TRUE}
 # File path to data
+data_path <- file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/data/pbmc_1k_v3/outs/filtered_feature_bc_matrix")
 if (dir.exists(data_path)) {
     cat(paste(c("", sprintf("`%s`", list.files(paste(data_path, "/outs"), full.names = TRUE))),
               collapse = "\n- "))
@@ -88,8 +89,11 @@ if (dir.exists(data_path)) {
 cat("\n\n")
 
 # File path to results directory
+results_dir1 <-
+  file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example", "results")
+
 results_dir <-
-  file.path(results_dir, paste0("Seurat-QC-", sample_name, "/"))
+  file.path(results_dir1, paste0("Seurat-QC-", sample_name, "/"))
 if (!dir.exists(results_dir)) {
   dir.create(results_dir)
 }
@@ -103,6 +107,8 @@ if (!dir.exists(scratch_dir)) {
 
 # File path to scooter directory
 scooter_path <- './'
+# scooter_path <- file.path("/Users/chronia/CHOP/GitHub/scooter")
+
 ```
 
 # Read in 10x data
@@ -126,7 +132,7 @@ saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj_raw.rds"))
 Plot distribution of the number of genes, UMI, and percent mitochondrial reads per cell. 
 
 ```{r unfiltered-violin-qc, echo=TRUE}
-# plot number of genes 
+# Plot number of genes 
 genes_unfilt <- plot_distribution(seurat_obj, 
                                 features = "nFeature_RNA", 
                                 grouping = grouping) +
