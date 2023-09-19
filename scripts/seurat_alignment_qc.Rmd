@@ -12,9 +12,8 @@ params:
   grouping: "orig.ident" # grouping for plots
   min_genes: 200 # minimum number of genes per cell
   max_genes: 6000 # maximum number of genes per cell
-  max_mt: 1  # maximum percent mitochondrial reads per cell
+  max_mt: 15  # maximum percent mitochondrial reads per cell
   normalize_method: "log_norm" # normalization method. One of log_norm or sct
-  nfeatures: 2000 # number of variable features to extract
   num_pcs: 30 # number of PCs to calculate
   num_dim: [20, 25] # number of PCs to use in UMAP
   num_neighbors: [30, 20, 10] # number of neighbors to use in UMAP
@@ -58,6 +57,14 @@ results_dir <-
 if (!dir.exists(results_dir)) {
   dir.create(results_dir)
 }
+
+# File path to scratch directory
+scratch_dir <- 
+  file.path(results_dir, "dr")
+if (!dir.exists(scratch_dir)) {
+  dir.create(scratch_dir)
+}
+
 
 # File path to scooter directory
 #scooter_path <- './'
@@ -115,10 +122,10 @@ cells_before_filter_num <- ncol(seurat_obj)
 
 There are `r cells_before_filter_num` cells in the raw seurat object.
 
-# Plot unfiltered data
+# Plot data before filter
 Plot distribution of the number of genes, UMI, and percent mitochondrial reads per cell. 
 
-```{r unfiltered-violin-qc, echo=TRUE}
+```{r qc-before-filter, echo=TRUE}
 # Plot number of genes 
 genes_unfilt <- plot_distribution(seurat_obj, 
                                 features = "nFeature_RNA", 
@@ -175,7 +182,7 @@ plot_grid(title,
 # Filter data
 Let us filter the data.
 
-```{r filter-data, echo=TRUE}
+```{r data-filter, echo=TRUE}
 # filter data
 seurat_obj <- subset(seurat_obj, subset = nFeature_RNA > min_genes & nFeature_RNA < max_genes & pct_mito < max_mt)
 
@@ -185,11 +192,9 @@ cells_so_after_filter_num <- ncol(seurat_obj)
 
 There are `r cells_so_after_filter_num` cells in the seurat object after filtering.
 
+## How many cells express a specific gene?
 
-# Process data
-Let us calculate how many cells express a specific gene.
-
-```{r freq-mean, echo=TRUE}
+```{r freq-mean-after-filter, echo=TRUE}
 # For each gene, calculate % of cells expressing it and the mean
 pct_cells <- apply(as.data.frame(seurat_obj@assays$RNA@counts), 1, function(x) (sum(x != 0))) / ncol(seurat_obj@assays$RNA@counts)
 
@@ -204,9 +209,9 @@ ggplot(data = p, aes(x = gene_means, y = pct_cells, label = gene)) +
   stat_dens2d_labels(geom = "text_repel", keep.fraction = 0.001)
 ```
 
-Let us estimate the number of expressed genes in the sequencing library.
+## What is the number of expressed genes in the library?
 
-```{r cell-activity, echo=TRUE}
+```{r cell-activity-after-filter, echo=TRUE}
 # number of expressed genes
 num_genes <- apply(as.data.frame(seurat_obj@assays$RNA@counts), 2, function(x) (sum(x != 0)))
 
@@ -220,10 +225,9 @@ ggplot(data = l, aes(x = log10(libsize), y = num_genes)) +
   ylab("Number of Expressed Genes") 
 ```
 
-# Plot filtered data
-Let us plot QC after filtering low quality cells.
+# Plot data after filter low quality cells
 
-```{r filtered-qc, echo=TRUE}
+```{r qc-after-filter, echo=TRUE}
 # plot number of genes
 genes_sing <- plot_distribution(seurat_obj,
                                 features = "nFeature_RNA",
@@ -265,7 +269,7 @@ plot_grid(genes_sing + theme(legend.position = "none"),
 ```{r normalize-variable-features-scale-data, echo=TRUE}
 # normalize seurat object using specified method, on specified assay
 seurat_obj <- NormalizeData(seurat_obj, normalization.method = "LogNormalize",
-                             nfeatures = nfeatures, assay = "RNA")
+                             nfeatures = 2000, assay = "RNA")
 seurat_obj <- FindVariableFeatures(seurat_obj, selection.method = "vst", nfeatures = 2000) 
 seurat_obj <- ScaleData(seurat_obj, features = VariableFeatures(seurat_obj))
 ```
@@ -310,7 +314,7 @@ metadata <- as_data_frame_seurat(seurat_obj, reduction = reduction_names,
                                  metadata = TRUE)
 ```
 
-# Plot UMAP
+## Plot UMAP
 
 ```{r plot-UMAP, echo=TRUE}
 # plot the first two PCs, and all of the different UMAPs
@@ -322,6 +326,7 @@ plot_dr <- data.frame(X = paste0(reduction_names, "_1"),
 
 for(i in 1:nrow(plot_dr)){
   print(current_plot <- plot_scatter(metadata = metadata,
+                                     scratch_dir,
                                      proj_name = sample_name,
                                      log_file = log_file,
                                      X = plot_dr[i,1],
@@ -330,6 +335,7 @@ for(i in 1:nrow(plot_dr)){
                                      write = TRUE))
   
     print(current_plot <- plot_scatter(metadata = metadata,
+                                       scratch_dir,
                                        proj_name = sample_name,
                                        log_file = log_file,
                                        X = plot_dr[i,1],
@@ -338,6 +344,7 @@ for(i in 1:nrow(plot_dr)){
                                        write = TRUE))
     
     print(current_plot <- plot_scatter(metadata = metadata,
+                                       scratch_dir,
                                        proj_name = sample_name,
                                        log_file = log_file,
                                        X = plot_dr[i,1],
@@ -346,6 +353,7 @@ for(i in 1:nrow(plot_dr)){
                                        write = TRUE))
     
     print(current_plot <- plot_scatter(metadata = metadata,
+                                       scratch_dir,
                                        proj_name = sample_name,
                                        log_file = log_file,
                                        X = plot_dr[i,1],
