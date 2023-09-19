@@ -128,7 +128,7 @@ saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj_raw.rds"))
 ```
 
 
-# Preprocessing of unfiltered data
+# Plot unfiltered data
 Plot distribution of the number of genes, UMI, and percent mitochondrial reads per cell. 
 
 ```{r unfiltered-violin-qc, echo=TRUE}
@@ -185,17 +185,19 @@ plot_grid(title,
           rel_heights = c(0.1, 1))
 ```
 
-
+# Filter data
 Let us filter the data.
 
-```{r filter, echo=TRUE}
+```{r filter-data, echo=TRUE}
 # filter data
 seurat_obj <- subset(seurat_obj, subset = nFeature_RNA > min_genes & nFeature_RNA < max_genes & pct_mito < max_mt)
 ```
 
+# Process data
 Let us calculate how many cells express a specific gene.
+
 ```{r freq-mean, echo=TRUE}
-# for each gene, calculate % of cells expressing it and the mean
+# For each gene, calculate % of cells expressing it and the mean
 pct_cells <- apply(as.data.frame(seurat_obj@assays$RNA@counts), 1, function(x) (sum(x != 0))) / ncol(seurat_obj@assays$RNA@counts)
 
 gene_means <- rowMeans(as.data.frame(seurat_obj@assays$RNA@counts))
@@ -209,7 +211,7 @@ ggplot(data = p, aes(x = gene_means, y = pct_cells, label = gene)) +
   stat_dens2d_labels(geom = "text_repel", keep.fraction = 0.001)
 ```
 
-Let us estimate the number of expressed genes in the sequencign library.
+Let us estimate the number of expressed genes in the sequencing library.
 ```{r cell-activity, echo=TRUE}
 # number of expressed genes
 num_genes <- apply(as.data.frame(seurat_obj@assays$RNA@counts), 2, function(x) (sum(x != 0)))
@@ -224,7 +226,9 @@ ggplot(data = l, aes(x = log10(libsize), y = num_genes)) +
   ylab("Number of Expressed Genes") 
 ```
 
+# Plot filtered data
 Let us plot QC after filtering low quality cells.
+
 ```{r filtered-qc, echo=TRUE}
 # plot number of genes
 genes_sing <- plot_distribution(seurat_obj,
