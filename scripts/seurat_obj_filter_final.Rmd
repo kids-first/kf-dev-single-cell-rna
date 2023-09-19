@@ -27,7 +27,7 @@ suppressPackageStartupMessages({
 ## Directories and paths to file Inputs/Outputs
 ```{r set-dir-and-file-names, echo=TRUE}
 # Inputs
-qc_data_path <- file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/data/delme_test_alignment.seurat.qc.rds")
+qc_data_path <- file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/results/Seurat-QC-pbmc_1k_v3/seurat_obj.rds")
 soupx_data_path <- file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/data/prod_candidate.soupx.decontaminated_matrix.rds")
 scrublet_path <- file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/data/prod_candidate.scrublet.doublets.csv")
 
