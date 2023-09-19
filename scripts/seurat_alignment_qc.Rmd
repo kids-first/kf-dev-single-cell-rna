@@ -108,7 +108,7 @@ scooter_path <- './'
 # Read in 10x data
 
 ```{r read-in-data, echo=TRUE}
-# load counts to a list of matrices
+# Load counts to a list of matrices
 counts_mat <- load_sample_counts_matrix(path = data_path,
                                         sample_name = sample_name)
 
@@ -117,51 +117,12 @@ seurat_obj <- create_seurat_obj(counts_matrix = counts_mat[["Gene Expression"]],
                                 assay = "RNA",
                                 log_file = NULL) 
 
-# if there are hashtag_IDs specified then subset from the Antibody capture matrix 
-# the specified hashtag_IDs and add them as an HTO assay 
-if(!is.null(hashtag_ID)) {
-  
-  # get the specified hashtags that are found in the rownames of the antibody capture matrix
-  interect_hash <- intersect(hashtag_ID, rownames(counts_mat[["Antibody Capture"]]))
-  
-  # if the length of the specified hashtags and the specified hashtags found in the 
-  # rownames of the antibody capture matrix are different, we have a problem
-  if(length(hashtag_ID) != length(interect_hash)) {
-    stop(glue("Invalid Hashtag names detected,{setdiff(hashtag_ID, rownames(counts_mat[['Antibody Capture']])}"))
-  }
-  
-  # get the row indices of the hashtags in the antibody capture counts matrix
-  hash_idx <- which(interect_hash %in% rownames(counts_mat[["Antibody Capture"]]))
-  
-  # Add the hashtag data to seurat object
-  seurat_obj <- add_seurat_assay(seurat_obj,
-                                 assay = "HTO",
-                                 counts_matrix = counts_mat[["Antibody Capture"]][hash_idx, ])
-  
-  # seurat changes underscores to dashes 
-  hashtag_ID <- str_replace(hashtag_ID, "_", "-")
-  hashtags_to_keep <- str_replace(hashtags_to_keep, "_", "-")
-  
-  interect_test_replace <- intersect(hashtag_ID, rownames(seurat_obj@assays$HTO))
-  
-  if(length(interect_test_replace) == 0) {
-    stop(glue("Need to fix hashtag_IDs to match what Seurat changes them to. Seurat replaces underscores with dashes"))
-  }
-
-  
-  # normalize the hashtag counts using centered log ratio transformation to normalize the hashtags
-  seurat_obj <- NormalizeData(seurat_obj, assay = "HTO", normalization.method = "CLR")
-}
-```
-
-Let us save the Seurat object with the raw count data (unfiltered; "seurat_obj_raw.rds").
-
-```{r save-rds-raw, echo=TRUE}
-# save raw Seurat object
+# Save raw Seurat object
 saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj_raw.rds"))
 ```
 
-## Preprocessing of unfiltered data
+
+# Preprocessing of unfiltered data
 Plot distribution of the number of genes, UMI, and percent mitochondrial reads per cell. 
 
 ```{r unfiltered-violin-qc, echo=TRUE}
