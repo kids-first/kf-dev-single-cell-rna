@@ -1,15 +1,12 @@
 ---
 title: "Seurat QC and Object for `r params$sample_name`"
-author: 'User ID: `r Sys.getenv("USER")`'
-date: "`r Sys.Date()`"
+author: 'Antonia Chroni <chronia@chop.edu> for D3B'
+date: "2023"
 output:
-  html_document:
-    fig_height: 7
-    fig_width: 9
-    keep_md: yes
-    toc: yes
-    df_print: paged
-params:
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+    params:
   out_path: './' # path to dir to save all output files
   data_path: '/path/to/10x/output/dir/filtered_feature_bc_matrix/' # path to the directory with the filtered_feature_bc_matrix
   sample_name: "sample_name"   # name of the current sample
@@ -32,6 +29,13 @@ params:
   prefix: "lognorm"   # prefix to add to UMAP. Useful if you are doing different normalizations, or using different subsets of the data
   log_file: "log" # log file
 ---
+
+# Information about this notebook
+This script creates Seurat object from the aligned count data, performs QC based on Seurat functions (doublet estimation and removal).
+
+# Usage
+
+To run the Rscript from the command line sequentially, use:
 
 ```
 Rscript -e "rmarkdown::render('01_Seurat_QC.Rmd', clean = TRUE,
