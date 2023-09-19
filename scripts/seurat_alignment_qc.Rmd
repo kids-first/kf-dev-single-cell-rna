@@ -7,12 +7,12 @@ output:
     toc: TRUE
     toc_float: TRUE
 params:
-  sample_name: "sample_name"   # name of the sample in the library
+  sample_name: "pbmc_1k_v3"   # name of the sample in the library
   assay: "RNA"   # Assay 
   grouping: "orig.ident" # grouping for plots
   min_genes: 200 # minimum number of genes per cell
   max_genes: 6000 # maximum number of genes per cell
-  max_mt: 5  # maximum percent mitochondrial reads per cell
+  max_mt: 1  # maximum percent mitochondrial reads per cell
   normalize_method: "log_norm" # normalization method. One of log_norm or sct
   nfeatures: 2000 # number of variable features to extract
   num_pcs: 30 # number of PCs to calculate
@@ -23,7 +23,9 @@ params:
 ---
   
 # Information about this notebook
-This script creates Seurat object from the aligned count data, performs QC based on Seurat functions (doublet estimation and removal). For more information or updates on Seurat, please see: https://satijalab.org/seurat/articles/pbmc3k_tutorial.html
+This script creates Seurat object from the aligned count data, performs QC based on Seurat functions (doublet estimation and removal). 
+
+For more information or updates on Seurat, please see: https://satijalab.org/seurat/articles/pbmc3k_tutorial.html
 
 
 # Usage
@@ -31,19 +33,48 @@ This script creates Seurat object from the aligned count data, performs QC based
 To run the Rscript from the command line sequentially, use:
 
 ```
-Rscript -e "rmarkdown::render('01_Seurat_QC.Rmd', clean = TRUE,
+Rscript -e "rmarkdown::render('seurat_alignment_qc.Rmd', clean = TRUE,
             params=list(scooter_path = '/Users/chronia/CHOP/GitHub/scooter', 
                         results_dir='/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/data/01_QC_objects/', 
                         data_path='/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/00-alignment/7316-2594_include_introns/outs/filtered_feature_bc_matrix/', 
                         sample_name='7316-2594_include_introns'))"
 ```
+# Directories and paths to file Inputs/Outputs
 
-```{r setup, include=FALSE}
+```{r set-dir-and-file-names, echo=TRUE}
+# File path to data with the filtered_feature_bc_matrix
+data_path <- file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/data/pbmc_1k_v3/outs/filtered_feature_bc_matrix")
+if (dir.exists(data_path)) {
+    cat(paste(c("", sprintf("`%s`", list.files(paste(data_path, "/outs"), full.names = TRUE))),
+              collapse = "\n- "))
+} else { # hd5 file
+    cat(paste("Input file:", sprintf("`%s`", data_path), ".\n"))
+}
+cat("\n\n")
+
+# File path to results directory
+results_dir <-
+  file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/results", paste0("Seurat-QC-", sample_name, "/"))
+if (!dir.exists(results_dir)) {
+  dir.create(results_dir)
+}
+
+# File path to scratch directory
+scratch_dir <- 
+  file.path(results_dir, "dr")
+if (!dir.exists(scratch_dir)) {
+  dir.create(scratch_dir)
+}
+
+# File path to scooter directory
+#scooter_path <- './'
+scooter_path <- file.path("/Users/chronia/CHOP/GitHub/scooter")
+
 attach(params) 
 knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE, 
                       message = FALSE, 
-                      fig.path = file.path(results_dir, paste0("Seurat_QC-", sample_name, "/")),
+                      fig.path = file.path(results_dir, paste0("Seurat-QC-", sample_name, "/")),
                       fig.height = 10, 
                       fig.width = 15,
                       dev = c("png"))
@@ -70,41 +101,6 @@ options(future.globals.maxSize = 30 * 1024 ^ 3)
 })
 ```
 
-## Directories and paths to file Inputs/Outputs
-```{r set-dir-and-file-names, echo=TRUE}
-# File path to data with the filtered_feature_bc_matrix
-data_path <- file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/data/pbmc_1k_v3/outs/filtered_feature_bc_matrix")
-if (dir.exists(data_path)) {
-    cat(paste(c("", sprintf("`%s`", list.files(paste(data_path, "/outs"), full.names = TRUE))),
-              collapse = "\n- "))
-} else { # hd5 file
-    cat(paste("Input file:", sprintf("`%s`", data_path), ".\n"))
-}
-cat("\n\n")
-
-# File path to results directory
-results_dir1 <-
-  file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example", "results")
-
-results_dir <-
-  file.path(results_dir1, paste0("Seurat-QC-", sample_name, "/"))
-if (!dir.exists(results_dir)) {
-  dir.create(results_dir)
-}
-
-# File path to scratch directory
-scratch_dir <- 
-  file.path(results_dir, "dr")
-if (!dir.exists(scratch_dir)) {
-  dir.create(scratch_dir)
-}
-
-# File path to scooter directory
-scooter_path <- './'
-# scooter_path <- file.path("/Users/chronia/CHOP/GitHub/scooter")
-
-```
-
 # Read in 10x data
 
 ```{r read-in-data, echo=TRUE}
@@ -121,10 +117,10 @@ seurat_obj <- create_seurat_obj(counts_matrix = counts_mat[["Gene Expression"]],
 saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj_raw.rds"))
 
 # How many cells are in the seurat object?
-cells_so_num <- ncol(seurat_obj)
+cells_before_filter_num <- ncol(seurat_obj)
 ```
 
-There are `r cells_so_num` cells in the raw seurat object.
+There are `r cells_before_filter_num` cells in the raw seurat object.
 
 # Plot unfiltered data
 Plot distribution of the number of genes, UMI, and percent mitochondrial reads per cell. 
