@@ -31,7 +31,8 @@ output:
 ---
 
 # Information about this notebook
-This script creates Seurat object from the aligned count data, performs QC based on Seurat functions (doublet estimation and removal).
+This script creates Seurat object from the aligned count data, performs QC based on Seurat functions (doublet estimation and removal). For more information or updates on Seurat, please see: https://satijalab.org/seurat/articles/pbmc3k_tutorial.html
+
 
 # Usage
 
@@ -96,9 +97,6 @@ if (!dir.exists(scratch_dir)) {
 
 
 
-## Create RMD
-The output of this file is a directory called `r paste0("Seurat_QC-", sample_name)` within which there will be a params.yml that saves the parameters from this file, and a log file. 
-For more information or updates on Seurat, please see: https://satijalab.org/seurat/articles/pbmc3k_tutorial.html
 
 # Read in 10x data
 
