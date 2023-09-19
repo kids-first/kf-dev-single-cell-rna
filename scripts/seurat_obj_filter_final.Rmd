@@ -81,25 +81,12 @@ Let's confirm that:
 
 
 # Remove doublets
-We used the Scrublet package to detect additional doublets in the library.
+We used the Scrublet package to detect doublets in the library. 
+Scrublet was run in the seurat aligned matrices before applying Seurat QC step.
 
 ```{r Scrublet, echo=TRUE}
 scrublet <- read.csv(scrublet_path, sep = ",", header = FALSE, row.names=1)
 colnames(scrublet) <- c("Doublet_score","Is_doublet") # set colnames
-
-####################################################################
-# MAYBE TO REMOVE THIS PART
-# But it is important to check because Scrublet was run in the raw aligned matrix  
-# but here we are using the matrxi in which some doublets have probably been removed already.
-# so we anticipate differences in the numbers of doublets.
-# If that happens, then those doublets were identified and removed already during the seurat_qc step. So, it is all good.
-
-# How many doublets did scrublet detect in the initial object?
-scrublet_doublets_initial <- scrublet %>% 
-  dplyr::filter(Is_doublet == "TRUE")
-print(scrublet_doublets_num_initial <- length(scrublet_doublets_initial$Is_doublet))
-####################################################################
-
 
 # Add scrublet results in the `seurat_qc_obj`
 seurat_qc_obj <- AddMetaData(seurat_qc_obj, scrublet)
