@@ -266,10 +266,9 @@ plot_grid(genes_sing + theme(legend.position = "none"),
           ncol = 4)
 ```
 
+# Normalize data, find variable features, and scale the data
 
-Now, we will normalize the data, find variable features, and scale the data.
-
-```{r normalize, echo=TRUE}
+```{r normalize-variable-features-scale-data, echo=TRUE}
 # normalize seurat object using specified method, on specified assay
 seurat_obj <- NormalizeData(seurat_obj, normalization.method = "LogNormalize",
                              nfeatures = nfeatures, assay = "RNA")
@@ -277,7 +276,10 @@ seurat_obj <- FindVariableFeatures(seurat_obj, selection.method = "vst", nfeatur
 seurat_obj <- ScaleData(seurat_obj, features = VariableFeatures(seurat_obj))
 ```
 
+# Run PCA
+
 We will run PCA to reduce dimensionality of the matrix (as defined in the `params`).
+
 ```{r runpca, echo=TRUE}
 # run PCA on specified assay using the number of PCs specified
 seurat_obj <- run_dr(data = seurat_obj,
@@ -287,14 +289,13 @@ seurat_obj <- run_dr(data = seurat_obj,
                   num_pcs = num_pcs,
                   prefix =  prefix)
 ```
+# Run UMAP
 
-We will run UMAP based on the previous estimated PCs.
-We will do this for a variety of combinations as for the number of dimensions and neighbors (as defined in the `params`)
-to explore the clustering of each sample in the library.
+We will run UMAP based on the previous estimated PCs and for a variety of combinations as for the number of dimensions and neighbors (as defined in the `params`) to explore the clustering of each sample in the library.
 
-```{r dimred, echo=TRUE}
-# Create a dataframe of all of the possible combinations of number of PCs to use for
-# UMAP, and the number of neighbors
+```{r UMAP, echo=TRUE}
+# Create a dataframe of all of the possible combinations of number of PCs 
+# to use for UMAP, and the number of neighbors
 num_dim_vect <- c(num_dim)
 num_neighbors_vect <- c(num_neighbors)
 possibilities <- expand.grid(num_dim_vect, num_neighbors_vect)
@@ -307,19 +308,6 @@ for(i in 1:nrow(possibilities)) {
                      num_dim_use = num_dim, assay = "RNA", num_neighbors = num_neighbors,
                      prefix = glue("ndim{num_dim}nn{num_neighbors}{prefix}"))
 }
-```
-
-Let us save metadata as a csv to `r glue("{results_dir}/metadata_create_{sample_name}.csv")`
-
-```{r save-metadata, echo=TRUE}
-# Export the reductions to Seurat and save dimensionality reduction and
-# metadata as a csv
-reduction_names <- c(paste0("umap", "ndim", possibilities[,1], "nn", possibilities[,2], prefix), paste0("pca", prefix))
-
-metadata <- as_data_frame_seurat(seurat_obj, reduction = reduction_names,
-                                 metadata = TRUE)
-
-write_excel_csv(metadata, path = glue("{results_dir}/metadata_create_{sample_name}.csv"))
 ```
 
 Plot dimensionality reduction.
@@ -371,13 +359,20 @@ for(i in 1:nrow(plot_dr)){
 }
 ```
 
-# Save object
+# Save filtered metadata and Seurat object
 
-We will save the filtered seurat object to be used for further downstream analysis ("seurat_obj.rds").
+We will save the filtered seurat object to be used for further downstream analysis (`seurat_obj.rds`).
 
 ```{r save-seurat-obj, echo=TRUE}
-# save filtered Seurat object
-seurat_obj@meta.data$samples <- sample_name
+# Save metadata
+reduction_names <- c(paste0("umap", "ndim", possibilities[,1], "nn", possibilities[,2], prefix), paste0("pca", prefix)) # Export the reductions to Seurat
+
+metadata <- as_data_frame_seurat(seurat_obj, reduction = reduction_names,
+                                 metadata = TRUE)
+
+write_tsv(metadata, path = glue("{results_dir}/metadata_create_{sample_name}.tsv"))
+
+# Save Seurat object
 saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj.rds"))
 ```
 
