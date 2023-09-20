@@ -56,6 +56,9 @@ sc <- autoEstCont(sc)
 
 # clean the data
 out_matrix <- adjustCounts(sc, roundToInt = T)
+colnames(out_matrix) = gsub('-1$', '', colnames(out_matrix))
+colnames(out_matrix) = paste(sample_name, colnames(out_matrix), sep=":")
 
-output_dir <- paste(sample_name, '_decontam', sep="")
-DropletUtils:::write10xCounts(output_dir, out_matrix)
+saveRDS(out_matrix, paste0(sample_name, ".rds"))
+
+DropletUtils:::write10xCounts(sample_name, out_matrix)

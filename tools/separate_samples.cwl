@@ -23,7 +23,7 @@ arguments:
       separate_samples.py --dir $(inputs.input_dir.path) > samples.txt
 
 inputs:
-  input_dir: {type: 'Directory', doc: "Directory with fastqs"}
+  input_dir: {type: 'Directory', loadListing: deep_listing, doc: "Directory with fastqs"}
   paired: {type: "boolean?", inputBinding: {position: 1, prefix: -p}, doc: "Flag for paired samples"}
 
 outputs:

@@ -49,7 +49,7 @@ arguments:
        }
 
 inputs:
-  reference: {type: Directory, doc: "Dir of hisat index files"}
+  reference: {type: Directory, loadListing: deep_listing, doc: "Dir of hisat index files"}
   fastq1: {type: File, doc: "gzipped read 1 fq file"}
   fastq2: {type: "File?", doc: "gzipped read 2 fq file"}
   rna_strandness:  { type: ['null', {type: enum, name: rna_strandness, symbols: ["FR", "RF", "F", "R"]}]}

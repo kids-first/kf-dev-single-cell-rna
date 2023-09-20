@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.2
 class: CommandLineTool
 id: scrublet
 doc: >-
@@ -25,11 +25,17 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      run_scrublet.py --matrix $(inputs.input_matrix.path) --output $(inputs.output_basename)
+      run_scrublet.py
 
 inputs:
-  input_matrix: {type: Directory}
-  output_basename: {type: string, doc: "Output files basename"}
+  input_matrix: {type: 'File?', doc: "Cell ranger filtered h5 count matrix dir if preferred or matrix dir not available",
+    inputBinding: { prefix: "--matrix", position: 1}}
+  input_matrix_dir: {type: 'Directory?', loadListing: deep_listing, doc: "Cell ranger filtered count matrix dir if preferred or h5 not available",
+    inputBinding: { prefix: "--matrix", position: 1}}
+  output_basename: {type: string, doc: "Output files basename",
+    inputBinding: { prefix: "--output", position: 1} }
+  sample_name: { type: 'string?', doc: "Sample name to use to prepend to barcodes for downstream dismbiguation",
+    inputBinding: { prefix: "--sample_name", position: 1 } }
   expected_doublet_rate: {type: 'float?', default: 0.06, doc: "expected doublet rate, usually specific to the method; default 0.06 for 10X", inputBinding: {prefix: -e, position: 2}}
   doublet_score_threshold: {type: 'float?', default: 0.25, doc: "doublet cut-off, cells with greater scores will be labelled as doublets; must be between 0 and 1", inputBinding: {prefix: -s, position: 2}}
   count_min: {type: 'int?', default: 2, doc: "minimum expression count to retain a gene", inputBinding: {prefix: -c, position: 2}}
