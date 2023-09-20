@@ -22,7 +22,7 @@ params:
 ---
   
 # Information about this notebook
-This script creates Seurat object from the aligned count data, performs QC based on Seurat functions (doublet estimation and removal). 
+This script creates Seurat object from the aligned count data, performs QC based on Seurat functions. 
 
 For more information or updates on Seurat, please see: https://satijalab.org/seurat/articles/pbmc3k_tutorial.html
 
