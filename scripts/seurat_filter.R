@@ -1,7 +1,10 @@
 #!/usr/bin/env Rscript
 
-suppressMessages(library(optparse))
-suppressMessages(library(Seurat))
+if(!suppressWarnings(require(optparse))){
+    install.packages("optparse", quiet=TRUE)
+    library(optparse)
+}
+library(Seurat)
 
 #process inputs
 option_list <- list(
@@ -30,7 +33,7 @@ option_list <- list(
 
 opts <- parse_args(OptionParser(option_list = option_list), print_help_and_exit = TRUE)
 if (is.null(opts$seurat_qc_rds) | is.null(opts$seurat_qc_rds) | is.null(opts$soupx_rds)) {
-    write("seurat_qc_rds, soupx_rds, and scrublet_csv must be provided! One or more are missing!", stderr())
+    write("\n\nseurat_qc_rds, soupx_rds, and scrublet_csv must be provided! One or more are missing!", stderr())
     quit(status=1)
 }
 output_name <- opts$output_name
@@ -38,7 +41,7 @@ seurat_qc_rds <- opts$seurat_qc_rds
 soupx_rds <- opts$soupx_rds
 scrublet_csv <- opts$scrublet_csv
 
-write("Loading Files...", stderr())
+write("\n\nLoading Files...", stderr())
 seurat_qc_obj <- readRDS(seurat_qc_rds)
 soupx_obj <- readRDS(soupx_rds)
 scrublet_df <- read.csv(scrublet_csv, sep = ",", header = FALSE, row.names=1)

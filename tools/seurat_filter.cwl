@@ -7,7 +7,7 @@ doc: >-
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/soupx_r:4.1.0_SoupX'
+    dockerPull: 'satijalab/seurat:4.1.0'
   - class: InlineJavascriptRequirement
   - class: InitialWorkDirRequirement
     listing:

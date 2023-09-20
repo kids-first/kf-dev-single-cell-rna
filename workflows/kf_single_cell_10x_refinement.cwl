@@ -78,8 +78,7 @@ outputs:
   soupx_rds: { type: File, outputSource: rename_soupx_rds/renamed_file }
   scrublet_doublets: {type: File, outputSource: rename_doublets/renamed_file}
   scrublet_histogram: {type: File, outputSource: rename_histogram/renamed_file}
-  decontam_matrix: {type: File, outputSource: seurat_merge/merged_matrix}
-  decontam_object: {type: File, outputSource: seurat_merge/merged_object}
+  seurat_filtered_rds: {type: File, outputSource: seurat_filter/filtered_rds}
 steps:
   soupx:
     run: ../tools/soupx.cwl
@@ -136,23 +135,16 @@ steps:
         source: output_basename
         valueFrom: $(self).scrublet.hist.png
     out: [renamed_file]
-  seurat_merge:
-    run: ../tools/seurat_merge.cwl
+  seurat_filter:
+    run: ../tools/seurat_filter.cwl
     in:
-      matrix_dirs:
-        source: soupx/decontaminated_matrix_dir
-        valueFrom: |
-          $([self])
-      doublets_files:
-        source: scrublet/doublets_file
-        valueFrom: |
-          $([self])
-      align_qc_files:
-        source: align_qc_rds
-        valueFrom: |
-          $([self])
-      output_name: output_basename
-    out: [merged_matrix, merged_object]
+      scrublet_csv: scrublet/doublets_file
+      seurat_qc_rds: align_qc_rds
+      soupx_rds: soupx/decontaminated_matrix_rds
+      output_filename:
+        source: output_basename
+        valueFrom: $(self).seurat_qc.filtered.rds
+    out: [filtered_rds]
 sbg:license: Apache License 2.0
 sbg:publisher: KFDRC
 $namespaces:
