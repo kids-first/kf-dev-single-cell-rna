@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import scanpy as sc
 import scrublet as scr
-import pdb
 
 def parse_args(args):
     '''Get arguments.'''
