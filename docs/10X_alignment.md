@@ -9,7 +9,7 @@ A custom QC R markdown notebook developed by @AntoniaChroni is also run, which i
 
 ## Software
 
-- Cellranger 6.0.0
+- Cellranger 6.1.2
 - Seurat 4.0.4
 
 ## Inputs
