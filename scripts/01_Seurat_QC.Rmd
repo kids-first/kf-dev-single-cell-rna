@@ -41,6 +41,29 @@ Rscript -e "rmarkdown::render('seurat_alignment_qc.Rmd', clean = TRUE,
                         data_path='/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/00-alignment/7316-2594_include_introns/outs/filtered_feature_bc_matrix/', 
                         sample_name='7316-2594_include_introns'))"
 ```
+
+# Set up
+```{r load-library}
+suppressPackageStartupMessages({
+  library(future)
+  library(cowplot)
+  library(devtools)
+  library(forcats)
+  library(GGally)
+  library(stringr)
+  library(ggpmisc)
+  library(ggrepel)
+  load_all(scooter_path)
+  theme_set(theme_bw())
+  
+# evaluate Seurat R expressions asynchronously when possible (such as ScaleData) using future package
+plan("multisession", workers = 4)
+# increase the limit of the data to be shuttled between the processes from default 500MB to 50GB
+options(future.globals.maxSize = 30 * 1024 ^ 3)
+})
+```
+
+
 # Directories and paths to file Inputs/Outputs
 
 ```{r set-dir-and-file-names, echo=TRUE}
@@ -69,27 +92,6 @@ knitr::opts_chunk$set(echo = FALSE,
                       fig.height = 10, 
                       fig.width = 15,
                       dev = c("png"))
-```
-
-# Set up
-```{r load-library}
-suppressPackageStartupMessages({
-  library(future)
-  library(cowplot)
-  library(devtools)
-  library(forcats)
-  library(GGally)
-  library(stringr)
-  library(ggpmisc)
-  library(ggrepel)
-  load_all(scooter_path)
-  theme_set(theme_bw())
-  
-# evaluate Seurat R expressions asynchronously when possible (such as ScaleData) using future package
-plan("multisession", workers = 4)
-# increase the limit of the data to be shuttled between the processes from default 500MB to 50GB
-options(future.globals.maxSize = 30 * 1024 ^ 3)
-})
 ```
 
 # Read in 10x data
