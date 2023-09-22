@@ -327,33 +327,34 @@ for(i in 1:nrow(plot_dr)){
                                      color = grouping,
                                      write = TRUE))
   
-    print(current_plot <- plot_scatter(metadata = metadata,
-                                       scratch_dir,
-                                       proj_name = sample_name,
-                                       log_file = log_file,
-                                       X = plot_dr[i,1],
-                                       Y = plot_dr[i,2],
-                                       color = "nFeature_RNA",
-                                       write = TRUE))
+  print(current_plot <- plot_scatter(metadata = metadata,
+                                     scratch_dir,
+                                     proj_name = sample_name,
+                                     log_file = log_file,
+                                     X = plot_dr[i,1],
+                                     Y = plot_dr[i,2],
+                                     color = "nFeature_RNA",
+                                     write = TRUE))
     
-    print(current_plot <- plot_scatter(metadata = metadata,
-                                       scratch_dir,
-                                       proj_name = sample_name,
-                                       log_file = log_file,
-                                       X = plot_dr[i,1],
-                                       Y = plot_dr[i,2],
-                                       color = "nCount_RNA",
-                                       write = TRUE))
+  print(current_plot <- plot_scatter(metadata = metadata,
+                                     scratch_dir,
+                                     proj_name = sample_name,
+                                     log_file = log_file,
+                                     X = plot_dr[i,1],
+                                     Y = plot_dr[i,2],
+                                     color = "nCount_RNA",
+                                     write = TRUE))
     
-    print(current_plot <- plot_scatter(metadata = metadata,
-                                       scratch_dir,
-                                       proj_name = sample_name,
-                                       log_file = log_file,
-                                       X = plot_dr[i,1],
-                                       Y = plot_dr[i,2],
-                                       color = "pct_mito",
-                                       write = TRUE))
+  print(current_plot <- plot_scatter(metadata = metadata,
+                                     scratch_dir,
+                                     proj_name = sample_name,
+                                     log_file = log_file,
+                                     X = plot_dr[i,1],
+                                     Y = plot_dr[i,2],
+                                     color = "pct_mito",
+                                     write = TRUE))
 }
+
 ```
 
 # Save filtered metadata and Seurat object
