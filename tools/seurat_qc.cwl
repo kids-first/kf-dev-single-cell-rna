@@ -10,9 +10,9 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: InitialWorkDirRequirement
     listing:
-      - entryname: 01_Seurat_QC.Rmd
+      - entryname: seurat_alignment_qc.Rmd
         entry:
-          $include: ../scripts/01_Seurat_QC.Rmd
+          $include: ../scripts/seurat_alignment_qc.Rmd
   - class: ResourceRequirement
     coresMin: 8
     ramMin: 16000
@@ -22,9 +22,9 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      "rmarkdown::render('01_Seurat_QC.Rmd', clean = TRUE,
+      "rmarkdown::render('seurat_alignment_qc.Rmd', clean = TRUE,
             params=list(scooter_path='/scooter', 
-                        out_path='.', 
+                        results_path='.', 
                         data_path='$(inputs.filtered_bc_matrix_dir.path)', 
                         sample_name='$(inputs.sample_name)',
                         min_genes=$(inputs.min_genes),
@@ -44,7 +44,6 @@ inputs:
   max_mt: { type: "int?", doc: "maximum percent mitochondrial reads per cell", default: 5 }
   normalize_method: { type: ['null', {type: enum, name: normalize_method, symbols: ["log_norm","sct"]}],
     default: "log_norm", doc: "normalization method. One of log_norm or sct" }
-  nfeatures: { type: "int?", doc: "number of variable features to extract", default: 2000 }
   num_pcs: { type: "int?", doc: "number of PCs to calculate", default: 30 }
 
 outputs:
