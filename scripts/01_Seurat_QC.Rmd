@@ -39,7 +39,7 @@ Rscript -e "rmarkdown::render('seurat_alignment_qc.Rmd', clean = TRUE,
             params=list(scooter_path = '/Users/chronia/CHOP/GitHub/scooter', 
                         results_dir='/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/data/01_QC_objects/', 
                         data_path='/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/00-alignment/7316-2594_include_introns/outs/filtered_feature_bc_matrix/', 
-                        sample_name='7316-2594_include_introns'))"
+                        sample_name='pbmc_1k_v3'))"
 ```
 
 # Set up
