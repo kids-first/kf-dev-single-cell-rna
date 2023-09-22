@@ -7,6 +7,9 @@ output:
     toc: TRUE
     toc_float: TRUE
 params:
+  results_path: './' # path to dir to save all output files
+  data_path: '/path/to/10x/output/dir/filtered_feature_bc_matrix/'
+  scooter_path: './' # File path to scooter directory
   sample_name: "pbmc_1k_v3"   # name of the sample in the library
   assay: "RNA"   # Assay 
   grouping: "orig.ident" # grouping for plots
@@ -42,7 +45,7 @@ Rscript -e "rmarkdown::render('seurat_alignment_qc.Rmd', clean = TRUE,
 
 ```{r set-dir-and-file-names, echo=TRUE}
 # File path to data with the filtered_feature_bc_matrix
-data_path <- file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/data/pbmc_1k_v3/outs/filtered_feature_bc_matrix")
+
 if (dir.exists(data_path)) {
     cat(paste(c("", sprintf("`%s`", list.files(paste(data_path, "/outs"), full.names = TRUE))),
               collapse = "\n- "))
@@ -51,24 +54,12 @@ if (dir.exists(data_path)) {
 }
 cat("\n\n")
 
-# File path to results directory
-results_dir <-
-  file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/results", paste0("Seurat-QC-", sample_name, "/"))
-if (!dir.exists(results_dir)) {
-  dir.create(results_dir)
-}
-
 # File path to scratch directory
-scratch_dir <- 
-  file.path(results_dir, "dr")
+scratch_dir <- file.path(results_dir, "dr")
 if (!dir.exists(scratch_dir)) {
   dir.create(scratch_dir)
 }
 
-
-# File path to scooter directory
-#scooter_path <- './'
-scooter_path <- file.path("/Users/chronia/CHOP/GitHub/scooter")
 
 attach(params) 
 knitr::opts_chunk$set(echo = FALSE,
