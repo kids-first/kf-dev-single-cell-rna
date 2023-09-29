@@ -24,7 +24,7 @@ arguments:
     valueFrom: >-
       "rmarkdown::render('seurat_alignment_qc.Rmd', clean = TRUE,
             params=list(scooter_path='/scooter', 
-                        out_path='.', 
+                        results_path='.', 
                         data_path='$(inputs.filtered_bc_matrix_dir.path)', 
                         sample_name='$(inputs.sample_name)',
                         min_genes=$(inputs.min_genes),

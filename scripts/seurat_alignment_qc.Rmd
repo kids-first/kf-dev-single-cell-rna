@@ -7,6 +7,9 @@ output:
     toc: TRUE
     toc_float: TRUE
 params:
+  results_path: './' # path to dir to save all output files
+  data_path: '/path/to/10x/output/dir/filtered_feature_bc_matrix/'
+  scooter_path: './' # File path to scooter directory
   sample_name: "pbmc_1k_v3"   # name of the sample in the library
   assay: "RNA"   # Assay 
   grouping: "orig.ident" # grouping for plots
@@ -22,7 +25,7 @@ params:
 ---
   
 # Information about this notebook
-This script creates Seurat object from the aligned count data, performs QC based on Seurat functions. 
+This script creates Seurat object from the aligned count data and performs QC based on Seurat functions. 
 
 For more information or updates on Seurat, please see: https://satijalab.org/seurat/articles/pbmc3k_tutorial.html
 
@@ -36,48 +39,7 @@ Rscript -e "rmarkdown::render('seurat_alignment_qc.Rmd', clean = TRUE,
             params=list(scooter_path = '/Users/chronia/CHOP/GitHub/scooter', 
                         results_dir='/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/data/01_QC_objects/', 
                         data_path='/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/00-alignment/7316-2594_include_introns/outs/filtered_feature_bc_matrix/', 
-                        sample_name='7316-2594_include_introns'))"
-```
-# Directories and paths to file Inputs/Outputs
-
-```{r set-dir-and-file-names, echo=TRUE}
-# File path to data with the filtered_feature_bc_matrix
-data_path <- file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/data/pbmc_1k_v3/outs/filtered_feature_bc_matrix")
-if (dir.exists(data_path)) {
-    cat(paste(c("", sprintf("`%s`", list.files(paste(data_path, "/outs"), full.names = TRUE))),
-              collapse = "\n- "))
-} else { # hd5 file
-    cat(paste("Input file:", sprintf("`%s`", data_path), ".\n"))
-}
-cat("\n\n")
-
-# File path to results directory
-results_dir <-
-  file.path("/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/results", paste0("Seurat-QC-", sample_name, "/"))
-if (!dir.exists(results_dir)) {
-  dir.create(results_dir)
-}
-
-# File path to scratch directory
-scratch_dir <- 
-  file.path(results_dir, "dr")
-if (!dir.exists(scratch_dir)) {
-  dir.create(scratch_dir)
-}
-
-
-# File path to scooter directory
-#scooter_path <- './'
-scooter_path <- file.path("/Users/chronia/CHOP/GitHub/scooter")
-
-attach(params) 
-knitr::opts_chunk$set(echo = FALSE,
-                      warning = FALSE, 
-                      message = FALSE, 
-                      fig.path = file.path(results_dir, paste0("Seurat-QC-", sample_name, "/")),
-                      fig.height = 10, 
-                      fig.width = 15,
-                      dev = c("png"))
+                        sample_name='pbmc_1k_v3'))"
 ```
 
 # Set up
@@ -99,6 +61,37 @@ plan("multisession", workers = 4)
 # increase the limit of the data to be shuttled between the processes from default 500MB to 50GB
 options(future.globals.maxSize = 30 * 1024 ^ 3)
 })
+```
+
+
+# Directories and paths to file Inputs/Outputs
+
+```{r set-dir-and-file-names, echo=TRUE}
+# File path to data with the filtered_feature_bc_matrix
+
+if (dir.exists(data_path)) {
+    cat(paste(c("", sprintf("`%s`", list.files(paste(data_path, "/outs"), full.names = TRUE))),
+              collapse = "\n- "))
+} else { # hd5 file
+    cat(paste("Input file:", sprintf("`%s`", data_path), ".\n"))
+}
+cat("\n\n")
+
+# File path to scratch directory
+scratch_dir <- file.path(results_dir, "dr")
+if (!dir.exists(scratch_dir)) {
+  dir.create(scratch_dir)
+}
+
+
+attach(params) 
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE, 
+                      message = FALSE, 
+                      fig.path = file.path(results_dir, paste0("Seurat-QC-", sample_name, "/")),
+                      fig.height = 10, 
+                      fig.width = 15,
+                      dev = c("png"))
 ```
 
 # Read in 10x data
@@ -334,33 +327,34 @@ for(i in 1:nrow(plot_dr)){
                                      color = grouping,
                                      write = TRUE))
   
-    print(current_plot <- plot_scatter(metadata = metadata,
-                                       scratch_dir,
-                                       proj_name = sample_name,
-                                       log_file = log_file,
-                                       X = plot_dr[i,1],
-                                       Y = plot_dr[i,2],
-                                       color = "nFeature_RNA",
-                                       write = TRUE))
+  print(current_plot <- plot_scatter(metadata = metadata,
+                                     scratch_dir,
+                                     proj_name = sample_name,
+                                     log_file = log_file,
+                                     X = plot_dr[i,1],
+                                     Y = plot_dr[i,2],
+                                     color = "nFeature_RNA",
+                                     write = TRUE))
     
-    print(current_plot <- plot_scatter(metadata = metadata,
-                                       scratch_dir,
-                                       proj_name = sample_name,
-                                       log_file = log_file,
-                                       X = plot_dr[i,1],
-                                       Y = plot_dr[i,2],
-                                       color = "nCount_RNA",
-                                       write = TRUE))
+  print(current_plot <- plot_scatter(metadata = metadata,
+                                     scratch_dir,
+                                     proj_name = sample_name,
+                                     log_file = log_file,
+                                     X = plot_dr[i,1],
+                                     Y = plot_dr[i,2],
+                                     color = "nCount_RNA",
+                                     write = TRUE))
     
-    print(current_plot <- plot_scatter(metadata = metadata,
-                                       scratch_dir,
-                                       proj_name = sample_name,
-                                       log_file = log_file,
-                                       X = plot_dr[i,1],
-                                       Y = plot_dr[i,2],
-                                       color = "pct_mito",
-                                       write = TRUE))
+  print(current_plot <- plot_scatter(metadata = metadata,
+                                     scratch_dir,
+                                     proj_name = sample_name,
+                                     log_file = log_file,
+                                     X = plot_dr[i,1],
+                                     Y = plot_dr[i,2],
+                                     color = "pct_mito",
+                                     write = TRUE))
 }
+
 ```
 
 # Save filtered metadata and Seurat object
@@ -378,3 +372,4 @@ saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj.rds"))
 ```{r}
 sessionInfo()
 ```
+
