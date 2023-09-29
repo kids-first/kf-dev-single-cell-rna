@@ -10,7 +10,7 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: InitialWorkDirRequirement
     listing:
-      - entryname: 01_Seurat_QC.Rmd
+      - entryname: seurat_alignment_qc.Rmd
         entry:
           $include: ../scripts/seurat_alignment_qc.Rmd
   - class: ResourceRequirement
