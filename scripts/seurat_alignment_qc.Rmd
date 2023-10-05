@@ -45,23 +45,28 @@ Rscript -e "rmarkdown::render('seurat_alignment_qc.Rmd', clean = TRUE,
 # Directories and paths to file Inputs/Outputs
 
 ```{r set-dir-and-file-names, echo=TRUE}
-attach(params) 
+attach(params)
+results_dir = file.path(results_dir, paste0("Seurat_QC-", sample_name, "/"))
+
+if (dir.exists(results_dir)) {
+  stop(glue("output analysis dir {results_dir} already exists"))
+} else {
+  dir.create(results_dir)
+}
+
 knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE, 
                       message = FALSE, 
-                      fig.path = file.path(results_dir, paste0("Seurat-QC-", sample_name, "/")),
+                      fig.path = results_dir,
                       fig.height = 10, 
                       fig.width = 15,
                       dev = c("png"))
 
 # File path to data with the filtered_feature_bc_matrix
 
-if (dir.exists(data_path)) {
-    cat(paste(c("", sprintf("`%s`", list.files(paste(data_path, "/outs"), full.names = TRUE))),
-              collapse = "\n- "))
-} else { # hd5 file
-    cat(paste("Input file:", sprintf("`%s`", data_path), ".\n"))
-}
+cat(paste(c("", sprintf("`%s`", list.files(paste(data_path, "/outs"), full.names = TRUE))),
+          collapse = "\n- "))
+
 cat("\n\n")
 
 # File path to scratch directory
@@ -69,8 +74,6 @@ scratch_dir <- file.path(results_dir, "dr")
 if (!dir.exists(scratch_dir)) {
   dir.create(scratch_dir)
 }
-
-
 ```
 
 
@@ -95,38 +98,6 @@ options(future.globals.maxSize = 30 * 1024 ^ 3)
 })
 ```
 
-
-# Directories and paths to file Inputs/Outputs
-
-```{r set-dir-and-file-names, echo=TRUE}
-# File path to data with the filtered_feature_bc_matrix
-
-if (dir.exists(data_path)) {
-    cat(paste(c("", sprintf("`%s`", list.files(paste(data_path, "/outs"), full.names = TRUE))),
-              collapse = "\n- "))
-} else { # hd5 file
-    cat(paste("Input file:", sprintf("`%s`", data_path), ".\n"))
-}
-cat("\n\n")
-
-# File path to scratch directory
-scratch_dir <- file.path(results_dir, "dr")
-if (!dir.exists(scratch_dir)) {
-  dir.create(scratch_dir)
-}
-
-
-attach(params)
-out_path = file.path(results_dir, paste0("Seurat-QC-", sample_name, "/"))
-knitr::opts_chunk$set(echo = FALSE,
-                      warning = FALSE, 
-                      message = FALSE, 
-                      fig.path = out_path,
-                      fig.height = 10, 
-                      fig.width = 15,
-                      dev = c("png"))
-```
-
 # Read in 10x data
 
 ```{r read-in-data, echo=TRUE}
@@ -140,7 +111,7 @@ seurat_obj <- create_seurat_obj(counts_matrix = counts_mat[["Gene Expression"]],
                                 log_file = NULL) 
 
 # Save raw Seurat object
-saveRDS(seurat_obj, file = paste0(out_path, "/", "seurat_obj_raw.rds"))
+saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj_raw.rds"))
 
 # How many cells are in the seurat object?
 cells_before_filter_num <- ncol(seurat_obj)
@@ -396,10 +367,10 @@ We will save the filtered seurat object to be used for further downstream analys
 
 ```{r save-seurat-obj, echo=TRUE}
 # Save metadata
-write_tsv(metadata, path = glue("{out_path}/metadata_create_{sample_name}.tsv"))
+write_tsv(metadata, path = glue("{results_dir}/metadata_create_{sample_name}.tsv"))
 
 # Save Seurat object
-saveRDS(seurat_obj, file = paste0(out_path, "/", "seurat_obj.rds"))
+saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj.rds"))
 ```
 
 ```{r}
