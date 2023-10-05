@@ -35,7 +35,7 @@ arguments:
   - position: 2
     shellQuote: false
     valueFrom: >-
-      && mv 01_Seurat_QC.html Seurat_QC-$(inputs.sample_name).html
+      && mv seurat_alignment_qc.nb.html Seurat_QC-$(inputs.sample_name).html
 inputs:
   filtered_bc_matrix_dir: { type: Directory }
   sample_name: { type: string }
