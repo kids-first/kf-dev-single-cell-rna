@@ -37,14 +37,7 @@ The QC metrics will be divided in before and after filtering low quality cells f
   - Summary of Cell Statistics: Percent of reads in cells, Median UMI count per cell, Median genes detected per cell, Median percent reads mitochondrial.
 
 
-          
-    We calculate the probability that a cell is compromised due to degradation or rupture using miQC (https://bioconductor.org/packages/release/bioc/html/miQC.html) (Hippen et al. 2021). This relies on fitting a mixture model using the number of genes expressed by a cell and the percentage of mitochondrial reads. The expected plot will show a characteristic triangular shape and two model fit lines. Cells with low numbers of genes expressed may have both low and high mitochondrial percentage, but cells with many genes tend to have a low mitochondrial percentage. Compromised cells are likely to have a fewer genes detected and higher percentage of mitochondrial reads.
-
-    If the model has failed to fit properly, the pattern of cells may differ, and there may not be model fit lines. This can be the result of a low-quality library or may occur if there is no mitochondrial content, as in the case of a high-quality single-nucleus sample. In such situations, the calculated probability of compromise may not be valid (see miQC vignette (https://bioconductor.org/packages/3.13/bioc/vignettes/miQC/inst/doc/miQC.html#when-not-to-use-miqc) for more details).
-
-   This should also produce a plot Mitochondrial percentage/Number of genes detected: keep-remove
-   Check this script out: https://github.com/AlexsLemonade/scpca-nf/blob/main/bin/post_process_sce.R
-
+     
 
 
     AFTER FILTER
