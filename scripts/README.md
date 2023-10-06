@@ -1,23 +1,5 @@
 # 10X workflow for estimating QC metrics
 
-## Usage
-
-To run `seurat_alignment_qc` Rscript in this module from the command line sequentially, use:
-
-```
-Rscript -e "rmarkdown::render('/WORK/tools/kf-dev-single-cell-rna/scripts/seurat_alignment_qc.Rmd', clean = TRUE,
-     params=list(scooter_path='/scooter',
-                 results_dir='TEST',
-                 data_path='/WORK/volume/TEST_scRNA/pbmc_1k_v3',
-                 sample_name='pbmc_1k_v3',
-                 min_genes=200,
-                 max_genes=6000,
-                 max_mt=15,
-                 normalize_method='log_norm'
-                 ))"
-                 
-```
-
 ## Folder content
 
 This folder contains scripts tasked to:
