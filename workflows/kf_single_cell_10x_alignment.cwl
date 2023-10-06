@@ -49,7 +49,6 @@ doc: |
    - `seurat_qc_max_genes`: maximum number of genes per cell
    - `seurat_qc_max_mt`: maximum percent mitochondrial reads per cell
    - `seurat_qc_normalize_method`: normalization method. One of log_norm or sct
-   - `seurat_qc_nfeatures`: number of variable features to extract
    - `seurat_qc_num_pcs`: number of PCs to calculate
 
   ### Outputs
@@ -99,8 +98,6 @@ inputs:
   seurat_qc_normalize_method: {type: ['null', {type: enum, name: normalize_method,
         symbols: ["log_norm", "sct"]}], default: "log_norm", doc: "normalization method.
       One of log_norm or sct"}
-  seurat_qc_nfeatures: {type: "int?", doc: "number of variable features to extract",
-    default: 2000}
   seurat_qc_num_pcs: {type: "int?", doc: "number of PCs to calculate", default: 30}
 outputs:
   debug_cr_file_outputs: {type: 'File', outputSource: tar_count_outdir/output }
@@ -187,7 +184,6 @@ steps:
       max_genes: seurat_qc_max_genes
       max_mt: seurat_qc_max_mt
       normalize_method: seurat_qc_normalize_method
-      nfeatures: seurat_qc_nfeatures
       num_pcs: seurat_qc_num_pcs
     out: [result_dir, summary_html, rds]
   rename_seurat_html:

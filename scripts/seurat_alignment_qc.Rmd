@@ -29,38 +29,56 @@ This script creates Seurat object from the aligned count data and performs QC ba
 
 For more information or updates on Seurat, please see: https://satijalab.org/seurat/articles/pbmc3k_tutorial.html
 
-
 # Usage
 
 To run the Rscript from the command line sequentially, use:
 
 ```
 Rscript -e "rmarkdown::render('seurat_alignment_qc.Rmd', clean = TRUE,
-            params=list(scooter_path = '/Users/chronia/CHOP/GitHub/scooter', 
-                        results_dir='/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/data/01_QC_objects/', 
-                        data_path='/Users/chronia/CHOP/projects/HOPE/HOPE-analysis/analyses/01_snRNA-seq/00-alignment/7316-2594_include_introns/outs/filtered_feature_bc_matrix/', 
-                        sample_name='pbmc_1k_v3'))"
+      params=list(scooter_path='/scooter', 
+                  results_dir='.', 
+                  data_path='/path/to/cellranger/output', 
+                  sample_name='pbmc_1k_v3',
+                  min_genes=200,
+                  max_genes=6000,
+                  max_mt=15,
+                  normalize_method='log_norm',
+                  num_pcs=30
+                  ))"
+```
+
+# Set up
+```{r load-library}
+suppressPackageStartupMessages({
+  library(future)
+  library(cowplot)
+  library(devtools)
+  library(forcats)
+  library(GGally)
+  library(stringr)
+  library(ggpmisc)
+  library(ggrepel)
+  theme_set(theme_bw())
+  
+# evaluate Seurat R expressions asynchronously when possible (such as ScaleData) using future package
+plan("multisession", workers = 4)
+# increase the limit of the data to be shuttled between the processes from default 500MB to 50GB
+options(future.globals.maxSize = 30 * 1024 ^ 3)
+})
 ```
 
 # Directories and paths to file Inputs/Outputs
 
 ```{r set-dir-and-file-names, echo=TRUE}
 attach(params)
+load_all(scooter_path)
 results_dir = file.path(results_dir, paste0("Seurat_QC-", sample_name, "/"))
 
 if (dir.exists(results_dir)) {
   stop(glue("output analysis dir {results_dir} already exists"))
 } else {
-  dir.create(results_dir)
+  dir.create(results_dir, recursive=TRUE)
 }
-
-knitr::opts_chunk$set(echo = FALSE,
-                      warning = FALSE, 
-                      message = FALSE, 
-                      fig.path = results_dir,
-                      fig.height = 10, 
-                      fig.width = 15,
-                      dev = c("png"))
 
 # File path to data with the filtered_feature_bc_matrix
 
@@ -74,29 +92,17 @@ scratch_dir <- file.path(results_dir, "dr")
 if (!dir.exists(scratch_dir)) {
   dir.create(scratch_dir)
 }
+
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE, 
+                      message = FALSE, 
+                      fig.path = results_dir,
+                      fig.height = 10, 
+                      fig.width = 15,
+                      dev = c("png"))
+
 ```
 
-
-# Set up
-```{r load-library}
-suppressPackageStartupMessages({
-  library(future)
-  library(cowplot)
-  library(devtools)
-  library(forcats)
-  library(GGally)
-  library(stringr)
-  library(ggpmisc)
-  library(ggrepel)
-  load_all(scooter_path)
-  theme_set(theme_bw())
-  
-# evaluate Seurat R expressions asynchronously when possible (such as ScaleData) using future package
-plan("multisession", workers = 4)
-# increase the limit of the data to be shuttled between the processes from default 500MB to 50GB
-options(future.globals.maxSize = 30 * 1024 ^ 3)
-})
-```
 
 # Read in 10x data
 

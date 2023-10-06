@@ -44,7 +44,6 @@ A custom QC R markdown notebook developed by @AntoniaChroni is also run, which i
  - `seurat_qc_max_genes`: maximum number of genes per cell
  - `seurat_qc_max_mt`: maximum percent mitochondrial reads per cell
  - `seurat_qc_normalize_method`: normalization method. One of log_norm or sct
- - `seurat_qc_nfeatures`: number of variable features to extract
  - `seurat_qc_num_pcs`: number of PCs to calculate
 
 ### Outputs
