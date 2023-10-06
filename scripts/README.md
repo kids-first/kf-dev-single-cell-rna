@@ -42,18 +42,6 @@ The QC metrics will be divided in before and after filtering low quality cells f
      
 
 
-    AFTER FILTER
-     - filtered_violin_qc: nFeature_RNA, nCount_RNA, percent.mt
-     - filtered_qc: plot number of genes, plot number of UMIs, plot percent mitochondrial reads
-     - Summary of Cell Statistics: Percent of reads in cells, Median UMI count per cell, Median genes detected per cell, Median percent reads mitochondrial
-     - Cell Read Metrics Plots: Percent of cells expressing gene, Number of Expressed Genes Per Library Size (log10)
-     - Normalize the data using `r normalize_method`, run `runpca`, run `dimred`/ Save metadata as a csv to `r glue("{out_path}/metadata_create_{sample_name}.csv")`/ Plot dimensionality reduction. / Save rds to `r paste0(out_path, "/", "seurat_obj.rds")`
-
-
-- To add Knee plot: Total UMI count/Rank - Not sure how to do this: file:///Users/chronia/CHOP/projects/Alexslemonade/sample_data/SCPCS000022/SCPCL000022_qc.html
-
-
-
 Then, we will use additional QC metrics to filter out ambient RNA and doublets in the library.
 
 # B. Pre-Processing Information
