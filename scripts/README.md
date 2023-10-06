@@ -35,6 +35,8 @@ The QC metrics will be divided in before and after filtering low quality cells f
   - User will have to define `params` as needed for their experiment: `scooter_path`, `results_dir`, `data_path`, `sample_name`, `min_genes`, `max_genes`, `max_mt`,      `normalize_method`
   - Before and after filter: Plot distribution of the number of genes, UMI, and percent mitochondrial reads per cell.
   - Summary of Cell Statistics: Percent of reads in cells, Median UMI count per cell, Median genes detected per cell, Median percent reads mitochondrial.
+  - Data were normalized by using the global-scaling normalization method “LogNormalize” that normalizes the feature expression measurements for each cell by the total expression, multiplies this by a scale factor (10,000 by default), and log-transforms the result. Then, the top 2000 highly variable genes (HVGs) are selected to subset features that indicate high cell-to-cell variation in the dataset (i.e, they are highly expressed in some cells, and lowly expressed in others). Then, these HVGs are used as input to principal component analysis, and the top 30 principal components are selected. A combination of different dimensions (20, 25) and number of neighbors (30, 20, 10) are used along with the principal components to calculate the UMAP (Uniform Manifold Approximation and Projection) embeddings.
+  - For more information or updates on Seurat, please see: https://satijalab.org/seurat/articles/pbmc3k_tutorial.html
 
 
      
