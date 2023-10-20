@@ -29,10 +29,12 @@ Rscript -e "rmarkdown::render('scDblFinder.Rmd', clean = TRUE,
 # Set up
 
 ```{r load-library, echo=TRUE}
-library(scDblFinder)
-library(Seurat)
-library(scater)
-library(future)
+suppressPackageStartupMessages({
+  library(scDblFinder)
+  library(Seurat)
+  library(scater)
+  library(future)
+})
 
 # # evaluate Seurat R expressions asynchronously when possible (such as ScaleData) using future package
 plan("multisession", workers = 4)
