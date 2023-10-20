@@ -81,12 +81,13 @@ DefaultAssay(seurat_obj) <- "RNA"
 # Make this reproducible as UMAP algorithm is not deterministic
 set.seed(1234)
 
-# Run dim_reductions
+# Normalize, find variable features and scale data
 seurat_obj <- seurat_obj_raw %>%
   NormalizeData() %>%
   FindVariableFeatures(selection.method = "vst", nfeatures = 2000) %>%
   ScaleData() 
 
+# Run dim_reductions
 seurat_obj <- RunPCA(seurat_obj, features = VariableFeatures(object = seurat_obj), npcs=30) %>%
                     RunUMAP(dims = 1:20, n.neighbors=20L, reduction.name = "umap", reduction.key = "UMAP_", verbose = FALSE)
 
