@@ -35,7 +35,7 @@ library(scater)
 library(future)
 
 # # evaluate Seurat R expressions asynchronously when possible (such as ScaleData) using future package
-plan("multiprocess", workers = 4)
+plan("multisession", workers = 4)
 options(future.globals.maxSize = 64000 * 1024^2) # for 64 Gb RAM
 ```
 
