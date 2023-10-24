@@ -48,9 +48,6 @@ options(future.globals.maxSize = 64000 * 1024^2) # for 64 Gb RAM
 ```{r set-dir-and-file-names, echo=TRUE}
 attach(params)
 
-# File path to the directory with the outs file from the `seurat_alignment_qc.Rmd` script
-data_dir <- c(dir(path = data_path,  pattern = "seurat_obj_raw.rds", full.names = TRUE, recursive = TRUE))
-
 #create results_dir
 results_dir <-
   file.path(results_dir)
@@ -79,7 +76,7 @@ We will run dimensionality reductions and convert to single cell experiments.
 
 
 ```{r process-seurat-obj-convert-to-sce, echo=TRUE}
-seurat_obj <- readRDS(data_dir)
+seurat_obj <- readRDS(data_path)
 DefaultAssay(seurat_obj) <- "RNA"
 
 # Make this reproducible as UMAP algorithm is not deterministic
