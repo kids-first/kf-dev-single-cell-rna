@@ -76,8 +76,8 @@ We will run dimensionality reductions and convert to single cell experiments.
 
 
 ```{r process-seurat-obj-convert-to-sce, echo=TRUE}
-seurat_obj <- readRDS(data_path)
-DefaultAssay(seurat_obj) <- "RNA"
+seurat_obj_raw <- readRDS(data_path)
+DefaultAssay(seurat_obj_raw) <- "RNA"
 
 # Make this reproducible as UMAP algorithm is not deterministic
 set.seed(1234)
