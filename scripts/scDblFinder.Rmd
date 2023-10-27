@@ -61,12 +61,6 @@ doublets_dir <- file.path(paste0(results_dir,"/scDblFinder-", sample_name, "/"))
 if (!dir.exists(doublets_dir)) {
   dir.create(doublets_dir)
 }
-
-knitr::opts_chunk$set(echo = TRUE, 
-                      warning = FALSE, 
-                      message = FALSE, 
-                      fig.path = file.path(results_dir))
-
 ```
 
 
