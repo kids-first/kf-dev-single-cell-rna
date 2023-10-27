@@ -81,7 +81,6 @@ DefaultAssay(seurat_obj_raw) <- "RNA"
 
 # Make this reproducible as UMAP algorithm is not deterministic
 set.seed(1234)
-
 # Normalize, find variable features and scale data
 seurat_obj <- seurat_obj_raw %>%
   NormalizeData() %>%
