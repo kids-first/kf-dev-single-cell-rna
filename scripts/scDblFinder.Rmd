@@ -106,10 +106,38 @@ seurat_obj  <- scDblFinder(seurat_obj, clusters = TRUE, BPPARAM = bp)
 BiocParallel::bpstop(bp)
 
 # Estimate singlets and doublets in the library
-singlets_doublets_number <- print(table(seurat_obj$scDblFinder.class))
+singlets_doublets_number <- print(table(seurat_obj$scDblFinder.class)) %>%
+  as.data.frame() %>% 
+  mutate(prediction = Var1,
+         count = Freq) %>% 
+  dplyr::select(-Var1, -Freq)
 
 # Estimate pct of doublets in the library
 doublets_pct_library <- print(table(seurat_obj$scDblFinder.class)[2]/(table(seurat_obj$scDblFinder.class)[1]+table(seurat_obj$scDblFinder.class)[2])*100)
+
+####### Create metrics per library #######
+doublets_metrics <- data.frame(matrix(ncol = 4, nrow = 1))
+colnames(doublets_metrics) <- c("sample_name", "singlet", "doublet", "doublets_pct_library")#provide column names
+
+doublets_metrics$sample_name <- sample_name
+
+doublets_metrics$singlet <- as.numeric(singlets_doublets_number %>% 
+                                         filter(prediction == "singlet") %>% 
+                                         dplyr::select(-prediction) %>% 
+                                         mutate(singlet = count) %>% 
+                                         dplyr::select(-count))
+
+doublets_metrics$doublet <- as.numeric(singlets_doublets_number %>% 
+                                         filter(prediction == "doublet") %>% 
+                                         dplyr::select(-prediction) %>% 
+                                         mutate(doublet = count) %>% 
+                                         dplyr::select(-count))
+
+doublets_metrics$doublets_pct_library <- doublets_pct_library
+
+readr::write_tsv(doublets_metrics, paste0(doublets_dir, "doublets_metrics_", sample_name, ".tsv"))
+
+####################################################
 
 doublets <- seurat_obj@colData[,str_detect(colnames(seurat_obj@colData), "scDblFinder")] %>% 
   as.data.frame() %>% 
