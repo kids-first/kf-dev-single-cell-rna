@@ -1,34 +1,3 @@
----
-title: "ScDblFinder filtering with recoverDoublets - `r params$sample_name`"
-author: 'Antonia Chroni <chronia@chop.edu> for D3B'
-date: "`r Sys.Date()`"
-output:
-  html_notebook:
-    toc: TRUE
-    toc_float: TRUE
-params:
-  data_path: './' # path to the directory with the `seurat_obj_raw.rds` file from the `seurat_alignment_qc.Rmd` script
-  results_dir: './' # path to dir to save all output files
-  sample_name: "pbmc_1k_v3"   # name of the sample in the library
-  log_file: NULL
----
-
-# Information about this notebook
-This script used the [ScDblFinder](https://bioconductor.org/packages/devel/bioc/vignettes/scDblFinder/inst/doc/scDblFinder.html) method for identifying doublets in single-cell data. 
-
-# Usage
-To run the Rscript from the command line sequentially, use:
-
-```
-Rscript -e "rmarkdown::render('scDblFinder.Rmd', clean = TRUE,
-      params=list(results_dir = '.', 
-                  data_path = '/path/to/seurat_alignment_qc/output'),
-                  sample_name = 'pbmc_1k_v3')"
-```
-
-# Set up
-
-```{r load-library, echo=TRUE}
 suppressPackageStartupMessages({
   library(scDblFinder)
   library(Seurat)
@@ -36,19 +5,37 @@ suppressPackageStartupMessages({
   library(future)
   library(tidyverse)
   library(grid)
+  library(optparse)
 })
 
-# # evaluate Seurat R expressions asynchronously when possible (such as ScaleData) using future package
+#process inputs
+option_list <- list(
+  make_option(
+    opt_str = "--results_dir",
+    type = "character",
+    help = "RDS object produced by Seurat QC"
+  ),
+  make_option(
+    opt_str = "--data_path",
+    type = "character",
+    help = "RDS object produced by SoupX"
+  ),
+  make_option(
+    opt_str = "--sample_name",
+    type = "character",
+    help = "CSV file with doublet information produced by Scrublet"
+  )
+)
+
+opts <- parse_args(OptionParser(option_list = option_list), print_help_and_exit = TRUE)
+
+results_dir = opts$results_dir
+data_path = opts$data_path
+sample_name = opts$sample_name
+
 plan("multisession", workers = 4)
-options(future.globals.maxSize = 64000 * 1024^2) # for 64 Gb RAM
-```
+options(future.globals.maxSize = 64000 * 1024^2)
 
-# Directories and paths to file Inputs/Outputs
-
-```{r set-dir-and-file-names, echo=TRUE}
-attach(params)
-
-#create results_dir
 results_dir <-
   file.path(results_dir)
 if (!dir.exists(results_dir)) {
@@ -67,15 +54,6 @@ knitr::opts_chunk$set(echo = TRUE,
                       message = FALSE, 
                       fig.path = file.path(results_dir))
 
-```
-
-
-# Read raw seurat_objs 
-We will load the raw seurat object as generated in the `seurat_alignment_qc.Rmd` script.
-We will run dimensionality reductions and convert to single cell experiments.
-
-
-```{r process-seurat-obj-convert-to-sce, echo=TRUE}
 seurat_obj_raw <- readRDS(data_path)
 DefaultAssay(seurat_obj_raw) <- "RNA"
 
@@ -95,15 +73,7 @@ seurat_obj <- as.SingleCellExperiment(seurat_obj)
 
 # Save sce
 saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj_sce.rds"))
-```
 
-# Run scDblFinder 
-
-`scDblFinder function` is used to identify cells that are doublets based on cluster-based generation of artificial doublets. 
-We will save the cells that need to be filtered based on scDblFinder analysis in a separate table.
-
-
-```{r run-recoverDoublets, echo=TRUE}
 # Run scDblFinder
 bp <- BiocParallel::MulticoreParam(4, RNGseed=1234)
 BiocParallel::bpstart(bp)
@@ -117,7 +87,7 @@ singlets_doublets_number <- print(table(seurat_obj$scDblFinder.class))
 # Estimate pct of doublets in the library
 doublets_pct_library <- table(seurat_obj$scDblFinder.class)[2]/(table(seurat_obj$scDblFinder.class)[1]+table(seurat_obj$scDblFinder.class)[2])*100
 
-doublets <- seurat_obj@colData[,str_detect(colnames(seurat_obj@colData), "scDblFinder")] %>% 
+oublets <- seurat_obj@colData[,str_detect(colnames(seurat_obj@colData), "scDblFinder")] %>% 
   as.data.frame() %>% 
   tibble::rownames_to_column("cell")
 
@@ -134,15 +104,7 @@ write.csv(doublets.to.filter, paste0(doublets_dir, "doublets_to_filter_", sample
 
 # Save seurat_obj with doublets predictions in the metadata
 saveRDS(seurat_obj, paste0(doublets_dir, "sce_obj_", sample_name,".rds") )
-```
 
-There are `r singlets_doublets_number` singlets and doublets, respectively. 
-Doublets represent `r doublets_pct_library` % of cells in the whole library.
-
-
-# Plot the Doublets predictions on the UMAP
-
-```{r plot-Doublets, echo=TRUE}
 print("Doublets predictions")
   
 fname <- paste0(doublets_dir, sample_name, "-Doublets_prediction.pdf")
@@ -164,11 +126,3 @@ print(gridExtra::grid.arrange(
   top = paste0(sample_name, "-Doublets prediction")))
 
 dev.off()
-      
-```
-
-
-```{r}
-sessionInfo()
-```
-
