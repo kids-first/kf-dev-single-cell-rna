@@ -88,7 +88,7 @@ seurat_obj <- RunPCA(seurat_obj, features = VariableFeatures(object = seurat_obj
 seurat_obj <- as.SingleCellExperiment(seurat_obj)
 
 # Save sce
-saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj_sce.rds"))
+# saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj_sce.rds"))
 ```
 
 # Run scDblFinder 
