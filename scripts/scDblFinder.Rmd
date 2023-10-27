@@ -109,7 +109,7 @@ BiocParallel::bpstop(bp)
 singlets_doublets_number <- print(table(seurat_obj$scDblFinder.class))
 
 # Estimate pct of doublets in the library
-doublets_pct_library <- table(seurat_obj$scDblFinder.class)[2]/(table(seurat_obj$scDblFinder.class)[1]+table(seurat_obj$scDblFinder.class)[2])*100
+doublets_pct_library <- print(table(seurat_obj$scDblFinder.class)[2]/(table(seurat_obj$scDblFinder.class)[1]+table(seurat_obj$scDblFinder.class)[2])*100)
 
 doublets <- seurat_obj@colData[,str_detect(colnames(seurat_obj@colData), "scDblFinder")] %>% 
   as.data.frame() %>% 
