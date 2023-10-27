@@ -48,6 +48,8 @@ options(future.globals.maxSize = 64000 * 1024^2) # for 64 Gb RAM
 ```{r set-dir-and-file-names, echo=TRUE}
 attach(params)
 
+data_path
+
 #create results_dir
 results_dir <-
   file.path(results_dir)
@@ -149,18 +151,18 @@ print("Doublets predictions")
 fname <- paste0(doublets_dir, sample_name, "-Doublets_prediction.pdf")
 print(fname)
 print(gridExtra::grid.arrange(
-  plotUMAP(object_list[[i]], colour_by="scDblFinder.cluster", point_size = 0.1) + ggtitle("scDblFinder clusters"),
-  plotUMAP(object_list[[i]], colour_by="scDblFinder.score", point_size = 0.1) + ggtitle("Doublets score"),
-  plotUMAP(object_list[[i]], colour_by="scDblFinder.class", point_size = 0.1) + ggtitle("Doublets prediction"),
+  plotUMAP(seurat_obj, colour_by="scDblFinder.cluster", point_size = 0.1) + ggtitle("scDblFinder clusters"),
+  plotUMAP(seurat_obj, colour_by="scDblFinder.score", point_size = 0.1) + ggtitle("Doublets score"),
+  plotUMAP(seurat_obj, colour_by="scDblFinder.class", point_size = 0.1) + ggtitle("Doublets prediction"),
   ncol=2,
   top = paste0(sample_name, "-Doublets prediction")))
 
 pdf(file = fname, width = 12, height = 12)
 
 print(gridExtra::grid.arrange(
-  plotUMAP(object_list[[i]], colour_by="scDblFinder.cluster", point_size = 0.1) + ggtitle("scDblFinder clusters"),
-  plotUMAP(object_list[[i]], colour_by="scDblFinder.score", point_size = 0.1) + ggtitle("Doublets score"),
-  plotUMAP(object_list[[i]], colour_by="scDblFinder.class", point_size = 0.1) + ggtitle("Doublets prediction"),
+  plotUMAP(seurat_obj, colour_by="scDblFinder.cluster", point_size = 0.1) + ggtitle("scDblFinder clusters"),
+  plotUMAP(seurat_obj, colour_by="scDblFinder.score", point_size = 0.1) + ggtitle("Doublets score"),
+  plotUMAP(seurat_obj, colour_by="scDblFinder.class", point_size = 0.1) + ggtitle("Doublets prediction"),
   ncol=2,
   top = paste0(sample_name, "-Doublets prediction")))
 
