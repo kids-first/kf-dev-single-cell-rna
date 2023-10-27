@@ -127,17 +127,12 @@ doublets_number <- print(table(seurat_obj$scDblFinder.class))
 readr::write_tsv(doublets.to.filter, paste0(doublets_dir, "doublets_to_filter_", sample_name,".tsv"))
 
 # Convert sce list into seurat list
-seurat_obj <- as.Seurat(object_list[[i]], 
-                                       counts = "counts", # includes spliced and unspliced transcripts
-                                       data = "logcounts") # derived from the counts matrix
-  
-# Create a new metadata column called "original" with the contents of "orig.ident"
-seurat_obj$orig.ident.original <- object_list_seurat[[i]]$orig.ident
-  
-seurat_obj$orig.ident <- sample_name # Replace value in the "orig.ident" metadata column
+seurat_obj_with_doublets <- as.Seurat(seurat_obj, 
+                        counts = "counts", # includes spliced and unspliced transcripts
+                        data = "logcounts") # derived from the counts matrix
   
 # Save seurat_obj with doublets predictions in the metadata
-saveRDS(seurat_obj, paste0(doublets_dir, "seurat_obj_with_doublets_", sample_name,".rds"))
+saveRDS(seurat_obj_with_doublets, paste0(doublets_dir, "seurat_obj_with_doublets_", sample_name,".rds"))
 ```
 
 There are `r singlets_doublets_number` singlets and doublets, respectively. 
