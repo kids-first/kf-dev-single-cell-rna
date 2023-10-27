@@ -88,7 +88,7 @@ seurat_obj <- RunPCA(seurat_obj, features = VariableFeatures(object = seurat_obj
 seurat_obj <- as.SingleCellExperiment(seurat_obj)
 
 # Save sce
-saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj_sce.rds"))
+# saveRDS(seurat_obj, file = paste0(results_dir, "/", "seurat_obj_sce.rds"))
 ```
 
 # Run scDblFinder 
@@ -106,28 +106,65 @@ seurat_obj  <- scDblFinder(seurat_obj, clusters = TRUE, BPPARAM = bp)
 BiocParallel::bpstop(bp)
 
 # Estimate singlets and doublets in the library
-singlets_doublets_number <- print(table(seurat_obj$scDblFinder.class))
+singlets_doublets_number <- print(table(seurat_obj$scDblFinder.class)) %>%
+  as.data.frame() %>% 
+  mutate(prediction = Var1,
+         count = Freq) %>% 
+  dplyr::select(-Var1, -Freq)
 
 # Estimate pct of doublets in the library
-doublets_pct_library <- table(seurat_obj$scDblFinder.class)[2]/(table(seurat_obj$scDblFinder.class)[1]+table(seurat_obj$scDblFinder.class)[2])*100
+doublets_pct_library <- print(table(seurat_obj$scDblFinder.class)[2]/(table(seurat_obj$scDblFinder.class)[1]+table(seurat_obj$scDblFinder.class)[2])*100)
+
+####### Create metrics per library #######
+doublets_metrics <- data.frame(matrix(ncol = 4, nrow = 1))
+colnames(doublets_metrics) <- c("sample_name", "singlet", "doublet", "doublets_pct_library")#provide column names
+
+doublets_metrics$sample_name <- sample_name
+
+doublets_metrics$singlet <- as.numeric(singlets_doublets_number %>% 
+                                         filter(prediction == "singlet") %>% 
+                                         dplyr::select(-prediction) %>% 
+                                         mutate(singlet = count) %>% 
+                                         dplyr::select(-count))
+
+doublets_metrics$doublet <- as.numeric(singlets_doublets_number %>% 
+                                         filter(prediction == "doublet") %>% 
+                                         dplyr::select(-prediction) %>% 
+                                         mutate(doublet = count) %>% 
+                                         dplyr::select(-count))
+
+doublets_metrics$doublets_pct_library <- doublets_pct_library
+
+readr::write_tsv(doublets_metrics, paste0(doublets_dir, "doublets_metrics_", sample_name, ".tsv"))
+
+####################################################
 
 doublets <- seurat_obj@colData[,str_detect(colnames(seurat_obj@colData), "scDblFinder")] %>% 
   as.data.frame() %>% 
-  tibble::rownames_to_column("cell")
+  tibble::rownames_to_column("cell") %>% 
+  mutate(sample_name = sample_name,
+         is_doublet = case_when(grepl("doublet", scDblFinder.class) ~ "TRUE",
+                                grepl("singlet", scDblFinder.class) ~ "FALSE",
+                                TRUE ~ scDblFinder.class))
 
 # Save table with all predictions
-write.csv(doublets, paste0(doublets_dir, "doublets_", sample_name, ".csv"))
+readr::write_tsv(doublets, paste0(doublets_dir, "doublets_", sample_name, ".tsv"))
     
 # Cells that we need to filter from the final object
-doublets.to.filter <- subset(doublets, doublets$scDblFinder.class == "doublet")
+doublets.to.filter <- subset(doublets, doublets$scDblFinder.class == "doublet") 
 
 doublets_number <- print(table(seurat_obj$scDblFinder.class))
 
 # Save table with cells to be filtered
-write.csv(doublets.to.filter, paste0(doublets_dir, "doublets_to_filter_", sample_name,".csv"))
+# readr::write_tsv(doublets.to.filter, paste0(doublets_dir, "doublets_to_filter_", sample_name,".tsv"))
 
+# Convert sce list into seurat list
+seurat_obj_with_doublets <- as.Seurat(seurat_obj, 
+                                      counts = "counts", # includes spliced and unspliced transcripts
+                                      data = "logcounts") # derived from the counts matrix
+  
 # Save seurat_obj with doublets predictions in the metadata
-saveRDS(seurat_obj, paste0(doublets_dir, "sce_obj_", sample_name,".rds"))
+saveRDS(seurat_obj_with_doublets, paste0(doublets_dir, "seurat_obj_with_doublets_", sample_name,".rds"))
 ```
 
 There are `r singlets_doublets_number` singlets and doublets, respectively. 
