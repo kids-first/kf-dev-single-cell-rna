@@ -113,7 +113,8 @@ doublets_pct_library <- table(seurat_obj$scDblFinder.class)[2]/(table(seurat_obj
 
 doublets <- seurat_obj@colData[,str_detect(colnames(seurat_obj@colData), "scDblFinder")] %>% 
   as.data.frame() %>% 
-  tibble::rownames_to_column("cell")
+  tibble::rownames_to_column("cell") %>% 
+  mutate(sample_name = sample_name)
 
 # Save table with all predictions
 readr::write_tsv(doublets, paste0(doublets_dir, "doublets_", sample_name, ".tsv"))
