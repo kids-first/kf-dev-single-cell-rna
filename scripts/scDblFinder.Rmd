@@ -21,8 +21,8 @@ To run the Rscript from the command line sequentially, use:
 
 ```
 Rscript -e "rmarkdown::render('scDblFinder.Rmd', clean = TRUE,
-      params=list(results_dir = '.', 
-                  data_path = '/path/to/seurat_alignment_qc/output'),
+      params=list(results_dir = './', 
+                  data_path = './'),
                   sample_name = 'pbmc_1k_v3')"
 ```
 
