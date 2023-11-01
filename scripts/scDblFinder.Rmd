@@ -156,7 +156,7 @@ doublets.to.filter <- subset(doublets, doublets$scDblFinder.class == "doublet")
 doublets_number <- print(table(seurat_obj$scDblFinder.class))
 
 # Save table with cells to be filtered
-readr::write_tsv(doublets.to.filter, paste0(doublets_dir, "doublets_to_filter_", sample_name,".tsv"))
+# readr::write_tsv(doublets.to.filter, paste0(doublets_dir, "doublets_to_filter_", sample_name,".tsv"))
 
 # Convert sce list into seurat list
 seurat_obj_with_doublets <- as.Seurat(seurat_obj, 
