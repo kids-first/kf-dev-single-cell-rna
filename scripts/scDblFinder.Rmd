@@ -142,15 +142,16 @@ readr::write_tsv(doublets_metrics, paste0(doublets_dir, "doublets_metrics_", sam
 doublets <- seurat_obj@colData[,str_detect(colnames(seurat_obj@colData), "scDblFinder")] %>% 
   as.data.frame() %>% 
   tibble::rownames_to_column("cell") %>% 
-  mutate(sample_name = sample_name)
+  mutate(sample_name = sample_name,
+         is_doublet = case_when(grepl("doublet", scDblFinder.class) ~ "TRUE",
+                                grepl("singlet", scDblFinder.class) ~ "FALSE",
+                                TRUE ~ scDblFinder.class))
 
 # Save table with all predictions
 readr::write_tsv(doublets, paste0(doublets_dir, "doublets_", sample_name, ".tsv"))
     
 # Cells that we need to filter from the final object
-doublets.to.filter <- subset(doublets, doublets$scDblFinder.class == "doublet") %>% 
-  mutate (is_doublet = case_when(grepl("doublet", scDblFinder.class) ~ "TRUE",
-                                 TRUE ~ scDblFinder.class))
+doublets.to.filter <- subset(doublets, doublets$scDblFinder.class == "doublet") 
 
 doublets_number <- print(table(seurat_obj$scDblFinder.class))
 
