@@ -54,6 +54,7 @@ inputs:
       from cellranger count"}
   cellranger_cluster: {type: 'File', doc: "clusters.csv file from cellranger count"}
   align_qc_rds: { type: File, doc: "Align QC file frm D3b 10X alignment workflow" }
+  seurat_raw_rds: { type: File, doc: "Seurat raw rds file frm D3b 10X alignment workflow" }
   sample_name: {type: 'string', doc: "used as prefix for finding fastqs to analyze,
       e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs
       are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz,
@@ -104,21 +105,12 @@ steps:
         source: output_basename
         valueFrom: $(self).soupx.decontaminated_matrix.rds
     out: [renamed_file]
-  scrublet:
-    run: ../tools/scrublet.cwl
+  scdblfinder:
+    run: ../tools/scdblfinder.cwl
     in:
-      input_matrix: cellranger_matrix_filtered
-      output_basename: output_basename
+      seurat_raw_object: seurat_raw_rds
       sample_name: sample_name
-      expected_doublet_rate: expected_doublet_rate
-      doublet_score_threshold: doublet_score_threshold
-      count_min: count_min
-      cell_min: cell_min
-      min_gene_variability_pctl: min_gene_variability_pctl
-      n_prin_comps: n_prin_comps
-      ram: scrublet_ram
-      cpus: scrublet_cpus
-    out: [score_histogram, doublets_file]
+    out: [results_dir]
   rename_doublets:
     run: ../tools/rename_file.cwl
     in:
@@ -138,7 +130,15 @@ steps:
   seurat_filter:
     run: ../tools/seurat_filter.cwl
     in:
-      scrublet_csv: scrublet/doublets_file
+      scdblfinder_tsv:
+        source: [scdblfinder/result_dir, sample_name]
+        valueFrom: ${
+          for(file in self[0]){
+            if (file.name == "doublets_to_filter_" + self[1] + ".tsv"){
+              return file;
+            }
+          }
+        }
       seurat_qc_rds: align_qc_rds
       soupx_rds: soupx/decontaminated_matrix_rds
       output_filename:
