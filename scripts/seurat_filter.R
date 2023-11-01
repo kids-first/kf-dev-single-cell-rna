@@ -44,7 +44,7 @@ scdblfinder_tsv <- opts$scdblfinder_tsv
 write("\n\nLoading Files...", stderr())
 seurat_qc_obj <- readRDS(seurat_qc_rds)
 soupx_obj <- readRDS(soupx_rds)
-scDblFinder_df <- read.csv(scdblfinder_tsv, sep = "\t", header = FALSE, row.names=1)
+scDblFinder_df <- read.csv(scdblfinder_tsv, sep = "\t", header = TRUE, row.names=1)
 write("Done loading files!", stderr())
 
 write("Filtering Seurat Cells...", stderr())
@@ -71,11 +71,10 @@ write("...RNA_filter assay added...", stderr())
 
 # Remove Scrublet-Identified Doublets from Seurat
 write("...Beginning scDblFinder Filtration...", stderr())
-colnames(scDblFinder_df) <- c("scDblFinder.score","scDblFinder.class") # set scDblFinder colnames
+colnames(scDblFinder_df) <- c("scDblFinder.score","is_doublet") # set scDblFinder colnames
 seurat_qc_obj <- AddMetaData(seurat_qc_obj, scDblFinder_df)
-
 # Report Doublets
-doublet_cells <- colnames(seurat_qc_obj)[which(seurat_qc_obj@meta.data$scDblFinder.class == "doublet")]
+doublet_cells <- colnames(seurat_qc_obj)[which(seurat_qc_obj@meta.data$is_doublet == TRUE)]
 if (length(doublet_cells) == 0) {
     write("......No Seurat cells identified as doublets. No cells removed...", stderr())
 } else {
@@ -83,7 +82,7 @@ if (length(doublet_cells) == 0) {
     cat(doublet_cells, sep = "\n", file = stderr())
 }
 
-seurat_filtered_obj <- subset(seurat_qc_obj, cells = WhichCells(seurat_qc_obj, expression = is_doublet=="False"))
+seurat_filtered_obj <- subset(seurat_qc_obj, cells = WhichCells(seurat_qc_obj, expression = is_doublet==FALSE))
 write("...scDblFinder Filtration Complete...", stderr())
 write("Seurat Filtering Complete!", stderr())
 
