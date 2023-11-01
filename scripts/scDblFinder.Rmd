@@ -148,7 +148,9 @@ doublets <- seurat_obj@colData[,str_detect(colnames(seurat_obj@colData), "scDblF
 readr::write_tsv(doublets, paste0(doublets_dir, "doublets_", sample_name, ".tsv"))
     
 # Cells that we need to filter from the final object
-doublets.to.filter <- subset(doublets, doublets$scDblFinder.class == "doublet")
+doublets.to.filter <- subset(doublets, doublets$scDblFinder.class == "doublet") %>% 
+  mutate (is_doublet = case_when(grepl("doublet", scDblFinder.class) ~ "TRUE",
+                                 TRUE ~ scDblFinder.class))
 
 doublets_number <- print(table(seurat_obj$scDblFinder.class))
 
@@ -157,8 +159,8 @@ readr::write_tsv(doublets.to.filter, paste0(doublets_dir, "doublets_to_filter_",
 
 # Convert sce list into seurat list
 seurat_obj_with_doublets <- as.Seurat(seurat_obj, 
-                        counts = "counts", # includes spliced and unspliced transcripts
-                        data = "logcounts") # derived from the counts matrix
+                                      counts = "counts", # includes spliced and unspliced transcripts
+                                      data = "logcounts") # derived from the counts matrix
   
 # Save seurat_obj with doublets predictions in the metadata
 saveRDS(seurat_obj_with_doublets, paste0(doublets_dir, "seurat_obj_with_doublets_", sample_name,".rds"))
