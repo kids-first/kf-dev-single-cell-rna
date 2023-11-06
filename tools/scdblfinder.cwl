@@ -15,7 +15,7 @@ requirements:
           $include: ../scripts/scDblFinder.Rmd
   - class: ResourceRequirement
     coresMin: $(inputs.cpus)
-    ramMin: 16000
+    ramMin: ${ return inputs.ram * 1000 }
 
 baseCommand: [Rscript, -e]
 arguments:

@@ -25,7 +25,10 @@ To run the Rscript from the command line sequentially, use:
 Rscript -e "rmarkdown::render('scDblFinder.Rmd', clean = TRUE,
       params=list(results_dir = '/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/', 
                   data_path = '/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/test.seurat_obj_raw.rds',
-                  sample_name = 'test'))"
+                  sample_name = 'test',
+                  cpus=8,
+                  ram=16
+))"
 ```
 
 # Set up
@@ -49,7 +52,7 @@ attach(params)
 
 # evaluate Seurat R expressions asynchronously when possible (such as ScaleData) using future package
 plan("multisession", workers = cpus)
-options(future.globals.maxSize = ram * 1024^3) # for 64 Gb RAM
+options(future.globals.maxSize = ram * 1000 * 1024^2) # for 64 Gb RAM
 
 #create results_dir
 results_dir <-
