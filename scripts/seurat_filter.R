@@ -33,7 +33,7 @@ option_list <- list(
 
 opts <- parse_args(OptionParser(option_list = option_list), print_help_and_exit = TRUE)
 if (is.null(opts$seurat_qc_rds) | is.null(opts$seurat_qc_rds) | is.null(opts$soupx_rds)) {
-    write("\n\nseurat_qc_rds, soupx_rds, and scrublet_csv must be provided! One or more are missing!", stderr())
+    write("\n\nseurat_qc_rds, soupx_rds, and scdblfinder_tsv must be provided! One or more are missing!", stderr())
     quit(status=1)
 }
 output_name <- opts$output_name
@@ -71,7 +71,6 @@ write("...RNA_filter assay added...", stderr())
 
 # Remove Scrublet-Identified Doublets from Seurat
 write("...Beginning scDblFinder Filtration...", stderr())
-colnames(scDblFinder_df) <- c("scDblFinder.score","is_doublet") # set scDblFinder colnames
 seurat_qc_obj <- AddMetaData(seurat_qc_obj, scDblFinder_df)
 # Report Doublets
 doublet_cells <- colnames(seurat_qc_obj)[which(seurat_qc_obj@meta.data$is_doublet == TRUE)]
