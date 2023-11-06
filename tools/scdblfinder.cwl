@@ -14,7 +14,7 @@ requirements:
         entry:
           $include: ../scripts/scDblFinder.Rmd
   - class: ResourceRequirement
-    coresMin: 8
+    coresMin: $(inputs.cpus)
     ramMin: 16000
 
 baseCommand: [Rscript, -e]
@@ -25,11 +25,17 @@ arguments:
       "rmarkdown::render('scDblFinder.Rmd', clean = TRUE,
             params=list(results_dir='.', 
                         data_path='$(inputs.seurat_raw_object.path)', 
-                        sample_name='$(inputs.sample_name)'
+                        sample_name='$(inputs.sample_name)',
+                        cpus=$(inputs.cpus),
+                        ram=$(inputs.ram)
                         ))"
 inputs:
-  seurat_raw_object: { type: File, doc: "Sueurat RDS from align/qc workflow" }
+  seurat_raw_object: { type: File, doc: "Seurat RDS from align/qc workflow" }
   sample_name: { type: string }
+  cpus: { type: 'int?', doc: "Num CPUs for Seurat parallization",
+    default: 8 }
+  ram: { type: 'int?', doc: "Ram in GB for task",
+    default: 16 }
 
 outputs:
   result_dir:
