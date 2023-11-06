@@ -20,7 +20,7 @@ baseCommand: [Rscript, seurat_filter.R]
 inputs:
   seurat_qc_rds: { type: 'File', inputBinding: { position: 2, prefix: "--seurat_qc_rds"}, doc: "RDS object produced by Seurat QC" }
   soupx_rds: { type: 'File', inputBinding: { position: 2, prefix: "--soupx_rds"}, doc: "RDS object produced by SoupX" }
-  scrublet_csv: { type: 'File', inputBinding: { position: 2, prefix: "--scrublet_csv"}, doc: "CSV file with doublet information produced by Scrublet" }
+  scdblfinder_tsv: { type: 'File', inputBinding: { position: 2, prefix: "--scdblfinder_tsv"}, doc: "TSV file with doublet information produced by scDblFinder" }
   output_filename: { type: 'string?', inputBinding: { position: 2, prefix: "--output_name"}, doc: "Name for filtered Seurat RDS output" }
 
 outputs:
