@@ -22,7 +22,7 @@ To run the Rscript from the command line sequentially, use:
 ```
 Rscript -e "rmarkdown::render('scDblFinder.Rmd', clean = TRUE,
       params=list(results_dir = '/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/', 
-                  data_path = '/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/test.seurat_obj_raw.rds',
+                  data_path = '/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/scDblFinder-test/seurat_obj_with_doublets_test.rds',
                   sample_name = 'test'))"
 ```
 
@@ -111,6 +111,11 @@ singlets_doublets_number <- print(table(seurat_obj$scDblFinder.class)) %>%
   mutate(prediction = Var1,
          count = Freq) %>% 
   dplyr::select(-Var1, -Freq)
+
+
+doublets_number <- singlets_doublets_number %>% 
+  filter(prediction == "doublet") %>% 
+  select(count) %>% sapply(as.character) %>% as.vector
 
 # Estimate pct of doublets in the library
 doublets_pct_library <- print(table(seurat_obj$scDblFinder.class)[2]/(table(seurat_obj$scDblFinder.class)[1]+table(seurat_obj$scDblFinder.class)[2])*100)
