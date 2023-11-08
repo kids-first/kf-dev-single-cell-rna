@@ -10,8 +10,6 @@ params:
   data_path: './' # path to the directory with the `seurat_obj_raw.rds` file from the `seurat_alignment_qc.Rmd` script
   results_dir: './' # path to dir to save all output files
   sample_name: "test"   # name of the sample in the library
-  cpus: 4
-  ram: 64
   log_file: NULL
 ---
 
@@ -24,11 +22,8 @@ To run the Rscript from the command line sequentially, use:
 ```
 Rscript -e "rmarkdown::render('scDblFinder.Rmd', clean = TRUE,
       params=list(results_dir = '/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/', 
-                  data_path = '/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/test.seurat_obj_raw.rds',
-                  sample_name = 'test',
-                  cpus=8,
-                  ram=16
-))"
+                  data_path = '/Users/chronia/CHOP/GitHub/kf-dev-single-cell-rna/scripts/example/scDblFinder-test/seurat_obj_with_doublets_test.rds',
+                  sample_name = 'test'))"
 ```
 
 # Set up
@@ -43,16 +38,15 @@ suppressPackageStartupMessages({
   library(grid)
 })
 
+# # evaluate Seurat R expressions asynchronously when possible (such as ScaleData) using future package
+plan("multisession", workers = 4)
+options(future.globals.maxSize = 64000 * 1024^2) # for 64 Gb RAM
 ```
 
 # Directories and paths to file Inputs/Outputs
 
 ```{r set-dir-and-file-names, echo=TRUE}
 attach(params)
-
-# evaluate Seurat R expressions asynchronously when possible (such as ScaleData) using future package
-plan("multisession", workers = cpus)
-options(future.globals.maxSize = ram * 1000 * 1024^2) # for 64 Gb RAM
 
 #create results_dir
 results_dir <-
@@ -117,6 +111,11 @@ singlets_doublets_number <- print(table(seurat_obj$scDblFinder.class)) %>%
   mutate(prediction = Var1,
          count = Freq) %>% 
   dplyr::select(-Var1, -Freq)
+
+
+doublets_number <- singlets_doublets_number %>% 
+  filter(prediction == "doublet") %>% 
+  select(count) %>% sapply(as.character) %>% as.vector
 
 # Estimate pct of doublets in the library
 doublets_pct_library <- print(table(seurat_obj$scDblFinder.class)[2]/(table(seurat_obj$scDblFinder.class)[1]+table(seurat_obj$scDblFinder.class)[2])*100)
