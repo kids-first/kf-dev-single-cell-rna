@@ -59,6 +59,7 @@ outputs:
   scdblfinder_plot: {type: File, outputSource: rename_scdblfinder_plot/renamed_file}
   scdblfinder_summary: {type: File, outputSource: rename_scdblfinder_summary/renamed_file}
   seurat_filtered_rds: {type: File, outputSource: seurat_filter/filtered_rds}
+  seurat_filtered_summary: { type: File, outputSource: seurat_filter/filtered_summary }
 steps:
   soupx:
     run: ../tools/soupx.cwl
@@ -154,11 +155,10 @@ steps:
             }
           }
       seurat_qc_rds: align_qc_rds
+      seurat_raw_rds: seurat_raw_rds
       soupx_rds: soupx/decontaminated_matrix_rds
-      output_filename:
-        source: output_basename
-        valueFrom: $(self).seurat_qc.filtered.rds
-    out: [filtered_rds]
+      output_basename: output_basename
+    out: [filtered_rds, filtered_summary]
 sbg:license: Apache License 2.0
 sbg:publisher: KFDRC
 $namespaces:
