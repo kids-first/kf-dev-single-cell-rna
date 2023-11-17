@@ -1,7 +1,7 @@
 cwlVersion: v1.2
 class: CommandLineTool
-id: star_2-7-10b_build_ref
-label: "STAR Reference Genome Index Generator"
+id: star_solo_2-7-10b_align
+label: "STAR Solo 2.7.10b Alignment Tool"
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
@@ -31,11 +31,10 @@ inputs:
       example ID:7316-242 LB:750189 PL:ILLUMINA SM:BS_W72364MN",
       inputBinding: { position: 5, prefix: '--outSAMattrRGline', shellQuote: false }}
   genomeDir: { type: File, doc: "Tar gzipped reference that will be unzipped at run time" }
-  genome_fa: { type: File, doc: "Fasta file to index. Recommend from GENCODE, PRI assembly. Must unzip first if compressed", inputBinding: { position: 3, prefix: '--genomeFastaFiles' } }
   readFilesIn1: { type: 'File[]', doc: "Input fastq file(s), gzipped or uncompressed",
-    inputBinding: { itemSeparator: ",", separate: false, position: 4}}
+    inputBinding: { itemSeparator: ",", separate: true, position: 4}}
   readFilesIn2: { type: 'File[]', doc: "R2 or 'mates' reads file(s), gzipped or uncompressed",
-    inputBinding: { prefix: "--readFilesIn", itemSeparator: ",", separate: false, position: 3}}
+    inputBinding: { prefix: "--readFilesIn", itemSeparator: ",", position: 3}}
   runThreadN: { type: 'int?', default: 16, inputBinding: { position: 5, prefix: '--runThreadN' } }
   outFileNamePrefix: { type: string, doc: "output files name prefix (including full or relative path). Can only be defined on the command line. \
     Tool will add '.' after prefix to easily delineate between file name and suffix" }
@@ -91,16 +90,22 @@ inputs:
     GeneFull_Ex50pAS: full gene (pre-RNA): count all reads overlapping genes' exons and introns: prioritize >50% overlap with exons. Do not count reads with 100% exonic overlap in the antisense direction.",
     default: "GeneFull",
     inputBinding: { position: 5, prefix: "--soloFeatures"} }
-  soloCellFilter: 
+  soloCellFilter: { type: [ 'null', {type: enum, name: soloCellFilter, symbols: ["None", "TopCells", "CellRanger2.2", "EmptyDrops_CR"]}], doc: "cell filtering type and parameters. \
+    None: do not output filtered cells. \
+    TopCells: only report top cells by UMI count, followed by the exact number of cells. \
+    CellRanger2.2: simple filtering of CellRanger 2.2. Can be followed by numbers: number of expected cells, robust maximum percentile for UMI count, maximum to minimum ratio for UMI count. The harcoded values are from CellRanger: nExpectedCells=3000; maxPercentile=0.99; maxMinRatio=10. \
+    EmptyDrops_CR: EmptyDrops filtering in CellRanger flavor. Please cite the original EmptyDrops paper: A.T.L Lun et al, Genome Biology, 20, 63 (2019): https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1662-y, Can be followed by 10 numeric parameters: nExpectedCells maxPercentile maxMinRatio indMin indMax umiMin umiMinFracMedian candMaxN FDR simN. The harcoded values are from CellRanger: 3000 0.99 10 45000 90000 500 0.01 20000 0.01 10000",
+    default: "EmptyDrops_CR",
+    inputBinding: { position: 5, prefix: "--soloCellFilter"} }
   outSAMtype: { type: [ 'null', {type: enum, name: outSAMtype, symbols: ["BAM Unsorted", "None", "BAM SortedByCoordinate", "SAM Unsorted", "SAM SortedByCoordinate"]}],
     default: "BAM SortedByCoordinate",
     doc: "type of SAM/BAM output. None: no SAM/BAM output. Otherwise, first word is output type (BAM or SAM), second is sort type (Unsorted or SortedByCoordinate)",
-    inputBinding: { position: 3, prefix: '--outSAMtype', shellQuote: false} }
-
-
+    inputBinding: { position: 3, prefix: '--outSAMtype', shellQuote: false } }
 
 outputs:
-  star_ref:
-    type: File
-    outputBinding:
-      glob: $(inputs.genomeDir).tar.gz
+  log_progress_out: { type: File, doc: "Simple progress output. Can use to gauge speed and run time", outputBinding: {glob: '*Log.progress.out'} }
+  log_out: { type: File, doc: "Contains a summary of all params used and reference files", outputBinding: {glob: '*Log.out'} }
+  log_final_out: { type: File, doc: "Overall summary of read mapping statistics", outputBinding: {glob: '*Log.final.out'} }
+  genomic_bam_out: { type: File, doc: "UNSORTED read mapping to genomic coordinates", outputBinding: {glob: '*Aligned*bam'} }
+  junctions_out: { type: File, doc: "high confidence collapsed splice junctions in tab-delimited form", outputBinding: {glob: '*SJ.out.tab'} }
+  counts_dir: { type: Directory, doc: "Output dir with raw and filtered counts", outputBinding: { glob: '*.Solo.out'} }
