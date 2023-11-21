@@ -7,7 +7,7 @@ doc: >-
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'satijalab/seurat:4.1.0'
+    dockerPull: 'satijalab/seurat:4.3.0'
   - class: InlineJavascriptRequirement
   - class: InitialWorkDirRequirement
     listing:

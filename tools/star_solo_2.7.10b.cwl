@@ -29,12 +29,12 @@ inputs:
   outSAMattrRGline: { type: string, doc: "Suggested setting, with TABS SEPARATING \
       THE TAGS, format is: ID:sample_name LB:aliquot_id PL:platform SM:BSID for \
       example ID:7316-242 LB:750189 PL:ILLUMINA SM:BS_W72364MN",
-      inputBinding: { position: 5, prefix: '--outSAMattrRGline', shellQuote: false }}
+      inputBinding: { position: 5, prefix: '--outSAMattrRGline', shellQuote: false } }
   genomeDir: { type: File, doc: "Tar gzipped reference that will be unzipped at run time" }
   readFilesIn1: { type: 'File[]', doc: "Input fastq file(s), gzipped or uncompressed",
-    inputBinding: { itemSeparator: ",", separate: true, position: 4}}
+    inputBinding: { itemSeparator: ",", separate: true, position: 4} }
   readFilesIn2: { type: 'File[]', doc: "R2 or 'mates' reads file(s), gzipped or uncompressed",
-    inputBinding: { prefix: "--readFilesIn", itemSeparator: ",", position: 3}}
+    inputBinding: { prefix: "--readFilesIn", itemSeparator: ",", position: 3} }
   runThreadN: { type: 'int?', default: 16, inputBinding: { position: 5, prefix: '--runThreadN' } }
   outFileNamePrefix: { type: string, doc: "output files name prefix (including full or relative path). Can only be defined on the command line. \
     Tool will add '.' after prefix to easily delineate between file name and suffix" }
