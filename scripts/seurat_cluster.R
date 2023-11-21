@@ -2,7 +2,9 @@
 # leverages code from Alex S. seurat_analysis.R script
 
 suppressMessages(library(optparse))
-suppressMessages(library(Seurat))
+suppressMessages(library('Seurat'))
+suppressMessages(library('tools'))
+
 
 option_list <- list(
 
@@ -17,12 +19,6 @@ option_list <- list(
     default = file.path(getwd(), "data.rds"),
     type = "character",
     help = "Input data file"
-  ),
-  make_option(
-    opt_str = "--out",
-    default = file.path(getwd(), "out"),
-    type = "character",
-    help = "Output directory path"
   ),
   make_option(
     opt_str = "--min_features",
@@ -123,12 +119,13 @@ analysis <- ScoreJackStraw(analysis, dims = 1:20)
 scores <- JS(object = analysis[["pca"]], slot = "overall")
 auto_pcs <- length(which(scores[, "Score"] <= pc_cut))
 if (num_pcs < auto_pcs) {
-num_pcs <- auto_pcs
+  num_pcs <- auto_pcs
 }
 ## clustering
 analysis <- FindNeighbors(analysis, dims = 1:num_pcs)
 analysis <- FindClusters(analysis, resolution = knn_granularity)
 
-header <- 'Barcodes,Cluster'
+file <- 'clusters.csv'
+header <- 'Barcodes,Cluster\n'
 cat(header, file = file)
 write.table(cbind(rownames(analysis@meta.data),analysis@meta.data$seurat_clusters), file, append=TRUE, sep=',', col.names=FALSE, row.names=FALSE, quote = FALSE)
