@@ -98,6 +98,13 @@ head(meta)
 sc <- autoEstCont(sc) #priorRhoStdDev = 0.3
 print(sc)
 
+# Genes with highest expression in background. These are often enriched for ribosomal proteins.
+head(sc$metaData)
+head(sc$soupProfile[order(sc$soupProfile$est, decreasing = TRUE), ], n = 20)
+
+
+
+
 # clean the data
 out_matrix <- adjustCounts(sc, roundToInt = T)
 colnames(out_matrix) = gsub('-1$', '', colnames(out_matrix))
