@@ -82,15 +82,21 @@ sc  <- setClusters(sc, setNames(meta$seurat_clusters, rownames(meta)))
 sc  <- setDR(sc, umap)
 head(meta)
 
+######################################################################################
+######################################################################################
+# With defined clusters, run the main SoupX function, calculating ambient RNA profile.
+######################################################################################
+######################################################################################
+# to set the contamination fraction to 20% for all cells.
+# we shouldn't remove more than 20% background
+# sc = setContaminationFraction(sc, 0.2)
 
-
-
-
-
-
-
-# estimate contamination fraction rho
-sc <- autoEstCont(sc)
+# Estimate contamination fraction rho
+# The posterior distribution is calculated using a Poisson likelihood with a gamma distribution prior, parametrised by its mean priorRho and standard deviation priorRhoStdDev. The dotted line in the above plot shows the prior distribution. The default parameters have been calibrated to be fairly non-specific 
+# with a slight preference towards values of rho in the 0% to 10% range which is most commonly seen for fresh (i.e. not nuclear) single cell experiments.
+# The default values place only a very weak constraint, as can be seen by setting a uniform prior.
+sc <- autoEstCont(sc) #priorRhoStdDev = 0.3
+print(sc)
 
 # clean the data
 out_matrix <- adjustCounts(sc, roundToInt = T)
