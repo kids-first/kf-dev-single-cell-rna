@@ -102,7 +102,9 @@ print(sc)
 head(sc$metaData)
 head(sc$soupProfile[order(sc$soupProfile$est, decreasing = TRUE), ], n = 20)
 
-
+# To visualize the distribution of expression (relative to what would be expected were each cell pure background) across all cells in the data set. 
+# When no geneset is provided, the function will try and guess which genes might be useful.
+print(plotMarkerDistribution(sc))
 
 
 # clean the data
