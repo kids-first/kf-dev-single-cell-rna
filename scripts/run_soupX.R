@@ -45,11 +45,11 @@ clusters_file <- opts$cluster
 sample_name <- opts$sample_name
 
 # load 10X data and convert to Soup Channel (object SoupX uses for analysis)
-fil_mat <- Read10X_h5(fil, use.names = T)
-raw_mat <- Read10X_h5(raw, use.names = T)
+filtered_matrix <- Read10X_h5(fil, use.names = TRUE)
+raw_matrix <- Read10X_h5(raw, use.names = TRUE)
 clusters <- read.csv(clusters_file)
-mDat <- data.frame(clusters=clusters$Cluster,row.names=clusters$Barcode)
-sc <- SoupChannel(raw_mat, fil_mat, mDat)
+mDat <- data.frame(clusters=clusters$Cluster, row.names=clusters$Barcode)
+sc <- SoupChannel(raw_matrix, filtered_matrix, mDat)
 
 # estimate contamination fraction rho
 sc <- autoEstCont(sc)
