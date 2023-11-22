@@ -106,9 +106,12 @@ head(sc$soupProfile[order(sc$soupProfile$est, decreasing = TRUE), ], n = 20)
 # When no geneset is provided, the function will try and guess which genes might be useful.
 print(plotMarkerDistribution(sc))
 
+# Correcting expression profile
+# This will contain a corrected matrix to be used in place of the original table of counts in downstream analyses.
+# use roundToInt option to make sure we output integer matrix.
+out <- adjustCounts(sc, roundToInt = TRUE) 
 
-# clean the data
-out_matrix <- adjustCounts(sc, roundToInt = T)
+
 colnames(out_matrix) = gsub('-1$', '', colnames(out_matrix))
 colnames(out_matrix) = paste(sample_name, colnames(out_matrix), sep=":")
 
