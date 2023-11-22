@@ -75,6 +75,10 @@ seurat_obj <- RunUMAP(seurat_obj, dims = 1:20, verbose = FALSE)
 seurat_obj <- FindNeighbors(seurat_obj, dims = 1:20, verbose = FALSE)
 seurat_obj <- FindClusters(seurat_obj, resolution = 0.5, verbose = TRUE)
 
+# ElbowPlot can provide an estimation of dimensions to use
+print(ElbowPlot(seurat_obj))
+
+
 # After clustering is obtained, it can be added to the channel using setClusters. 
 # setDR is useful for visualizations.
 meta <- seurat_obj@meta.data
@@ -127,10 +131,11 @@ seurat_obj
 # Before proceeding let's have a look at what this has done. 
 # We can get a sense for what has been the most strongly decreased 
 # by looking at the fraction of cells that were non-zero now set to zero after correction.
+# Rename to toc or it gives NULL
+toc = filtered_matrix
+toc = sc$toc
 
-filtered_matrix = sc$filtered_matrix
-
-cntSoggy = rowSums(sc$filtered_matrix > 0)
+cntSoggy = rowSums(sc$toc > 0)
 cntStrained = rowSums(out > 0)
 mostZeroed = tail(sort((cntSoggy - cntStrained)/cntSoggy), n = 10)
 print(mostZeroed)
@@ -150,18 +155,25 @@ print(tail(sort(rowSums(sc$toc > out)/rowSums(sc$toc > 0)), n = 20))
 # Now that we've corrected our data, we can see how that compares to our corrected data. 
 # The function plotChangeMap can help us with this. 
 # By default it plots the fraction of expression in each cell that has been deemed to be soup and removed.
-plotChangeMap(sc, out, "MT-ND4L")
+print(plotChangeMap(sc, out, "MT-ND4L")) #mtDNA
+print(plotChangeMap(sc, out, "CD300E")) #monocytes
+print(plotChangeMap(sc, out, "MT-ND4L")) #monocytes
 #########################################################################################
 
 # Integrating with downstream tools
 # Of course, the next thing you'll want to do is to load this corrected expression matrix into some downstream analysis tool and further analyse the data.
 
-# The corrected matrix can then be used for any downstream analysis in place of the uncorrected raw matrix. If you are using 10X data and would like to save these final counts out in the same format, you can use the DropletUtils write10xCounts function like this,
+# The corrected matrix can then be used for any downstream analysis in place of the uncorrected raw matrix. 
+# If you are using 10X data and would like to save these final counts out in the same format, 
+# you can use the DropletUtils write10xCounts function like this
 
 colnames(out) = gsub('-1$', '', colnames(out))
 colnames(out) = paste(sample_name, colnames(out), sep=":")
 
-# saveRDS(out, paste0(sample_name, ".rds"))
-# DropletUtils:::write10xCounts(sample_name, out_matrix)
-DropletUtils:::write10xCounts(file.path(results_dir, "./SoupX/", sample_name, out))
+saveRDS(out, paste0(sample_name, ".rds"))
+# saveRDS(out, file.path(results_dir, "seurat_object_RNA_SoupX.rds"))
+
+# If we are not using the below output, let's remove it or comment it out
+DropletUtils:::write10xCounts(sample_name, out)
+
 
