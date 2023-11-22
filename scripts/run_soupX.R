@@ -153,10 +153,15 @@ print(tail(sort(rowSums(sc$toc > out)/rowSums(sc$toc > 0)), n = 20))
 plotChangeMap(sc, out, "MT-ND4L")
 #########################################################################################
 
+# Integrating with downstream tools
+# Of course, the next thing you'll want to do is to load this corrected expression matrix into some downstream analysis tool and further analyse the data.
 
-colnames(out_matrix) = gsub('-1$', '', colnames(out_matrix))
-colnames(out_matrix) = paste(sample_name, colnames(out_matrix), sep=":")
+# The corrected matrix can then be used for any downstream analysis in place of the uncorrected raw matrix. If you are using 10X data and would like to save these final counts out in the same format, you can use the DropletUtils write10xCounts function like this,
 
-saveRDS(out_matrix, paste0(sample_name, ".rds"))
+colnames(out) = gsub('-1$', '', colnames(out))
+colnames(out) = paste(sample_name, colnames(out), sep=":")
 
-DropletUtils:::write10xCounts(sample_name, out_matrix)
+# saveRDS(out, paste0(sample_name, ".rds"))
+# DropletUtils:::write10xCounts(sample_name, out_matrix)
+DropletUtils:::write10xCounts(file.path(results_dir, "./SoupX/", sample_name, out))
+
