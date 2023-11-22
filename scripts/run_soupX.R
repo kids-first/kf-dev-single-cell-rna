@@ -121,6 +121,38 @@ DefaultAssay(seurat_obj) <- "RNA_SoupX"
 seurat_obj
 
 
+#########################################################################################
+# Investigating changes in expression
+# Before proceeding let's have a look at what this has done. 
+# We can get a sense for what has been the most strongly decreased 
+# by looking at the fraction of cells that were non-zero now set to zero after correction.
+
+library(Matrix)
+filtered_matrix = sc$filtered_matrix
+
+cntSoggy = rowSums(sc$filtered_matrix > 0)
+cntStrained = rowSums(out > 0)
+mostZeroed = tail(sort((cntSoggy - cntStrained)/cntSoggy), n = 10)
+print(mostZeroed)
+
+
+# List of gene markers showing on this list are highly specific markers of one cell type or group of cells.
+# This is importnat to note as it may lead to erroneous inferences of potential cell specific genes.
+# For example, presence of mitochondrial genes MT-ND4, MT-ND4L or immune cells.
+
+# If on the other hand we focus on genes for which there is a quantitative difference,
+print(tail(sort(rowSums(sc$toc > out)/rowSums(sc$toc > 0)), n = 20))
+# Then we might notice different gene markers associated with other pathways and cell types.
+
+
+# Visualising expression distribution
+# Way back at the start, we did a quick visualisation to look at how the ratio of IGKC expression to pure soup was distributed. 
+# Now that we've corrected our data, we can see how that compares to our corrected data. 
+# The function plotChangeMap can help us with this. 
+# By default it plots the fraction of expression in each cell that has been deemed to be soup and removed.
+plotChangeMap(sc, out, "MT-ND4L")
+#########################################################################################
+
 
 colnames(out_matrix) = gsub('-1$', '', colnames(out_matrix))
 colnames(out_matrix) = paste(sample_name, colnames(out_matrix), sep=":")
