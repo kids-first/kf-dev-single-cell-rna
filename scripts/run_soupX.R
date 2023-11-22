@@ -142,7 +142,7 @@ print(mostZeroed)
 
 
 # List of gene markers showing on this list are highly specific markers of one cell type or group of cells.
-# This is importnat to note as it may lead to erroneous inferences of potential cell specific genes.
+# This is important to note as it may lead to erroneous inferences of potential cell specific genes.
 # For example, presence of mitochondrial genes MT-ND4, MT-ND4L or immune cells.
 
 # If on the other hand we focus on genes for which there is a quantitative difference,
@@ -150,8 +150,8 @@ print(tail(sort(rowSums(sc$toc > out)/rowSums(sc$toc > 0)), n = 20))
 # Then we might notice different gene markers associated with other pathways and cell types.
 
 
-# Visualising expression distribution
-# Way back at the start, we did a quick visualisation to look at how the ratio of IGKC expression to pure soup was distributed. 
+# Visualizing expression distribution
+# Way back at the start, we did a quick visualization to look at how the ratio of IGKC expression to pure soup was distributed. 
 # Now that we've corrected our data, we can see how that compares to our corrected data. 
 # The function plotChangeMap can help us with this. 
 # By default it plots the fraction of expression in each cell that has been deemed to be soup and removed.
