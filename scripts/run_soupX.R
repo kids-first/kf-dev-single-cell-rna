@@ -12,6 +12,7 @@ suppressMessages(library(optparse))
 suppressMessages(library(SoupX))
 suppressMessages(library(Seurat))
 suppressMessages(library(DropletUtils))
+suppressMessages(library(Matrix))
 
 #process inputs
 option_list <- list(
@@ -127,7 +128,6 @@ seurat_obj
 # We can get a sense for what has been the most strongly decreased 
 # by looking at the fraction of cells that were non-zero now set to zero after correction.
 
-library(Matrix)
 filtered_matrix = sc$filtered_matrix
 
 cntSoggy = rowSums(sc$filtered_matrix > 0)
