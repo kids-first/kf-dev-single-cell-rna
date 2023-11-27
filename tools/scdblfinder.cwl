@@ -6,7 +6,7 @@ doc: "Run custom QC on 10X output"
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: "pgc-images.sbgenomics.com/brownm28/scdblfinder:1.8.0"
+    dockerPull: "pgc-images.sbgenomics.com/d3b-bixu/scdblfinder:1.12.0"
   - class: InlineJavascriptRequirement
   - class: InitialWorkDirRequirement
     listing:
