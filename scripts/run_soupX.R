@@ -51,41 +51,45 @@ raw_matrix <- Read10X_h5(raw, use.names = TRUE)
 
 ############################################################################
 # If cluster file available
-clusters <- read.csv(clusters_file)
-mDat <- data.frame(clusters=clusters$Cluster, row.names=clusters$Barcode)
-sc <- SoupChannel(raw_matrix, filtered_matrix, mDat)
 
-############################################################################
-# If cluster file NOT available
-# Make a Seurat object from the sparce matrix
-seurat_obj  <- CreateSeuratObject(counts = filtered_matrix)
-#seurat_obj 
+if (file.exists(clusters_file)) {
+  print("Clusters file exists!")
+  clusters <- read.csv(clusters_file)
+  mDat <- data.frame(clusters=clusters$Cluster, row.names=clusters$Barcode)
+  sc <- SoupChannel(raw_matrix, filtered_matrix, mDat)
+} else {
+  print("Clusters does not exist. Let's calculate clusters")
+  # Make a Seurat object from the sparce matrix
+  seurat_obj  <- CreateSeuratObject(counts = filtered_matrix)
+  #seurat_obj 
+  
+  # Make a “SoupChannel”, the object needed to run SoupX
+  sc  <- SoupChannel(raw_matrix, filtered_matrix)
+  print(sc)
+  
+  # Let's estimate clusters
+  seurat_obj <- NormalizeData(seurat_obj, normalization.method = "LogNormalize", scale.factor = 10000, verbose = TRUE) %>% 
+    FindVariableFeatures(selection.method = "vst", nfeatures = 2000) %>%
+    ScaleData() 
+  #seurat_obj <- SCTransform(seurat_obj, verbose = F)
+  seurat_obj <- RunPCA(seurat_obj, verbose = FALSE)
+  seurat_obj <- RunUMAP(seurat_obj, dims = 1:20, verbose = FALSE)
+  seurat_obj <- FindNeighbors(seurat_obj, dims = 1:20, verbose = FALSE)
+  seurat_obj <- FindClusters(seurat_obj, resolution = 0.5, verbose = TRUE)
+  
+  # ElbowPlot can provide an estimation of dimensions to use
+  print(ElbowPlot(seurat_obj))
+  
+  
+  # After clustering is obtained, it can be added to the channel using setClusters. 
+  # setDR is useful for visualizations.
+  meta <- seurat_obj@meta.data
+  umap <- seurat_obj@reductions$umap@cell.embeddings
+  sc  <- setClusters(sc, setNames(meta$seurat_clusters, rownames(meta)))
+  sc  <- setDR(sc, umap)
+  head(meta)
+}
 
-# Make a “SoupChannel”, the object needed to run SoupX
-sc  <- SoupChannel(raw_matrix, filtered_matrix)
-print(sc)
-
-# Let's estimate clusters
-seurat_obj <- NormalizeData(seurat_obj, normalization.method = "LogNormalize", scale.factor = 10000, verbose = TRUE) %>% 
-  FindVariableFeatures(selection.method = "vst", nfeatures = 2000) %>%
-  ScaleData() 
-#seurat_obj <- SCTransform(seurat_obj, verbose = F)
-seurat_obj <- RunPCA(seurat_obj, verbose = FALSE)
-seurat_obj <- RunUMAP(seurat_obj, dims = 1:20, verbose = FALSE)
-seurat_obj <- FindNeighbors(seurat_obj, dims = 1:20, verbose = FALSE)
-seurat_obj <- FindClusters(seurat_obj, resolution = 0.5, verbose = TRUE)
-
-# ElbowPlot can provide an estimation of dimensions to use
-print(ElbowPlot(seurat_obj))
-
-
-# After clustering is obtained, it can be added to the channel using setClusters. 
-# setDR is useful for visualizations.
-meta <- seurat_obj@meta.data
-umap <- seurat_obj@reductions$umap@cell.embeddings
-sc  <- setClusters(sc, setNames(meta$seurat_clusters, rownames(meta)))
-sc  <- setDR(sc, umap)
-head(meta)
 
 ######################################################################################
 ######################################################################################
