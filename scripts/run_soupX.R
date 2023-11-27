@@ -58,7 +58,7 @@ if (file.exists(clusters_file)) {
   mDat <- data.frame(clusters=clusters$Cluster, row.names=clusters$Barcode)
   sc <- SoupChannel(raw_matrix, filtered_matrix, mDat)
 } else {
-  print("Clusters does not exist. Let's calculate clusters")
+  print("Clusters file does not exist. Let's calculate clusters by using Seurat")
   # Make a Seurat object from the sparce matrix
   seurat_obj  <- CreateSeuratObject(counts = filtered_matrix)
   #seurat_obj 
