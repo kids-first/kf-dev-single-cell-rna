@@ -59,7 +59,7 @@ sc <- SoupChannel(raw_matrix, filtered_matrix, mDat)
 # If cluster file NOT available
 # Make a Seurat object from the sparce matrix
 seurat_obj  <- CreateSeuratObject(counts = filtered_matrix)
-seurat_obj 
+#seurat_obj 
 
 # Make a “SoupChannel”, the object needed to run SoupX
 sc  <- SoupChannel(raw_matrix, filtered_matrix)
