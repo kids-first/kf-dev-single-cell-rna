@@ -73,13 +73,28 @@ if (file.exists(clusters_file)) {
     ScaleData() 
   #seurat_obj <- SCTransform(seurat_obj, verbose = F)
   seurat_obj <- RunPCA(seurat_obj, verbose = FALSE)
-  seurat_obj <- RunUMAP(seurat_obj, dims = 1:20, verbose = FALSE)
-  seurat_obj <- FindNeighbors(seurat_obj, dims = 1:20, verbose = FALSE)
+  
+  
+  ## Run jackstraw to score pcs
+  seurat_obj <- JackStraw(seurat_obj, num.replicate = 100)
+  seurat_obj <- ScoreJackStraw(seurat_obj, dims = 1:20)
+  
+  ## Determine number of pcs to use for clustering
+  pc_cut = 0.05
+  num_pcs = 10
+  scores <- JS(object = seurat_obj[["pca"]], slot = "overall")
+  auto_pcs <- length(which(scores[, "Score"] <= pc_cut))
+  if (num_pcs < auto_pcs) {
+    num_pcs <- auto_pcs
+  }
+  
+  
+  seurat_obj <- RunUMAP(seurat_obj, dims = 1:num_pcs, verbose = FALSE)
+  seurat_obj <- FindNeighbors(seurat_obj, dims = 1:num_pcs, verbose = FALSE)
   seurat_obj <- FindClusters(seurat_obj, resolution = 0.5, verbose = TRUE)
   
   # ElbowPlot can provide an estimation of dimensions to use
-  print(ElbowPlot(seurat_obj))
-  
+  # print(ElbowPlot(seurat_obj))
   
   # After clustering is obtained, it can be added to the channel using setClusters. 
   # setDR is useful for visualizations.
