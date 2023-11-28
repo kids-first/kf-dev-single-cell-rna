@@ -143,6 +143,7 @@ ggsave(filename = "plotMarkerDistribution.pdf",
 # use roundToInt option to make sure we output integer matrix.
 out <- adjustCounts(sc, roundToInt = TRUE) 
 
+#########################################################################################
 # Optional but we can keep original matrix
 # Attention as if we do, then for the next step we need to ensure we are using the correct assay, i.e., `RNA_SoupX`
 seurat_obj[["RNA_SoupX"]] <- CreateAssayObject(counts = seurat_obj@assays$RNA@counts)
@@ -150,7 +151,7 @@ seurat_obj@assays$RNA@counts <- out
 
 # Setup assay for seurat object
 DefaultAssay(seurat_obj) <- "RNA_SoupX"
-seurat_obj
+#seurat_obj
 
 
 #########################################################################################
