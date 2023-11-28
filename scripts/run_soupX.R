@@ -130,6 +130,14 @@ head(sc$soupProfile[order(sc$soupProfile$est, decreasing = TRUE), ], n = 20)
 # When no geneset is provided, the function will try and guess which genes might be useful.
 print(plotMarkerDistribution(sc))
 
+# Save the plot
+ggsave(filename = "plotMarkerDistribution.pdf",
+       path = results_dir, 
+       width = 6, 
+       height = 5, 
+       device = "pdf", 
+       useDingbats = FALSE)
+
 # Correcting expression profile
 # This will contain a corrected matrix to be used in place of the original table of counts in downstream analyses.
 # use roundToInt option to make sure we output integer matrix.
