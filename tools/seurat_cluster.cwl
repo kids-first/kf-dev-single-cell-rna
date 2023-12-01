@@ -1,7 +1,7 @@
 cwlVersion: v1.2
 class: CommandLineTool
 id: seurat-cluster
-doc: "Convert counts dir from Cell Ranger or STAR Solo to h5 file"
+doc: "Create clusters file, for likely use in SoupX"
 
 requirements:
   - class: ShellCommandRequirement
@@ -30,10 +30,6 @@ inputs:
     inputBinding: { position: 1, prefix: "--data" } }
   sample_name: { type: string, doc: "Sample name to put in output",
     inputBinding: { position: 1, prefix: "--name" } }
-  min_features: { type: 'int?', doc: "Minimum number of genes observed in a cell to retain", default: 200,
-    inputBinding: { position: 1, prefix: "--min_features"} }
-  retain_features: { type: 'int?', doc: "Number of most-variable features to initially retain", default: 2000,
-    inputBinding: { position: 1, prefix: "--retain_features"} }
   norm_method: { type: ['null', {type: enum, name: norm_method, symbols: ["LogNormalize", "CLR", "RC"]}],
     default: "LogNormalize", doc: "Normalization to apply to counts LogNormalize, CLR, RC" }
   num_pcs: { type: "int?", doc: "Minimum number of principal components to retain for clustering", default: 10,

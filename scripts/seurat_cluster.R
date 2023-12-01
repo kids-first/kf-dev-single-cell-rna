@@ -20,24 +20,7 @@ option_list <- list(
     type = "character",
     help = "Input data file"
   ),
-  make_option(
-    opt_str = "--min_features",
-    default = 200,
-    type = "numeric",
-    help = "Minimum number of genes observed in a cell to retain"
-  ),
-  make_option(
-    opt_str = "--norm_method",
-    default = "LogNormalize",
-    type = "character",
-    help = "Normalization to apply to counts (LogNormalize, CLR, RC)"
-  ),
-  make_option(
-    opt_str = "--retain_features",
-    default = 2000,
-    type = "numeric",
-    help = "Number of most-variable features to initially retain"
-  ),
+
   make_option(
     opt_str = "--num_pcs",
     default = 10,
@@ -68,9 +51,7 @@ option_list <- list(
 opts <- parse_args(OptionParser(option_list = option_list))
 data_file <- file.path(opts$data)
 project_name <- opts$name
-min_features <- opts$min_features
 norm_method <- opts$norm_method
-retain_features <- opts$retain_features
 num_pcs <- opts$num_pcs
 pc_cut <- opts$pc_cut
 knn_granularity <- opts$knn_granularity
@@ -82,13 +63,11 @@ if (ext == "gz" | ext == "tgz") {
   untar(tarfile = data_file, exdir = "./input_matrix")
   analysis.data <- Read10X(data.dir = paste("./input_matrix",
     list.files("./input_matrix")[1], sep = "/"))
-  analysis <- CreateSeuratObject(counts = analysis.data, project = project_name,
-    min.cells = min_cells, min.features = min_features)
+  analysis <- CreateSeuratObject(counts = analysis.data, project = project_name)
 } else if (ext == "h5") {
   print("using h5 file")
   analysis.data <- Read10X_h5(data_file)
-  analysis <- CreateSeuratObject(counts = analysis.data, project = project_name,
-    min.cells = min_cells, min.features = min_features)
+  analysis <- CreateSeuratObject(counts = analysis.data, project = project_name)
 } else if (ext == "rds" | ext == "RDS") {
   print("using rds file")
   analysis <- readRDS(file = data_file)
@@ -96,19 +75,13 @@ if (ext == "gz" | ext == "tgz") {
   stop("Unrecognized input file type")
 }
 # PCA prep
-analysis <- NormalizeData(analysis, normalization.method = norm_method,
-scale.factor = 10000)
-
-## identify highly variable genes
-analysis <- FindVariableFeatures(analysis, selection.method = "vst",
-nfeatures = retain_features)
-## scale data
-all.genes <- rownames(analysis)
-analysis <- ScaleData(analysis, features = all.genes)
+analysis <- NormalizeData(analysis, normalization.method = "LogNormalize", scale.factor = 10000, verbose = TRUE) %>% 
+    FindVariableFeatures(selection.method = "vst", nfeatures = 2000) %>%
+    ScaleData() 
 
 # run PCA
 print("running PCA")
-analysis <- RunPCA(analysis, features = VariableFeatures(object = analysis))
+analysis <- RunPCA(analysis, verbose=FALSE)
 print("done with PCA")
 
 ## run jackstraw to score pcs
