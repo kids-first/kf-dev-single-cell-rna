@@ -86,8 +86,8 @@ inputs:
 outputs:
   star_solo_counts_dir: {type: File, outputSource: tar_solo_count_outdir/output }
   star_solo_bam: {type: 'File?', outputSource: star_solo_align/genomic_bam_out }
-  star_solo_matrix_filtered: {type: File, outputSource: create_filtered_h5_output/converted_h5 }
-  star_solo_matrix_raw: {type: File, outputSource: create_raw_h5_output/converted_h5 }
+  star_solo_matrix_filtered: {type: File, outputSource: create_h5_output/filtered_converted_h5 }
+  star_solo_matrix_raw: {type: File, outputSource: create_h5_output/raw_converted_h5 }
   star_solo_log_final_out: { type: File, outputSource: star_solo_align/log_final_out }
   star_solo_junctions: { type: File, outputSource: star_solo_align/junctions_out }
   seurat_qc_html: {type: File, outputSource: rename_seurat_html/renamed_file }
@@ -114,50 +114,14 @@ steps:
       soloCellFilter: soloCellFilter
       outSAMtype: outSAMtype
     out: [log_progress_out, log_out, log_final_out, genomic_bam_out, junctions_out, counts_dir]
-  create_raw_h5_output:
+  create_h5_output:
     run: ../tools/convert_to_h5.cwl
     in:
-      # dir structure is parent/Gene*/raw
-      counts_matrix_dir:
-        source: star_solo_align/counts_dir
-        valueFrom: |
-          ${for(var i in self.listing){
-            var item = self.listing[i];
-            if (item.basename.startsWith("Gene")){
-            for(var j in item.listing){
-                var subItem = item.listing[j];
-                if (subItem.basename == "raw"){
-                    return subItem;
-                    }
-                }
-              }
-            }
-          }
+      solo_counts_dir: star_solo_align/counts_dir
       sample_name: sample_name
       output_basename: output_basename
-    out: [converted_h5]
-  create_filtered_h5_output:
-    run: ../tools/convert_to_h5.cwl
-    in:
-      # dir structure is parent/Gene*/filtered
-      counts_matrix_dir:
-        source: star_solo_align/counts_dir
-        valueFrom: |
-          ${for(var i in self.listing){
-            var item = self.listing[i];
-            if (item.basename.startsWith("Gene")){
-            for(var j in item.listing){
-                var subItem = item.listing[j];
-                if (subItem.basename == "filtered"){
-                    return subItem;
-                    }
-                }
-              }
-            }
-          }
-      sample_name: sample_name
-      output_basename: output_basename
-    out: [converted_h5]
+      soloFeatures: soloFeatures
+    out: [raw_converted_h5, filtered_converted_h5]
   tar_solo_count_outdir:
     run: ../tools/tar.cwl
     in:
@@ -169,16 +133,8 @@ steps:
   mimic_cr_counts_dir:
     run: ../tools/star_solo_mimic_cr_dir.cwl
     in:
-      solo_counts_dir:
-        source: star_solo_align/counts_dir
-        valueFrom: |
-          ${for(var i in self.listing){
-            var item = self.listing[i];
-            if (item.basename.startsWith("Gene")){
-              return item;
-              }
-            }
-          }
+      solo_counts_dir: star_solo_align/counts_dir
+      soloFeatures: soloFeatures
       output_name: output_basename
     out: [cr_like_counts_dir]
   tar_solo_cr_mimic_dir:

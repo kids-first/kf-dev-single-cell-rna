@@ -1,7 +1,7 @@
 cwlVersion: v1.2
 class: CommandLineTool
 id: convert-to-h5
-doc: "Convert counts dir from Cell Ranger or STAR Solo to h5 file"
+doc: "Convert counts dir from STAR Solo to h5 file"
 
 requirements:
   - class: ShellCommandRequirement
@@ -17,24 +17,39 @@ requirements:
     coresMin: 2
     ramMin: 4000
 
-baseCommand: [Rscript]
+baseCommand: []
 arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
-      convert_to_h5.R
+      Rscript convert_to_h5.R
+      --counts_dir $(inputs.solo_counts_dir.path)/$(inputs.soloFeatures)/filtered/
+      --sample_name $(inputs.sample_name)
+      --output_basename $(inputs.output_basename).filtered
+  - position: 1
+    shellQuote: false
+    valueFrom: >-
+      && Rscript convert_to_h5.R
+      --counts_dir $(inputs.solo_counts_dir.path)/$(inputs.soloFeatures)/raw/
+      --sample_name $(inputs.sample_name)
+      --output_basename $(inputs.output_basename).raw
+
 inputs:
-  counts_matrix_dir: { type: Directory, loadListing: deep_listing, doc: "Cell Ranger-like counts dir with matrix, features, barcodes",
-    inputBinding: { position: 1, prefix: "--counts_dir" } }
-  sample_name: { type: string, doc: "Sample name to put in output",
-    inputBinding: { position: 1, prefix: "--sample_name" } }
-  output_basename: { type: string, doc: "File name prefix name for output",
-    inputBinding: { position: 1, prefix: "--output_basename" } }
+  solo_counts_dir: { type: Directory, loadListing: deep_listing, doc: "Cell Ranger-like counts dir with matrix, features, barcodes" }
+  sample_name: { type: string, doc: "Sample name to put in output" }
+  soloFeatures: { type: [ 'null', {type: enum, name: soloFeatures, symbols: ["Gene", "SJ", "GeneFull", "GeneFull_ExonOverIntron", "GeneFull_Ex50pAS"]}], doc: "This opt used in STAR Solo will determine the folder structure",
+    default: "GeneFull"}
+  output_basename: { type: string, doc: "File name prefix name for output" }
 
 outputs:
-  converted_h5:
+  raw_converted_h5:
     type: File
     outputBinding:
-      glob: "*.h5"
-    doc: "Converted matrix dir to h5 format"
+      glob: "*raw.h5"
+    doc: "Converted raw matrix dir to h5 format"
+  filtered_converted_h5:
+    type: File
+    outputBinding:
+      glob: "*filtered.h5"
+    doc: "Converted filtered matrix dir to h5 format"
 
