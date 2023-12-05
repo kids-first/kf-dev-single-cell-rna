@@ -1,6 +1,6 @@
 cwlVersion: v1.2
 class: Workflow
-id: kf_single_cell_10x_alignment
+id: kf_cell_ranger_10x_alignment
 label: "KFDRC Single Cell RNA 10x Alignment Workflow"
 doc: |
   # 10X Alignment Workflow
@@ -15,7 +15,7 @@ doc: |
   ## Software
 
   - Cellranger 6.1.2
-  - Seurat 4.0.4
+  - Seurat 4.3.0.1
 
   ## Inputs
   ### multi-step
