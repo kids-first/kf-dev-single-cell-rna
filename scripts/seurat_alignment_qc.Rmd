@@ -14,6 +14,7 @@ params:
   assay: "RNA"   # Assay 
   grouping: "orig.ident" # grouping for plots
   min_genes: 200 # minimum number of genes per cell
+  mtDNA_pct_default: 5 # default pct mtDNA cutoff if miQC can't run
   normalize_method: "log_norm" # normalization method. One of log_norm or sct
   num_pcs: 30 # number of PCs to calculate
   num_dim: [20, 25] # number of PCs to use in UMAP
@@ -60,10 +61,8 @@ suppressPackageStartupMessages({
   library(Seurat)
   library(SingleCellExperiment)
   library(flexmix) # to estimate mixtureModel for miQC
-  # remotes::install_github('satijalab/seurat-wrappers@community-vignette')
-  library(SeuratWrappers) # this solves the issue with mixtureModel for miQC if installed as suggested in the previous code line
   library(irlba) # this solves the issue with RunUMAP code chunk
-  
+
 theme_set(theme_bw())
 
 # evaluate Seurat R expressions asynchronously when possible (such as ScaleData) using future package
@@ -200,8 +199,6 @@ set.seed(2023)
 #mt_genes <- grepl("^mt-",  rownames(sce))
 mt_genes <- grepl(sce$pct_mito, rownames(sce))
 feature_ctrls <- list(mito = rownames(sce)[mt_genes])
-feature_ctrls
-
 # miQC is designed to be run with the Bioconductor package scater, which has a built-in function addPerCellQC to calculate basic QC metrics like number of unique genes detected per cell and total number of reads. When we pass in our list of mitochondrial genes, it will also calculate percent mitochondrial reads.
 
 sce <- addPerCellQC(sce, subsets = feature_ctrls)
@@ -213,35 +210,45 @@ head(colData(sce))
 ```{r miQC-plot, echo=TRUE}
 print(plotMetrics(sce))
 
-model <- mixtureModel(sce)
-parameters(model)
-head(posterior(model))
+run_qc <- function(sce) {
+  
+  if (any(sce$subsets_mito_percent == 0)) {
+    print("miQC did not work, use default mtDNA_pct_default for filtering.")
+    filtered_sce <- subset(seurat_obj, subset = pct_mito < mtDNA_pct_default)
+    
+    } else {
+      print("miQC worked.")
+      model <- mixtureModel(sce)
+      print(is.nan(model@logLik))                                    # Apply is.nan function
+      parameters(model)
+      head(posterior(model))
+      
+      # Plot
+      # The cells at the very top of the graph are almost certainly compromised, 
+      # most likely to have been derived from the distribution with fewer unique genes and higher baseline mitochondrial expression.
+      print(plotModel(sce, model))
 
-# Plot
-# The cells at the very top of the graph are almost certainly compromised, most likely to have been derived from the distribution with fewer unique genes and higher baseline mitochondrial expression.
-print(plotModel(sce, model))
+      # Plot
+      print(plotFiltering(sce, model))
 
-# Attention: To add code for cases when miQC won't work
-# https://github.com/AlexsLemonade/scpca-nf/blob/main/bin/filter_sce.R
+      # Convert sce back to seurat object 
+      filtered_sce <- as.Seurat(filterCells(sce, model), counts = "counts",
+                        data = "logcounts")
+
+    }
+    return (filtered_sce)
+  }
+  
+
+# Run QC function
+p <- run_qc(sce) 
+
 ```
-                                          
 ## Filter data by min_genes
 
 ```{r data-filter, echo=TRUE}
-# Plot
-print(plotFiltering(sce, model))
-
-# Filter and remove the indicated cells by miQC
-filtered_sce <- filterCells(sce, model)
-
-
-# Convert sce back to seurat object 
-seurat_obj <- as.Seurat(filtered_sce, 
-                        counts = "counts",
-                        data = "logcounts")
-  
-# Filter data by min_genes 
-seurat_obj <- subset(seurat_obj, subset = nFeature_RNA > min_genes)
+# Now let's filter data by min_genes
+seurat_obj <- subset(p, subset = nFeature_RNA > min_genes)
 
 # How many cells are in the seurat object after filtering?
 cells_so_after_filter_num <- ncol(seurat_obj)
