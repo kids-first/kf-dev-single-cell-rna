@@ -62,6 +62,9 @@ raw_matrix <- Read10X_h5(raw, use.names = TRUE)
 # SoupX will use default pdf settings, set output file name to be more useful
 pdf(file = paste0(results_dir, sample_name, ".soupx.plots.pdf"))
 
+# Make a Seurat object from the sparce matrix
+seurat_obj  <- CreateSeuratObject(counts = filtered_matrix)
+
 # If cluster file available
 if (!is.null(clusters_file)) {
   print("Clusters file exists!")
@@ -69,10 +72,7 @@ if (!is.null(clusters_file)) {
   mDat <- data.frame(clusters=clusters$Cluster, row.names=clusters$Barcode)
   sc <- SoupChannel(raw_matrix, filtered_matrix, mDat)
 } else {
-  print("Clusters file does not exist. Let's calculate clusters by using Seurat")
-  # Make a Seurat object from the sparce matrix
-  seurat_obj  <- CreateSeuratObject(counts = filtered_matrix)
-  
+  print("Clusters file does not exist. Let's calculate clusters by using Seurat")  
   # Make a “SoupChannel”, the object needed to run SoupX
   sc  <- SoupChannel(raw_matrix, filtered_matrix)
   print(sc)
@@ -81,10 +81,8 @@ if (!is.null(clusters_file)) {
   seurat_obj <- NormalizeData(seurat_obj, normalization.method = "LogNormalize", scale.factor = 10000, verbose = TRUE) %>% 
     FindVariableFeatures(selection.method = "vst", nfeatures = 2000) %>%
     ScaleData() 
-  #seurat_obj <- SCTransform(seurat_obj, verbose = F)
   seurat_obj <- RunPCA(seurat_obj, verbose = FALSE)
-  
-  
+    
   ## Run jackstraw to score pcs
   seurat_obj <- JackStraw(seurat_obj, num.replicate = 100)
   seurat_obj <- ScoreJackStraw(seurat_obj, dims = 1:20)
@@ -97,8 +95,6 @@ if (!is.null(clusters_file)) {
   if (num_pcs < auto_pcs) {
     num_pcs <- auto_pcs
   }
-  
-  
   seurat_obj <- RunUMAP(seurat_obj, dims = 1:num_pcs, verbose = FALSE)
   seurat_obj <- FindNeighbors(seurat_obj, dims = 1:num_pcs, verbose = FALSE)
   seurat_obj <- FindClusters(seurat_obj, resolution = 0.5, verbose = TRUE)
@@ -161,7 +157,6 @@ seurat_obj@assays$RNA@counts <- out
 
 # Setup assay for seurat object
 DefaultAssay(seurat_obj) <- "RNA_SoupX"
-#seurat_obj
 
 
 #########################################################################################
@@ -176,6 +171,7 @@ toc = sc$toc
 cntSoggy = rowSums(sc$toc > 0)
 cntStrained = rowSums(out > 0)
 mostZeroed = tail(sort((cntSoggy - cntStrained)/cntSoggy), n = 10)
+print("Most zeroed out cells")
 print(mostZeroed)
 
 
@@ -184,19 +180,9 @@ print(mostZeroed)
 # For example, presence of mitochondrial genes MT-ND4, MT-ND4L or immune cells.
 
 # If on the other hand we focus on genes for which there is a quantitative difference,
+print("Top 20 quantitative difference")
 print(tail(sort(rowSums(sc$toc > out)/rowSums(sc$toc > 0)), n = 20))
 # Then we might notice different gene markers associated with other pathways and cell types.
-
-
-# Visualizing expression distribution
-# Way back at the start, we did a quick visualization to look at how the ratio of IGKC expression to pure soup was distributed. 
-# Now that we've corrected our data, we can see how that compares to our corrected data. 
-# The function plotChangeMap can help us with this. 
-# By default it plots the fraction of expression in each cell that has been deemed to be soup and removed.
-print(plotChangeMap(sc, out, "MT-ND4L")) #mtDNA
-print(plotChangeMap(sc, out, "CD300E")) #monocytes
-print(plotChangeMap(sc, out, "MT-ND4L")) #monocytes
-#########################################################################################
 
 # Integrating with downstream tools
 # Of course, the next thing you'll want to do is to load this corrected expression matrix into some downstream analysis tool and further analyse the data.
