@@ -13,6 +13,8 @@ suppressMessages(library(SoupX))
 suppressMessages(library(Seurat))
 suppressMessages(library(DropletUtils))
 suppressMessages(library(Matrix))
+suppressMessages(library(dplyr))
+suppressMessages(library(ggplot2))
 
 #process inputs
 option_list <- list(
@@ -35,6 +37,12 @@ option_list <- list(
     opt_str = "--sample_name",
     type = "character",
     help = "Name associated with this sample"
+  ),
+  make_option(
+    opt_str = "--results_dir",
+    type = "character",
+    help = "output dir to put results",
+    default="./"
   )
 )
 
@@ -44,15 +52,18 @@ raw <- opts$raw
 fil <- opts$fil
 clusters_file <- opts$cluster
 sample_name <- opts$sample_name
+results_dir <- opts$results_dir
 
 # load 10X data and convert to Soup Channel (object SoupX uses for analysis)
 filtered_matrix <- Read10X_h5(fil, use.names = TRUE)
 raw_matrix <- Read10X_h5(raw, use.names = TRUE)
 
 ############################################################################
-# If cluster file available
+# SoupX will use default pdf settings, set output file name to be more useful
+pdf(file = paste0(results_dir, sample_name, ".soupx.plots.pdf"))
 
-if (file.exists(clusters_file)) {
+# If cluster file available
+if (!is.null(clusters_file)) {
   print("Clusters file exists!")
   clusters <- read.csv(clusters_file)
   mDat <- data.frame(clusters=clusters$Cluster, row.names=clusters$Barcode)
@@ -61,7 +72,6 @@ if (file.exists(clusters_file)) {
   print("Clusters file does not exist. Let's calculate clusters by using Seurat")
   # Make a Seurat object from the sparce matrix
   seurat_obj  <- CreateSeuratObject(counts = filtered_matrix)
-  #seurat_obj 
   
   # Make a “SoupChannel”, the object needed to run SoupX
   sc  <- SoupChannel(raw_matrix, filtered_matrix)
@@ -131,7 +141,7 @@ head(sc$soupProfile[order(sc$soupProfile$est, decreasing = TRUE), ], n = 20)
 print(plotMarkerDistribution(sc))
 
 # Save the plot
-ggsave(filename = "plotMarkerDistribution.pdf",
+ggsave(filename = paste0(sample_name, ".soupx.plotMarkerDistribution.pdf"),
        path = results_dir, 
        width = 6, 
        height = 5, 
@@ -198,10 +208,4 @@ print(plotChangeMap(sc, out, "MT-ND4L")) #monocytes
 colnames(out) = gsub('-1$', '', colnames(out))
 colnames(out) = paste(sample_name, colnames(out), sep=":")
 
-saveRDS(out, paste0(sample_name, ".rds"))
-# saveRDS(out, file.path(results_dir, "seurat_object_RNA_SoupX.rds"))
-
-# If we are not using the below output, let's remove it or comment it out
-DropletUtils:::write10xCounts(sample_name, out)
-
-
+saveRDS(out, paste0(results_dir, sample_name, ".soupx.rds"))
