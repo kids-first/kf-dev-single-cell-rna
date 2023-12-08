@@ -55,7 +55,7 @@ scDblFinder_df <- read.csv(scdblfinder_tsv, sep = "\t", header = TRUE, row.names
 write("Done loading files, getting aligned cell count", stderr())
 # Create and update a filter summary file
 filter_summary = paste0(output_basename, ".stats.tsv")
-write("Filter step\ttNumber of to remove\tNumber of cells", file=filter_summary)
+write("Filter step\tNumber of to remove\tNumber of cells", file=filter_summary)
 
 num_align <- ncol(seurat_raw_obj)
 write(paste("Alignment", "NA", num_align, sep="\t"), file=filter_summary, append = TRUE)

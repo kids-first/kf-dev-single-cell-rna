@@ -94,7 +94,7 @@ inputs:
   seurat_qc_min_genes: {type: "int?", doc: "minimum number of genes per cell", default: 400}
   seurat_qc_max_genes: {type: "int?", doc: "maximum number of genes per cell", default: 4000}
   seurat_qc_max_mt: {type: "float?", doc: "maximum percent mitochondrial reads per cell",
-    default: 5}
+    default: 5.0}
   seurat_qc_normalize_method: {type: ['null', {type: enum, name: normalize_method,
         symbols: ["log_norm", "sct"]}], default: "log_norm", doc: "normalization method.
       One of log_norm or sct"}

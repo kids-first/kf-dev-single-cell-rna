@@ -9,12 +9,12 @@ option_list <- list(
   make_option(
     opt_str = "--counts_dir",
     type = "character",
-    help = "Path to h5 file containing raw matrix from Cell Ranger count"
+    help = "Path to dir containing raw matrix from Cell Ranger count"
   ),
   make_option(
     opt_str = "--output_basename",
     type = "character",
-    help = "Path to h5 file containing filtered matrix from Cell Ranger count"
+    help = "Output file basename, like sample.raw"
   ),
   make_option(
     opt_str = "--sample_name",
