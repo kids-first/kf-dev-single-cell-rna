@@ -1,6 +1,6 @@
 cwlVersion: v1.2
 class: Workflow
-id: kf_single_cell_10x_alignment
+id: kf_cell_ranger_10x_alignment
 label: "KFDRC Single Cell RNA 10x Alignment Workflow"
 doc: |
   # 10X Alignment Workflow
@@ -15,7 +15,7 @@ doc: |
   ## Software
 
   - Cellranger 6.1.2
-  - Seurat 4.0.4
+  - Seurat 4.3.0.1
 
   ## Inputs
   ### multi-step
@@ -93,8 +93,8 @@ inputs:
       best. See README for exceptions"}
   seurat_qc_min_genes: {type: "int?", doc: "minimum number of genes per cell", default: 400}
   seurat_qc_max_genes: {type: "int?", doc: "maximum number of genes per cell", default: 4000}
-  seurat_qc_max_mt: {type: "int?", doc: "maximum percent mitochondrial reads per cell",
-    default: 5}
+  seurat_qc_max_mt: {type: "float?", doc: "maximum percent mitochondrial reads per cell",
+    default: 5.0}
   seurat_qc_normalize_method: {type: ['null', {type: enum, name: normalize_method,
         symbols: ["log_norm", "sct"]}], default: "log_norm", doc: "normalization method.
       One of log_norm or sct"}

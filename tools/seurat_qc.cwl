@@ -42,7 +42,8 @@ inputs:
   sample_name: { type: string }
   min_genes: { type: "int?", doc: "minimum number of genes per cell", default: 400 }
   max_genes: { type: "int?", doc: "maximum number of genes per cell", default: 4000 }
-  max_mt: { type: "float?", doc: "maximum percent mitochondrial reads per cell", default: 5 }
+  max_mt: { type: "float?", doc: "maximum percent mitochondrial reads per cell", default: 5.0 }
+
   normalize_method: { type: ['null', {type: enum, name: normalize_method, symbols: ["log_norm","sct"]}],
     default: "log_norm", doc: "normalization method. One of log_norm or sct" }
   num_pcs: { type: "int?", doc: "number of PCs to calculate", default: 30 }
