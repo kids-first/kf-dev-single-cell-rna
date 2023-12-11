@@ -53,6 +53,7 @@ fil <- opts$fil
 clusters_file <- opts$cluster
 sample_name <- opts$sample_name
 results_dir <- opts$results_dir
+dir.create(results_dir)
 
 # load 10X data and convert to Soup Channel (object SoupX uses for analysis)
 filtered_matrix <- Read10X_h5(fil, use.names = TRUE)
@@ -60,7 +61,7 @@ raw_matrix <- Read10X_h5(raw, use.names = TRUE)
 
 ############################################################################
 # SoupX will use default pdf settings, set output file name to be more useful
-pdf(file = paste0(results_dir, sample_name, ".soupx.plots.pdf"))
+pdf(file = file.path(results_dir, paste0(sample_name, ".soupx.plots.pdf")))
 
 # Make a Seurat object from the sparce matrix
 seurat_obj  <- CreateSeuratObject(counts = filtered_matrix)
