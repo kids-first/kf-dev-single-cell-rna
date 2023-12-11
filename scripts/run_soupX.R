@@ -161,31 +161,6 @@ seurat_obj@assays$RNA@counts <- out
 DefaultAssay(seurat_obj) <- "RNA_SoupX"
 
 
-#########################################################################################
-# Investigating changes in expression
-# Before proceeding let's have a look at what this has done. 
-# We can get a sense for what has been the most strongly decreased 
-# by looking at the fraction of cells that were non-zero now set to zero after correction.
-# Rename to toc or it gives NULL
-toc = filtered_matrix
-toc = sc$toc
-
-cntSoggy = rowSums(sc$toc > 0)
-cntStrained = rowSums(out > 0)
-mostZeroed = tail(sort((cntSoggy - cntStrained)/cntSoggy), n = 10)
-print("Most zeroed out cells")
-print(mostZeroed)
-
-
-# List of gene markers showing on this list are highly specific markers of one cell type or group of cells.
-# This is important to note as it may lead to erroneous inferences of potential cell specific genes.
-# For example, presence of mitochondrial genes MT-ND4, MT-ND4L or immune cells.
-
-# If on the other hand we focus on genes for which there is a quantitative difference,
-print("Top 20 quantitative difference")
-print(tail(sort(rowSums(sc$toc > out)/rowSums(sc$toc > 0)), n = 20))
-# Then we might notice different gene markers associated with other pathways and cell types.
-
 # Integrating with downstream tools
 # Of course, the next thing you'll want to do is to load this corrected expression matrix into some downstream analysis tool and further analyse the data.
 
