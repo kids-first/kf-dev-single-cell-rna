@@ -72,12 +72,12 @@ if (!is.null(clusters_file)) {
   mDat <- data.frame(clusters=clusters$Cluster, row.names=clusters$Barcode)
   sc <- SoupChannel(raw_matrix, filtered_matrix, mDat)
 } else {
-  print("Clusters file does not exist. Let's calculate clusters by using Seurat")  
+  print("Clusters file does not exist. Let's calculate clusters by using Seurat.")  
   # Make a “SoupChannel”, the object needed to run SoupX
   sc  <- SoupChannel(raw_matrix, filtered_matrix)
   print(sc)
   
-  # Let's estimate clusters
+  # Normalize, find variable features and scale the data
   seurat_obj <- NormalizeData(seurat_obj, normalization.method = "LogNormalize", scale.factor = 10000, verbose = TRUE) %>% 
     FindVariableFeatures(selection.method = "vst", nfeatures = 2000) %>%
     ScaleData() 
@@ -87,9 +87,12 @@ if (!is.null(clusters_file)) {
   seurat_obj <- JackStraw(seurat_obj, num.replicate = 100)
   seurat_obj <- ScoreJackStraw(seurat_obj, dims = 1:20)
   
-  ## Determine number of pcs to use for clustering
+  # Define paarmeters for clustering
   pc_cut = 0.05
   num_pcs = 10
+  res_value = 0.5
+  
+  # Determine number of pcs to use for clustering
   scores <- JS(object = seurat_obj[["pca"]], slot = "overall")
   auto_pcs <- length(which(scores[, "Score"] <= pc_cut))
   if (num_pcs < auto_pcs) {
@@ -97,7 +100,8 @@ if (!is.null(clusters_file)) {
   }
   seurat_obj <- RunUMAP(seurat_obj, dims = 1:num_pcs, verbose = FALSE)
   seurat_obj <- FindNeighbors(seurat_obj, dims = 1:num_pcs, verbose = FALSE)
-  seurat_obj <- FindClusters(seurat_obj, resolution = 0.5, verbose = TRUE)
+  # Estimate clusters
+  seurat_obj <- FindClusters(seurat_obj, resolution = res_value, verbose = TRUE)
   
   # ElbowPlot can provide an estimation of dimensions to use
   # print(ElbowPlot(seurat_obj))
@@ -149,13 +153,11 @@ ggsave(filename = paste0(sample_name, ".soupx.plotMarkerDistribution.pdf"),
 # use roundToInt option to make sure we output integer matrix.
 out <- adjustCounts(sc, roundToInt = TRUE) 
 
-#########################################################################################
-# Optional but we can keep original matrix
-# Attention as if we do, then for the next step we need to ensure we are using the correct assay, i.e., `RNA_SoupX`
+# Let's save corrected matrix as a separate assay
 seurat_obj[["RNA_SoupX"]] <- CreateAssayObject(counts = seurat_obj@assays$RNA@counts)
 seurat_obj@assays$RNA@counts <- out
 
-# Setup assay for seurat object
+# Setup assay for seurat object for next steps to the one with corrected gene counts
 DefaultAssay(seurat_obj) <- "RNA_SoupX"
 
 
