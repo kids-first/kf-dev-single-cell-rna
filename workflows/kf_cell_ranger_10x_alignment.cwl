@@ -16,6 +16,7 @@ doc: |
 
   - Cellranger 6.1.2
   - Seurat 4.3.0.1
+  - miQC 1.10.0
 
   ## Inputs
   ### multi-step
@@ -46,8 +47,7 @@ doc: |
      - `ARC-v1`: for analyzing the GEX portion of multiome data. NOTE: this mode cannot be auto-detected
   ### seurat qc
    - `seurat_qc_min_genes`: minimum number of genes per cell
-   - `seurat_qc_max_genes`: maximum number of genes per cell
-   - `seurat_qc_max_mt`: maximum percent mitochondrial reads per cell
+   - `seurat_qc_max_mt`: maximum percent mitochondrial reads per cell. Fallback metric for miQC failure
    - `seurat_qc_normalize_method`: normalization method. One of log_norm or sct
    - `seurat_qc_num_pcs`: number of PCs to calculate
 
@@ -91,8 +91,7 @@ inputs:
           "fiveprime", "SC3Pv2", "SC3Pv3", "SC3Pv3LT", "SC3Pv3HT", "SC5P-PE", "SC5P-R2",
           "SC3Pv1", "ARC-v1"]}], default: "auto", doc: "Chemistry used. auto is usually
       best. See README for exceptions"}
-  seurat_qc_min_genes: {type: "int?", doc: "minimum number of genes per cell", default: 400}
-  seurat_qc_max_genes: {type: "int?", doc: "maximum number of genes per cell", default: 4000}
+  seurat_qc_min_genes: {type: "int?", doc: "minimum number of genes per cell", default: 200}
   seurat_qc_max_mt: {type: "float?", doc: "maximum percent mitochondrial reads per cell",
     default: 5.0}
   seurat_qc_normalize_method: {type: ['null', {type: enum, name: normalize_method,
@@ -181,7 +180,6 @@ steps:
       filtered_bc_matrix_dir: cellranger_count/whole_output_dir
       sample_name: sample_name
       min_genes: seurat_qc_min_genes
-      max_genes: seurat_qc_max_genes
       max_mt: seurat_qc_max_mt
       normalize_method: seurat_qc_normalize_method
       num_pcs: seurat_qc_num_pcs

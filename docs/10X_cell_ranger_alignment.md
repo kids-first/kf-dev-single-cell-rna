@@ -11,6 +11,7 @@ A custom QC R markdown notebook developed by @AntoniaChroni is also run, which i
 
 - Cellranger 6.1.2
 - Seurat 4.3.0.1
+- miQC 1.10.0
 
 ## Inputs
 ### multi-step
@@ -41,8 +42,7 @@ A custom QC R markdown notebook developed by @AntoniaChroni is also run, which i
    - `ARC-v1`: for analyzing the GEX portion of multiome data. NOTE: this mode cannot be auto-detected
 ### seurat qc
  - `seurat_qc_min_genes`: minimum number of genes per cell
- - `seurat_qc_max_genes`: maximum number of genes per cell
- - `seurat_qc_max_mt`: maximum percent mitochondrial reads per cell
+ - `seurat_qc_max_mt`: maximum percent mitochondrial reads per cell. Fallback metric for miQC failure
  - `seurat_qc_normalize_method`: normalization method. One of log_norm or sct
  - `seurat_qc_num_pcs`: number of PCs to calculate
 
