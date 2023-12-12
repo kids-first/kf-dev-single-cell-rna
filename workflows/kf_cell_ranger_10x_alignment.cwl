@@ -1,7 +1,7 @@
 cwlVersion: v1.2
 class: Workflow
-id: kf_cell_ranger_10x_alignment
-label: "KFDRC Single Cell RNA 10x Alignment Workflow"
+id: kf-cell-ranger-10x-align-wf
+label: "KFDRC Single Cell RNA Cell Ranger 10x Alignment Workflow"
 doc: |
   # 10X Alignment Workflow
 
