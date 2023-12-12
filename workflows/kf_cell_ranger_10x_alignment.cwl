@@ -85,7 +85,7 @@ inputs:
   reference: {type: 'Directory', loadListing: deep_listing, doc: "directory of reference
       files"}
   no_bam: {type: 'boolean?', doc: "Set to skip generating bam output. Good to keep
-      bam for troubleshooting, but adds to computation time"}
+      bam for troubleshooting, but adds to computation time", default: true}
   include_introns: {type: 'boolean?', doc: "Include intronic reads in count", default: false}
   chemistry: {type: ['null', {type: enum, name: chemistry, symbols: ["auto", "threeprime",
           "fiveprime", "SC3Pv2", "SC3Pv3", "SC3Pv3LT", "SC3Pv3HT", "SC5P-PE", "SC5P-R2",

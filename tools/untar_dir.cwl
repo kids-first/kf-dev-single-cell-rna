@@ -15,6 +15,6 @@ outputs:
   outdir: 
     type: Directory
     outputBinding:
-      glob: $(inputs.untar_dir_name == null ? inputs.tarfile.nameroot.split('.')[0] : inputs.untar_dir_name)
-
+      glob: |
+        $(inputs.untar_dir_name == null ? inputs.tarfile.nameroot.split('.')[0] : inputs.untar_dir_name)
       loadListing: deep_listing
