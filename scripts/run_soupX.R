@@ -24,7 +24,7 @@ option_list <- list(
     help = "Path to h5 file containing raw matrix from Cell Ranger count"
   ),
   make_option(
-    opt_str = "--fil",
+    opt_str = "--filtered",
     type = "character",
     help = "Path to h5 file containing filtered matrix from Cell Ranger count"
   ),
@@ -49,14 +49,14 @@ option_list <- list(
 #parse options
 opts <- parse_args(OptionParser(option_list = option_list))
 raw <- opts$raw
-fil <- opts$fil
+filtered <- opts$filtered
 clusters_file <- opts$cluster
 sample_name <- opts$sample_name
 results_dir <- opts$results_dir
 dir.create(results_dir)
 
 # load 10X data and convert to Soup Channel (object SoupX uses for analysis)
-filtered_matrix <- Read10X_h5(fil, use.names = TRUE)
+filtered_matrix <- Read10X_h5(filtered, use.names = TRUE)
 raw_matrix <- Read10X_h5(raw, use.names = TRUE)
 
 ############################################################################
@@ -172,4 +172,4 @@ DefaultAssay(seurat_obj) <- "RNA_SoupX"
 colnames(out) = gsub('-1$', '', colnames(out))
 colnames(out) = paste(sample_name, colnames(out), sep=":")
 
-saveRDS(out, paste0(results_dir, sample_name, ".soupx.rds"))
+saveRDS(out, file.path(results_dir, paste0(sample_name, ".soupx.rds")))
