@@ -5,7 +5,7 @@ label: "STAR Solo 2.7.10b Alignment Tool"
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 'pgc-images.sbgenomics.com/brownm28/star:2.7.10b'
+    dockerPull: 'pgc-images.sbgenomics.com/d3b-bixu/star:2.7.10b'
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
     coresMin: $(inputs.runThreadN)

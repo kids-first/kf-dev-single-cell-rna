@@ -15,6 +15,7 @@ A custom QC R markdown notebook developed by @AntoniaChroni is also run, which i
 
 - STAR Solo 2.7.10b
 - Seurat 4.3.0.1
+- miQC 1.10.0
 - SoupX 1.6.2
 
 ## Inputs
@@ -48,7 +49,7 @@ A custom QC R markdown notebook developed by @AntoniaChroni is also run, which i
    - 1MM_multi_pseudocounts: same as 1MM Multi, but pseudocounts of 1 are added to all whitelist barcodes
    - 1MM_multi_Nbase_pseudocounts: same as 1MM multi pseudocounts, multimatching to WL is allowed for CBs with N-bases. This option matches best with CellRanger >= 3.0.0
    - EditDist_2: allow up to edit distance of 3 fpr each of the barcodes. May include one deletion + one insertion. Only works with -soloType CB UMI Complex. Matches to multiple passlist barcdoes are not allowed. Similar to ParseBio Split-seq pipeline
-   - default: "1MM_multi_Nbase_pseudocounts
+   - default: "1MM_multi_Nbase_pseudocounts"
  - `soloUMIfiltering`: type of UMI filtering (for reads uniquely mapping to genes)
    - basic filtering: remove UMIs with N and homopolymers (similar to CellRanger 2.2.0)
    - MultiGeneUMI: basic + remove lower-count UMIs that map to more than one gene
@@ -74,14 +75,13 @@ A custom QC R markdown notebook developed by @AntoniaChroni is also run, which i
    - None: do not output filtered cells
    - TopCells: only report top cells by UMI count, followed by the exact number of cells
    - CellRanger2.2: simple filtering of CellRanger 2.2. Can be followed by numbers: number of expected cells, robust maximum percentile for UMI count, maximum to minimum ratio for UMI count. The harcoded values are from CellRanger: nExpectedCells=3000; maxPercentile=0.99; maxMinRatio=10
-   - EmptyDrops_CR: EmptyDrops filtering in CellRanger flavor. Please cite the original EmptyDrops paper: A.T.L Lun et al, Genome Biology, 20, 63 (2019): https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1662-y, Can be followed by 10 numeric parameters: nExpectedCells maxPercentile maxMinRatio indMin indMax umiMin umiMinFracMedian candMaxN FDR simN. The harcoded values are from CellRanger: 3000 0.99 10 45000 90000 500 0.01 20000 0.01 10000"
+   - EmptyDrops_CR: EmptyDrops filtering in CellRanger flavor. Please cite the original EmptyDrops paper: A.T.L Lun et al, Genome Biology, 20, 63 (2019): https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1662-y, Can be followed by 10 numeric parameters: nExpectedCells maxPercentile maxMinRatio indMin indMax umiMin umiMinFracMedian candMaxN FDR simN. The harcoded values are from CellRanger: 3000 0.99 10 45000 90000 500 0.01 20000 0.01 10000
    - default: "EmptyDrops_CR"
   outSAMtype: type of SAM/BAM output. None: no SAM/BAM output. Otherwise, first word is output type (BAM or SAM), second is sort type (Unsorted or SortedByCoordinate)
    - default: "None"
 ### seurat qc
  - `seurat_qc_min_genes`: minimum number of genes per cell
- - `seurat_qc_max_genes`: maximum number of genes per cell
- - `seurat_qc_max_mt`: maximum percent mitochondrial reads per cell
+ - `seurat_qc_max_mt`: maximum percent mitochondrial reads per cell. Fallback metric for miQC failure
  - `seurat_qc_normalize_method`: normalization method. One of log_norm or sct
  - `seurat_qc_num_pcs`: number of PCs to calculate
 
@@ -95,5 +95,6 @@ A custom QC R markdown notebook developed by @AntoniaChroni is also run, which i
  - `star_solo_cr_mimic_counts`: Tar ball of Cell Ranger-style counts dir from STAR Solo
  - `seurat_qc_html`: QC HTML Summary
  - `seurat_qc_rds`: QC rds. See docs for detailed contents of object
+ - `seurat_raw_rds`: Seurat object of original input counts rds
 ## QC RDS Output (`seurat_qc_rds`)
 Given that this is a complex Seurat Object rds file, we have a separate doc outlining it's output [here](docs/Appendix_Seurat_QC_Output.md)
