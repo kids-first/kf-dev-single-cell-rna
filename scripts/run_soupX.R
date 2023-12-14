@@ -2,12 +2,6 @@
 
 options(error = traceback)
 
-#install packages if not installed.
-list.of.packages <- c("optparse", "codetools", "survival", "plyr", "zoo", "data.table", "htmlwidgets", "lazyeval", "reshape2", "SoupX")
-new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-print(new.packages)
-if(length(new.packages)) suppressMessages(install.packages(new.packages, repos='http://cran.us.r-project.org'))
-
 suppressMessages(library(optparse))
 suppressMessages(library(SoupX))
 suppressMessages(library(Seurat))
@@ -68,15 +62,14 @@ seurat_obj  <- CreateSeuratObject(counts = filtered_matrix)
 
 # If cluster file available
 if (!is.null(clusters_file)) {
-  print("Clusters file exists!")
+  write("Clusters file exists!", stderr())
   clusters <- read.csv(clusters_file)
   mDat <- data.frame(clusters=clusters$Cluster, row.names=clusters$Barcode)
   sc <- SoupChannel(raw_matrix, filtered_matrix, mDat)
 } else {
-  print("Clusters file does not exist. Let's calculate clusters by using Seurat.")  
+  write("Clusters file does not exist. Calculate clusters by using Seurat.", stderr())
   # Make a “SoupChannel”, the object needed to run SoupX
   sc  <- SoupChannel(raw_matrix, filtered_matrix)
-  print(sc)
   
   # Normalize, find variable features and scale the data
   seurat_obj <- NormalizeData(seurat_obj, normalization.method = "LogNormalize", scale.factor = 10000, verbose = TRUE) %>% 
@@ -88,7 +81,7 @@ if (!is.null(clusters_file)) {
   seurat_obj <- JackStraw(seurat_obj, num.replicate = 100)
   seurat_obj <- ScoreJackStraw(seurat_obj, dims = 1:20)
   
-  # Define paarmeters for clustering
+  # Define parameters for clustering
   pc_cut = 0.05
   num_pcs = 10
   res_value = 0.5
@@ -104,16 +97,12 @@ if (!is.null(clusters_file)) {
   # Estimate clusters
   seurat_obj <- FindClusters(seurat_obj, resolution = res_value, verbose = TRUE)
   
-  # ElbowPlot can provide an estimation of dimensions to use
-  # print(ElbowPlot(seurat_obj))
-  
   # After clustering is obtained, it can be added to the channel using setClusters. 
   # setDR is useful for visualizations.
   meta <- seurat_obj@meta.data
   umap <- seurat_obj@reductions$umap@cell.embeddings
   sc  <- setClusters(sc, setNames(meta$seurat_clusters, rownames(meta)))
   sc  <- setDR(sc, umap)
-  head(meta)
 }
 
 
@@ -122,24 +111,16 @@ if (!is.null(clusters_file)) {
 # With defined clusters, run the main SoupX function, calculating ambient RNA profile.
 ######################################################################################
 ######################################################################################
-# to set the contamination fraction to 20% for all cells.
-# we shouldn't remove more than 20% background
-# sc = setContaminationFraction(sc, 0.2)
 
 # Estimate contamination fraction rho
 # The posterior distribution is calculated using a Poisson likelihood with a gamma distribution prior, parametrised by its mean priorRho and standard deviation priorRhoStdDev. The dotted line in the above plot shows the prior distribution. The default parameters have been calibrated to be fairly non-specific 
 # with a slight preference towards values of rho in the 0% to 10% range which is most commonly seen for fresh (i.e. not nuclear) single cell experiments.
 # The default values place only a very weak constraint, as can be seen by setting a uniform prior.
 sc <- autoEstCont(sc) #priorRhoStdDev = 0.3
-print(sc)
-
-# Genes with highest expression in background. These are often enriched for ribosomal proteins.
-head(sc$metaData)
-head(sc$soupProfile[order(sc$soupProfile$est, decreasing = TRUE), ], n = 20)
 
 # To visualize the distribution of expression (relative to what would be expected were each cell pure background) across all cells in the data set. 
 # When no geneset is provided, the function will try and guess which genes might be useful.
-print(plotMarkerDistribution(sc))
+plotMarkerDistribution(sc)
 
 # Save the plot
 ggsave(filename = paste0(sample_name, ".soupx.plotMarkerDistribution.pdf"),
@@ -161,13 +142,8 @@ seurat_obj@assays$RNA@counts <- out
 # Setup assay for seurat object for next steps to the one with corrected gene counts
 DefaultAssay(seurat_obj) <- "RNA_SoupX"
 
-
 # Integrating with downstream tools
 # Of course, the next thing you'll want to do is to load this corrected expression matrix into some downstream analysis tool and further analyse the data.
-
-# The corrected matrix can then be used for any downstream analysis in place of the uncorrected raw matrix. 
-# If you are using 10X data and would like to save these final counts out in the same format, 
-# you can use the DropletUtils write10xCounts function like this
 
 colnames(out) = gsub('-1$', '', colnames(out))
 colnames(out) = paste(sample_name, colnames(out), sep=":")

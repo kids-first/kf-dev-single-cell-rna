@@ -54,7 +54,7 @@ soupx_obj <- readRDS(soupx_rds)
 scDblFinder_df <- read.csv(scdblfinder_tsv, sep = "\t", header = TRUE, row.names=1)
 write("Done loading files, getting aligned cell count", stderr())
 # Create and update a filter summary file
-filter_summary = paste0(output_basename, ".stats.tsv")
+filter_summary = paste0(output_basename, ".refinement_stats.tsv")
 write("Filter step\ttNumber of to remove\tNumber of cells", file=filter_summary)
 
 num_align <- ncol(seurat_raw_obj)
@@ -107,5 +107,5 @@ write("Seurat Filtering Complete!", stderr())
 write(paste("scDblFinder doublet", dbl_ct, ncol(seurat_filtered_obj), sep="\t"), file=filter_summary, append = TRUE)
 
 write("Saving Filtered Seurat Object...", stderr())
-saveRDS(seurat_filtered_obj, paste0(output_basename, ".rds"))
+saveRDS(seurat_filtered_obj, paste0(output_basename, ".refined.rds"))
 write("Program Complete!", stderr())
