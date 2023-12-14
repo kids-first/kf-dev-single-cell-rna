@@ -1,6 +1,6 @@
 cwlVersion: v1.2
 class: Workflow
-id: kf_single_cell_10x_refinement
+id: kf-single-cell-10x-refinement
 label: "KFDRC Single Cell RNA 10x Refinement Workflow"
 doc: |
   # 10X Refinement Workflow
@@ -14,7 +14,7 @@ doc: |
 
   ## Software
 
-  - SoupX 4.1.0
+  - SoupX 1.6.2
   - scDblFinder 1.12.0
   - Seurat 4.3.0.1
   - SeuratObject 4.1.3
@@ -25,9 +25,9 @@ doc: |
    - `output_basename`: basename used to name output files
    - `sample_name`: used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz, one per input fastq in the same order
   ### soupX
-   - `cellranger_matrix_raw`: Raw feature matrix file from Cellranger
-   - `cellranger_matrix_filtered`: Filtered feature matrix file from Cellranger
-   - `cellranger_cluster`: CSV containing cluster information from Cellranger
+   - `counts_matrix_raw`: h5 format raw feature matrix file from Cellranger or equivalent
+   - `counts_matrix_filtered`: h5 format filtered feature matrix file from Cellranger or equivalent
+   - `counts_cluster`: CSV containing cluster information from Cellranger or equivalent if available
   ### scDblFinder
    - `align_qc_rds`: Align QC file frm D3b 10X alignment workflow
    - `seurat_raw_rds`: Seurat raw rds file from D3b 10X alignment workflow
@@ -47,9 +47,9 @@ requirements:
 inputs:
   # multi-step
   output_basename: {type: string, doc: "basename used to name output files"}
-  cellranger_matrix_raw: {type: 'File', doc: "raw_feature_bc_matrix file from cellranger count"}
-  cellranger_matrix_filtered: {type: 'File', doc: "filtered_feature_bc_matrix file from cellranger count"}
-  cellranger_cluster: {type: 'File', doc: "clusters.csv file from cellranger count"}
+  counts_matrix_raw: {type: 'File', doc: "h5 raw_feature_bc_matrix file from cellranger or equivalent"}
+  counts_matrix_filtered: {type: 'File', doc: "h5 filtered_feature_bc_matrix file from cellranger or equivalent"}
+  counts_cluster: {type: 'File?', doc: "clusters.csv file from cellranger or equivalent if available"}
   align_qc_rds: {type: File, doc: "Align QC file frm D3b 10X alignment workflow"}
   seurat_raw_rds: {type: File, doc: "Seurat raw rds file from D3b 10X alignment workflow"}
   sample_name: {type: 'string', doc: "used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the
@@ -57,6 +57,7 @@ inputs:
       in the same order"}
 outputs:
   soupx_rplots: {type: File, outputSource: rename_rplots/renamed_file}
+  soupx_marker_plots: {type: File, outputSource: rename_marker_plots/renamed_file}
   soupx_rds: {type: File, outputSource: rename_soupx_rds/renamed_file}
   scdblfinder_doublets: {type: File, outputSource: rename_doublets/renamed_file}
   scdblfinder_plot: {type: File, outputSource: rename_scdblfinder_plot/renamed_file}
@@ -67,11 +68,11 @@ steps:
   soupx:
     run: ../tools/soupx.cwl
     in:
-      raw_matrix: cellranger_matrix_raw
-      filtered_matrix: cellranger_matrix_filtered
-      cluster_file: cellranger_cluster
+      raw_matrix: counts_matrix_raw
+      filtered_matrix: counts_matrix_filtered
+      cluster_file: counts_cluster
       sample_name: sample_name
-    out: [decontaminated_matrix_dir, decontaminated_matrix_rds, rplots]
+    out: [decontaminated_matrix_rds, rplots, marker_plots]
   rename_rplots:
     run: ../tools/rename_file.cwl
     in:
@@ -79,6 +80,14 @@ steps:
       out_filename:
         source: output_basename
         valueFrom: $(self).soupx.rplots.pdf
+    out: [renamed_file]
+  rename_marker_plots:
+    run: ../tools/rename_file.cwl
+    in:
+      in_file: soupx/marker_plots
+      out_filename:
+        source: output_basename
+        valueFrom: $(self).soupx.plotMarkerDistribution.pdf
     out: [renamed_file]
   rename_soupx_rds:
     run: ../tools/rename_file.cwl
