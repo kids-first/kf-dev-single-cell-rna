@@ -9,7 +9,7 @@ Original workflow design heavily contributed to by Erin Reichenbee of DBHi.
 
 ## Software
 
-- SoupX 4.1.0
+- SoupX 1.6.2
 - scDblFinder 1.12.0
 - Seurat 4.3.0.1
 - SeuratObject 4.1.3
@@ -20,9 +20,9 @@ Original workflow design heavily contributed to by Erin Reichenbee of DBHi.
  - `output_basename`: basename used to name output files
  - `sample_name`: used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz, one per input fastq in the same order
 ### soupX
- - `cellranger_matrix_raw`: Raw feature matrix file from Cellranger
- - `cellranger_matrix_filtered`: Filtered feature matrix file from Cellranger
- - `cellranger_cluster`: CSV containing cluster information from Cellranger
+ - `counts_matrix_raw`: h5 format raw feature matrix file from Cellranger or equivalent
+ - `counts_matrix_filtered`: h5 format filtered feature matrix file from Cellranger or equivalent
+ - `counts_cluster`: CSV containing cluster information from Cellranger or equivalent if available
 ### scDblFinder
  - `align_qc_rds`: Align QC file frm D3b 10X alignment workflow
  - `seurat_raw_rds`: Seurat raw rds file from D3b 10X alignment workflow
