@@ -57,6 +57,7 @@ inputs:
       in the same order"}
 outputs:
   soupx_rplots: {type: File, outputSource: rename_rplots/renamed_file}
+  soupx_marker_plots: {type: File, outputSource: rename_marker_plots/renamed_file}
   soupx_rds: {type: File, outputSource: rename_soupx_rds/renamed_file}
   scdblfinder_doublets: {type: File, outputSource: rename_doublets/renamed_file}
   scdblfinder_plot: {type: File, outputSource: rename_scdblfinder_plot/renamed_file}
@@ -79,6 +80,14 @@ steps:
       out_filename:
         source: output_basename
         valueFrom: $(self).soupx.rplots.pdf
+    out: [renamed_file]
+  rename_marker_plots:
+    run: ../tools/rename_file.cwl
+    in:
+      in_file: soupx/marker_plots
+      out_filename:
+        source: output_basename
+        valueFrom: $(self).soupx.plotMarkerDistribution.pdf
     out: [renamed_file]
   rename_soupx_rds:
     run: ../tools/rename_file.cwl
