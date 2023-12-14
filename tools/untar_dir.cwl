@@ -10,10 +10,11 @@ inputs:
     type: File
     inputBinding:
       position: 1
-  untar_dir_name: { type: 'string?', doc: "If untar dir name different than expected filne nameroot, provide here" }
+  untar_dir_name: { type: 'string?', doc: "If untar dir name different than expected file nameroot, provide here" }
 outputs:
   outdir: 
     type: Directory
     outputBinding:
-      glob: ${ if (inputs.untar_dir_name === null){return inputs.tarfile.nameroot.split('.')[0]; } else{return inputs.untar_dir_name;}}
+      glob: |
+        $(inputs.untar_dir_name == null ? inputs.tarfile.nameroot.split('.')[0] : inputs.untar_dir_name)
       loadListing: deep_listing

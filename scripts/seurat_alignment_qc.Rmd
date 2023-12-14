@@ -14,8 +14,7 @@ params:
   assay: "RNA"   # Assay 
   grouping: "orig.ident" # grouping for plots
   min_genes: 200 # minimum number of genes per cell
-  max_genes: 6000 # maximum number of genes per cell
-  max_mt: 15  # maximum percent mitochondrial reads per cell
+  mtDNA_pct_default: 5 # default pct mtDNA cutoff if miQC can't run
   normalize_method: "log_norm" # normalization method. One of log_norm or sct
   num_pcs: 30 # number of PCs to calculate
   num_dim: [20, 25] # number of PCs to use in UMAP
@@ -25,9 +24,10 @@ params:
 ---
   
 # Information about this notebook
-This script creates Seurat object from the aligned count data and performs QC based on Seurat functions. 
+This script creates Seurat object from the aligned count data and performs QC based on Seurat functions.
+[miQC](https://bioconductor.org/packages/release/bioc/html/miQC.html) is used to filter out low quality cells in a given library.
 
-For more information or updates on Seurat, please see: https://satijalab.org/seurat/articles/pbmc3k_tutorial.html
+For more information or updates, please see [Seurat](https://satijalab.org/seurat/articles/pbmc3k_tutorial.html).
 
 # Usage
 
@@ -40,8 +40,6 @@ Rscript -e "rmarkdown::render('seurat_alignment_qc.Rmd', clean = TRUE,
                   data_path='/path/to/cellranger/output', 
                   sample_name='pbmc_1k_v3',
                   min_genes=200,
-                  max_genes=6000,
-                  max_mt=15,
                   normalize_method='log_norm',
                   num_pcs=30
                   ))"
@@ -58,8 +56,15 @@ suppressPackageStartupMessages({
   library(stringr)
   library(ggpmisc)
   library(ggrepel)
-  theme_set(theme_bw())
-  
+  library(miQC)
+  library(scater)
+  library(Seurat)
+  library(SingleCellExperiment)
+  library(flexmix) # to estimate mixtureModel for miQC
+  library(irlba) # this solves the issue with RunUMAP code chunk
+
+theme_set(theme_bw())
+
 # evaluate Seurat R expressions asynchronously when possible (such as ScaleData) using future package
 plan("multisession", workers = 4)
 # increase the limit of the data to be shuttled between the processes from default 500MB to 50GB
@@ -72,26 +77,26 @@ options(future.globals.maxSize = 30 * 1024 ^ 3)
 ```{r set-dir-and-file-names, echo=TRUE}
 attach(params)
 load_all(scooter_path)
-results_dir = file.path(results_dir, paste0("Seurat_QC-", sample_name, "/"))
-
-if (dir.exists(results_dir)) {
-  stop(glue("output analysis dir {results_dir} already exists"))
-} else {
-  dir.create(results_dir, recursive=TRUE)
-}
 
 # File path to data with the filtered_feature_bc_matrix
-
 cat(paste(c("", sprintf("`%s`", list.files(paste(data_path, "/outs"), full.names = TRUE))),
           collapse = "\n- "))
 
 cat("\n\n")
+
+# File path to output data
+results_dir <- 
+  file.path(results_dir, paste0("Seurat_QC-", sample_name, "/"))
+if (!dir.exists(results_dir)) {
+  dir.create(results_dir)
+}
 
 # File path to scratch directory
 scratch_dir <- file.path(results_dir, "dr")
 if (!dir.exists(scratch_dir)) {
   dir.create(scratch_dir)
 }
+
 
 knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE, 
@@ -100,7 +105,6 @@ knitr::opts_chunk$set(echo = FALSE,
                       fig.height = 10, 
                       fig.width = 15,
                       dev = c("png"))
-
 ```
 
 
@@ -131,63 +135,120 @@ Plot distribution of the number of genes, UMI, and percent mitochondrial reads p
 ```{r qc-before-filter, echo=TRUE}
 # Plot number of genes 
 genes_unfilt <- plot_distribution(seurat_obj, 
-                                features = "nFeature_RNA", 
-                                grouping = grouping) +
-  geom_hline(yintercept=min_genes, color = "red", size = 2) +
-  geom_hline(yintercept=max_genes, color = "red", size = 2) +
-  annotate(geom="text", x=0.7, y=max_genes - 200, label= glue("Max genes: {max_genes}"),
-              color="red") +
-  annotate(geom="text", x=0.7, y=min_genes - 200, label=glue("Min genes: {min_genes}"),
-              color="red")
+                                  features = "nFeature_RNA", 
+                                  grouping = grouping) +
+  geom_hline(yintercept = min_genes, color = "#D41159", size = 2) +
+  #geom_hline(yintercept = max(seurat_obj@meta.data$nFeature_RNA), color = "#D41159", size = 2) +
+  scale_fill_manual(values = alpha(c("#10559a"), .4)) +
+  #annotate(geom="text", x=0.7, y = max(seurat_obj@meta.data$nFeature_RNA), label= glue(""), color="#D41159") +
+  annotate(geom="text", x=0.7, y = min_genes - 200, label = glue("Min genes: {min_genes}"), color="#D41159")
 
 # plot number of UMIs
 umi_unfilt <- plot_distribution(seurat_obj, 
-                              features = "nCount_RNA",
-                              grouping = grouping) 
+                                features = "nCount_RNA",
+                                grouping = grouping) +
+  scale_fill_manual(values = alpha(c("#10559a"), .4)) 
+
 
 # plot percent mitochondrial reads
 mito_unfilt <- plot_distribution(seurat_obj, 
-                               features = "pct_mito",
-                               grouping = grouping) +
-  geom_hline(yintercept=max_mt, color = "red", size = 2) +
-  annotate(geom="text", x=0.7, y=max_mt + 5, label=glue("Max pct mito: {max_mt}"),
-              color="red")
+                                 features = "pct_mito",
+                                 grouping = grouping) +
+  #geom_hline(yintercept = max(seurat_obj@meta.data$pct_mito), color = "#D41159", size = 2) +
+  scale_fill_manual(values = alpha(c("#10559a"), .4)) 
+  #annotate(geom="text", x=0.7, y = max(seurat_obj@meta.data$pct_mito), label = glue(""), color="#D41159")
 
 # get the legend for one of the plots to use as legend for the combined plot
 legend_grid <- get_legend(mito_unfilt)
 
 title <- ggdraw() + 
-  draw_label(
-    "Unfiltered-data",
-    fontface = 'bold',
-    x = 0,
-    hjust = 0
-  ) +
+  draw_label("Unfiltered-data", fontface = 'bold', x = 0, hjust = 0) +
   theme(
     # add margin on the left of the drawing canvas,
     # so title is aligned with left edge of first plot
-    plot.margin = margin(0, 0, 0, 7)
-  )
+    plot.margin = margin(0, 0, 0, 7))
 
 # Combine plots 
 plot_row <- plot_grid(genes_unfilt + theme(legend.position = "none"),
-              umi_unfilt + theme(legend.position = "none"),
-              mito_unfilt + theme(legend.position = "none"),
-              legend_grid,
-              ncol = 4)
+                      umi_unfilt + theme(legend.position = "none"),
+                      mito_unfilt + theme(legend.position = "none"),
+                      legend_grid,
+                      ncol = 4)
 
-plot_grid(title,
-          plot_row,
-          ncol = 1,
-          rel_heights = c(0.1, 1))
+plot_grid(title, plot_row, ncol = 1, rel_heights = c(0.1, 1))
 ```
-                                          
-# Filter data
-Let us filter the data.
+
+# miQC steps for filtering low quality cells
+
+We will use miQC to identify low-quality cells. miQC R package jointly models proportion of reads belonging to mitochondrial genes and number of unique genes detected. Cells with a high likelihood of being compromised (greater than 0.75) and cells that do not pass a minimum number of unique genes detected threshold of 200 will be removed from the counts matrix object.
+
+## Create sce
+
+```{r create-sce, echo=TRUE}
+sce <- as.SingleCellExperiment(seurat_obj)
+```
+
+## Scater preprocessing
+In order to calculate the percent of reads in a cell that map to mitochondrial genes, we first need to establish which genes are mitochondrial. For genes listed as HGNC symbols, this is as simple as searching for genes starting with mt-. For other IDs, we recommend using a biomaRt query to map to chromosomal location and identify all mitochondrial genes.
+
+```{r scater-preprocessing, echo=TRUE}
+# Set seed
+set.seed(2023)
+
+# Identify cells with mtDNA in the library
+#mt_genes <- grepl("^mt-",  rownames(sce))
+mt_genes <- grepl(sce$pct_mito, rownames(sce))
+feature_ctrls <- list(mito = rownames(sce)[mt_genes])
+# miQC is designed to be run with the Bioconductor package scater, which has a built-in function addPerCellQC to calculate basic QC metrics like number of unique genes detected per cell and total number of reads. When we pass in our list of mitochondrial genes, it will also calculate percent mitochondrial reads.
+
+sce <- addPerCellQC(sce, subsets = feature_ctrls)
+head(colData(sce))
+```
+
+## miQC
+
+```{r miQC-plot, echo=TRUE}
+print(plotMetrics(sce))
+
+run_qc <- function(sce) {
+  
+  if (any(sce$subsets_mito_percent == 0)) {
+    print("miQC did not work, use default mtDNA_pct_default for filtering.")
+    filtered_sce <- subset(seurat_obj, subset = pct_mito < mtDNA_pct_default)
+    
+    } else {
+      print("miQC worked.")
+      model <- mixtureModel(sce)
+      print(is.nan(model@logLik))                                    # Apply is.nan function
+      parameters(model)
+      head(posterior(model))
+      
+      # Plot
+      # The cells at the very top of the graph are almost certainly compromised, 
+      # most likely to have been derived from the distribution with fewer unique genes and higher baseline mitochondrial expression.
+      print(plotModel(sce, model))
+
+      # Plot
+      print(plotFiltering(sce, model))
+
+      # Convert sce back to seurat object 
+      filtered_sce <- as.Seurat(filterCells(sce, model), counts = "counts",
+                        data = "logcounts")
+
+    }
+    return (filtered_sce)
+  }
+  
+
+# Run QC function
+p <- run_qc(sce) 
+
+```
+## Filter data by min_genes
 
 ```{r data-filter, echo=TRUE}
-# filter data
-seurat_obj <- subset(seurat_obj, subset = nFeature_RNA > min_genes & nFeature_RNA < max_genes & pct_mito < max_mt)
+# Now let's filter data by min_genes
+seurat_obj <- subset(p, subset = nFeature_RNA > min_genes)
 
 # How many cells are in the seurat object after filtering?
 cells_so_after_filter_num <- ncol(seurat_obj)
@@ -195,7 +256,7 @@ cells_so_after_filter_num <- ncol(seurat_obj)
 
 There are `r cells_so_after_filter_num` cells in the seurat object after filtering.
 
-## How many cells express a specific gene?
+## Number of cells express a specific gene
 
 ```{r freq-mean-after-filter, echo=TRUE}
 # For each gene, calculate % of cells expressing it and the mean
@@ -205,6 +266,10 @@ gene_means <- rowMeans(as.data.frame(seurat_obj@assays$RNA@counts))
 
 p <- as.data.frame(cbind(pct_cells, gene_means)) %>% 
   rownames_to_column("gene")
+
+# Set seed
+set.seed(2023)
+
 ggplot(data = p, aes(x = gene_means, y = pct_cells, label = gene)) +
   geom_point(size = 3, alpha = 0.6) +
   xlab("Mean count per gene") +
@@ -212,7 +277,7 @@ ggplot(data = p, aes(x = gene_means, y = pct_cells, label = gene)) +
   stat_dens2d_labels(geom = "text_repel", keep.fraction = 0.001)
 ```
 
-## What is the number of expressed genes in the library?
+## Number of expressed genes in the library
 
 ```{r cell-activity-after-filter, echo=TRUE}
 # number of expressed genes
@@ -221,6 +286,9 @@ num_genes <- apply(as.data.frame(seurat_obj@assays$RNA@counts), 2, function(x) (
 libsize <- colSums(as.data.frame(seurat_obj@assays$RNA@counts))
 
 l  <- as.data.frame(cbind(num_genes, libsize)) 
+
+# Set seed
+set.seed(2023)
 
 ggplot(data = l, aes(x = log10(libsize), y = num_genes)) +
   geom_point(size = 3, alpha = 0.6) +
@@ -235,26 +303,27 @@ ggplot(data = l, aes(x = log10(libsize), y = num_genes)) +
 genes_sing <- plot_distribution(seurat_obj,
                                 features = "nFeature_RNA",
                                 grouping = grouping) +
-  geom_hline(yintercept=min_genes, color = "red", size = 2) +
-  geom_hline(yintercept=max_genes, color = "red", size = 2) +
-  annotate(geom="text", x=0.7, y=max_genes - 200, label= glue("Max genes: {max_genes}"),
-              color="red") +
-  annotate(geom="text", x=0.7, y=min_genes - 200, label=glue("Min genes: {min_genes}"),
-              color="red")
+  geom_hline(yintercept = min_genes, color = "#D41159", size = 2) +
+  #geom_hline(yintercept = max(seurat_obj@meta.data$nFeature_RNA), color = "#D41159", size = 2) +
+  scale_fill_manual(values = alpha(c("#10559a"), .4)) +
+  #annotate(geom="text", x = 0.7, y = max(seurat_obj@meta.data$nFeature_RNA), label= glue(""), color="#D41159") +
+  annotate(geom="text", x = 0.7, y = min_genes - 200, label=glue("Min genes: {min_genes}"), color="#D41159")
 
 
 # plot number of UMIs
 umi_sing <- plot_distribution(seurat_obj,
                               features = "nCount_RNA",
-                              grouping = grouping)
+                              grouping = grouping) +
+    scale_fill_manual(values = alpha(c("#10559a"), .4))
+
 
 # plot percent mitochondrial reads
 mito_sing <- plot_distribution(seurat_obj,
                                features = "pct_mito",
-                               grouping = grouping)+
-    geom_hline(yintercept=max_mt, color = "red", size = 2) +
-  annotate(geom="text", x=0.7, y=max_mt + 5, label=glue("Max pct mito: {max_mt}"),
-              color="red")
+                               grouping = grouping) +
+  #geom_hline(yintercept = max(seurat_obj@meta.data$pct_mito), color = "#D41159", size = 2) +
+  scale_fill_manual(values = alpha(c("#10559a"), .4)) 
+  #annotate(geom="text", x = 0.7, y = max(seurat_obj@meta.data$pct_mito), label = glue(""), color="#D41159")
 
 # get the legend for one of the plots to use as legend for the combined plot
 legend_grid <- get_legend(mito_sing)
@@ -284,17 +353,17 @@ We will run PCA to reduce dimensionality of the matrix (as defined in the `param
 ```{r runpca, echo=TRUE}
 # run PCA on specified assay using the number of PCs specified
 seurat_obj <- run_dr(data = seurat_obj,
-                  dr_method = "pca",
-                  var_features = TRUE,
-                  assay = assay,
-                  num_pcs = num_pcs,
-                  prefix =  prefix)
+                     dr_method = "pca",
+                     var_features = TRUE,
+                     assay = assay,
+                     num_pcs = num_pcs,
+                     prefix =  prefix)
 ```
 # Run UMAP
 
 We will run UMAP based on the previous estimated PCs and for a variety of combinations as for the number of dimensions and neighbors (as defined in the `params`) to explore the clustering of each sample in the library.
 
-```{r UMAP, echo=TRUE}
+```{r RunUMAP, echo=TRUE}
 # Create a dataframe of all of the possible combinations of number of PCs 
 # to use for UMAP, and the number of neighbors
 num_dim_vect <- c(num_dim)
@@ -369,7 +438,7 @@ for(i in 1:nrow(plot_dr)){
 
 # Save filtered metadata and Seurat object
 
-We will save the filtered seurat object to be used for further downstream analysis (`seurat_obj.rds`).
+Let's save the filtered seurat object to be used for further downstream analysis (`seurat_obj.rds`).
 
 ```{r save-seurat-obj, echo=TRUE}
 # Save metadata

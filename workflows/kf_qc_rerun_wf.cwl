@@ -17,9 +17,8 @@ inputs:
       are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz,
       one per input fastq in the same order"}
   seurat_qc_min_genes: {type: "int?", doc: "minimum number of genes per cell", default: 400}
-  seurat_qc_max_genes: {type: "int?", doc: "maximum number of genes per cell", default: 4000}
   seurat_qc_max_mt: {type: "float?", doc: "maximum percent mitochondrial reads per cell",
-    default: 5}
+    default: 5.0}
   seurat_qc_normalize_method: {type: ['null', {type: enum, name: normalize_method,
         symbols: ["log_norm", "sct"]}], default: "log_norm", doc: "normalization method.
       One of log_norm or sct"}
@@ -42,7 +41,6 @@ steps:
       filtered_bc_matrix_dir: untar_dir/outdir
       sample_name: sample_name
       min_genes: seurat_qc_min_genes
-      max_genes: seurat_qc_max_genes
       max_mt: seurat_qc_max_mt
       normalize_method: seurat_qc_normalize_method
       num_pcs: seurat_qc_num_pcs
