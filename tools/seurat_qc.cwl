@@ -57,8 +57,13 @@ outputs:
     outputBinding:
       glob: "*.html"
     doc: "html file with qc results summary"
-  rds:
+  qc_rds:
     type: File
     outputBinding:
       glob: 'Seurat_QC-$(inputs.sample_name)/seurat_obj.rds'
-    doc: "R data object for Seurat"
+    doc: "R data object for Seurat QC"
+  seurat_raw_rds:
+    type: File
+    outputBinding:
+      glob: 'Seurat_QC-$(inputs.sample_name)/seurat_obj_raw.rds'
+    doc: "R data object for Seurat raw input"

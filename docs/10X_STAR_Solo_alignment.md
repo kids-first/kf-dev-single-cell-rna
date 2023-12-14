@@ -95,5 +95,6 @@ A custom QC R markdown notebook developed by @AntoniaChroni is also run, which i
  - `star_solo_cr_mimic_counts`: Tar ball of Cell Ranger-style counts dir from STAR Solo
  - `seurat_qc_html`: QC HTML Summary
  - `seurat_qc_rds`: QC rds. See docs for detailed contents of object
+ - `seurat_raw_rds`: Seurat object of original input counts rds
 ## QC RDS Output (`seurat_qc_rds`)
 Given that this is a complex Seurat Object rds file, we have a separate doc outlining it's output [here](docs/Appendix_Seurat_QC_Output.md)

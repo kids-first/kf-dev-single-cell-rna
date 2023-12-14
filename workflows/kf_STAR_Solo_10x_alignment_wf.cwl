@@ -185,7 +185,8 @@ outputs:
   star_solo_cr_mimic_counts: {type: File, outputSource: tar_solo_cr_mimic_dir/output, doc: "Tar ball of Cell Ranger-style counts dir
       from STAR Solo"}
   seurat_qc_html: {type: File, outputSource: rename_seurat_html/renamed_file, doc: "QC HTML Summary"}
-  seurat_qc_rds: {type: File, outputSource: rename_seurat_rds/renamed_file, doc: "QC rds. See docs for detailed contents of object"}
+  seurat_qc_rds: {type: File, outputSource: rename_seurat_qc_rds/renamed_file }
+  seurat_raw_rds: {type: File, outputSource: rename_seurat_raw_rds/renamed_file }
 steps:
   star_solo_align:
     run: ../tools/star_solo_2.7.10b.cwl
@@ -248,7 +249,7 @@ steps:
       max_mt: seurat_qc_max_mt
       normalize_method: seurat_qc_normalize_method
       num_pcs: seurat_qc_num_pcs
-    out: [result_dir, summary_html, rds]
+    out: [result_dir, summary_html, qc_rds, seurat_raw_rds]
   rename_seurat_html:
     run: ../tools/rename_file.cwl
     in:
@@ -257,13 +258,21 @@ steps:
         source: output_basename
         valueFrom: $(self).seurat.qc.html
     out: [renamed_file]
-  rename_seurat_rds:
+  rename_seurat_qc_rds:
     run: ../tools/rename_file.cwl
     in:
-      in_file: seurat_qc/rds
+      in_file: seurat_qc/qc_rds
       out_filename:
         source: output_basename
         valueFrom: $(self).seurat.qc.rds
+    out: [renamed_file]
+  rename_seurat_raw_rds:
+    run: ../tools/rename_file.cwl
+    in:
+      in_file: seurat_qc/seurat_raw_rds
+      out_filename:
+        source: output_basename
+        valueFrom: $(self).seurat.raw.rds
     out: [renamed_file]
 sbg:license: Apache License 2.0
 sbg:publisher: KFDRC
