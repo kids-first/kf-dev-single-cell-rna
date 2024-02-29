@@ -1,0 +1,3 @@
+[submodule "salmon-rnaseq"]
+	path = salmon-rnaseq
+	url = https://github.com/hubmapconsortium/salmon-rnaseq
