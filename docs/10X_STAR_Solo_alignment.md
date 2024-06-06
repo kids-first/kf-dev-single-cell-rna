@@ -64,7 +64,7 @@ A custom QC R markdown notebook developed by @AntoniaChroni is also run, which i
    - NoDedup: no deduplication of UMIs, count all reads
    - 1MM_CR: CellRanger2-4 algorithm for 1MM UMI collapsing
    - default: "1MM_CR"
- - `soloFeatures`: genomic features for which the UMI counts per Cell Barcode are collected
+ - `soloFeatures`: genomic features for which the UMI counts per Cell Barcode are collected. **Recommend for 10X at least `Gene` for whole cell input, `GeneFull` for snRNA input**
    - Gene: genes: reads match the gene transcript
    - SJ: splice junctions: reported in SJ.out.tab
    - GeneFull: full gene (pre-mRNA): full gene (pre-mRNA): count all reads overlapping genes' exons and introns
@@ -79,13 +79,14 @@ A custom QC R markdown notebook developed by @AntoniaChroni is also run, which i
    - default: "EmptyDrops_CR"
   outSAMtype: type of SAM/BAM output. None: no SAM/BAM output. Otherwise, first word is output type (BAM or SAM), second is sort type (Unsorted or SortedByCoordinate)
    - default: "None"
-### seurat qc
- - `seurat_qc_min_genes`: minimum number of genes per cell
- - `seurat_qc_max_mt`: maximum percent mitochondrial reads per cell. Fallback metric for miQC failure
- - `seurat_qc_normalize_method`: normalization method. One of log_norm or sct
- - `seurat_qc_num_pcs`: number of PCs to calculate
+### seurat hbc qc
+ - `qc_min_umi`: minimum number of umi for cell-level filtering
+ - `qc_min_genes`: minimum number of genes for cell-level filtering
+ - `qc_min_complexity`: minimum novelty score (log10GenesPerUMI)
+ - `qc_max_mito_ratio`: maximum ratio mitochondrial reads per cell
+ - `qc_min_gene_prevalence`: Minimum number of cells a gene must be expressed in to keep after filtering
 
-### Outputs
+## Outputs
  - `star_solo_counts_dir`: Tar gzipped counts output from STAR Solo
  - `star_solo_bam`: If flag given, aligned reads file
  - `star_solo_matrix_filtered`: Filtered counts matrix in Cell Ranger-style h5 format
@@ -93,8 +94,12 @@ A custom QC R markdown notebook developed by @AntoniaChroni is also run, which i
  - `star_solo_log_final_out`: STAR align summary stats
  - `star_solo_junctions`: STAR splice junction result file
  - `star_solo_cr_mimic_counts`: Tar ball of Cell Ranger-style counts dir from STAR Solo
- - `seurat_qc_html`: QC HTML Summary
- - `seurat_qc_rds`: QC rds. See docs for detailed contents of object
- - `seurat_raw_rds`: Seurat object of original input counts rds
-## QC RDS Output (`seurat_qc_rds`)
-Given that this is a complex Seurat Object rds file, we have a separate doc outlining it's output [here](docs/Appendix_Seurat_QC_Output.md)
+ - `qc_plots`: Pre and post filtering metrics PDF plots
+ - `qc_boxplot_stats`: Pre and post filtering boxplot stats TSV
+ - `cell_counts`: Pre and post filtering cell counts TSV
+ - `seurat_prefilter_data`: Seurat Rdata object with prefilter counts and metrics
+ - `seurat_filtered_data`: Seurat Rdata object with basic filter counts and metrics
+ - `variable_features_plot`: PDF with a dot plot of variable genes with top 15 labeled
+## Appendix: Seurat HBC QC Output
+QC Outputs are based primarily on the training materials provided by the [Harvard Chan Bioinformatics Core](https://github.com/hbctraining/scRNA-seq_online/blob/master/lessons/04_SC_quality_control.md).
+An overview of how the QC was performed and overview of the outputs are provided [here](../docs/10X_SEURAT_HBC_SCRNA_QC.md)

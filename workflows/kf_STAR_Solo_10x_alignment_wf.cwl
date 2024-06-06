@@ -176,11 +176,12 @@ inputs:
   outSAMtype: {type: ['null', {type: enum, name: outSAMtype, symbols: ["BAM Unsorted", "None", "BAM SortedByCoordinate", "SAM Unsorted",
           "SAM SortedByCoordinate"]}], default: "None", doc: "type of SAM/BAM output. None: no SAM/BAM output. Otherwise, first word
       is output type (BAM or SAM), second is sort type (Unsorted or SortedByCoordinate)"}
-  seurat_qc_min_genes: {type: "int?", doc: "minimum number of genes per cell", default: 200}
-  seurat_qc_max_mt: {type: "float?", doc: "maximum percent mitochondrial reads per cell", default: 5.0}
-  seurat_qc_normalize_method: {type: ['null', {type: enum, name: normalize_method, symbols: ["log_norm", "sct"]}], default: "log_norm",
-    doc: "normalization method. One of log_norm or sct"}
-  seurat_qc_num_pcs: {type: "int?", doc: "number of PCs to calculate", default: 30}
+  # Seurat HBC QC
+  qc_min_umi: { type: 'int?', doc: "minimum number of umi for cell-level filtering", default: 500 }
+  qc_min_genes: { type: 'int?', doc: "minimum number of genes for cell-level filtering", default: 250 }
+  qc_min_complexity: { type: 'float?', doc: "minimum novelty score (log10GenesPerUMI)", default: 0.8 }
+  qc_max_mito_ratio: { type: 'float?', doc: "maximum ratio mitochondrial reads per cell", default: 0.2 }
+  qc_min_gene_prevalence: { type: 'int?', doc: "Minimum number of cells a gene must be expressed in to keep after filtering", default: 10 }
 outputs:
   star_solo_counts_dir: {type: File, outputSource: tar_solo_count_outdir/output, doc: "Tar gzipped counts output from STAR Solo"}
   star_solo_bam: {type: 'File?', outputSource: star_solo_align/genomic_bam_out, doc: "If flag given, aligned reads file"}
@@ -192,9 +193,12 @@ outputs:
   star_solo_junctions: {type: File, outputSource: star_solo_align/junctions_out, doc: "STAR splice junction result file"}
   star_solo_cr_mimic_counts: {type: File, outputSource: tar_solo_cr_mimic_dir/output, doc: "Tar ball of Cell Ranger-style counts dir
       from STAR Solo"}
-  seurat_qc_html: {type: File, outputSource: rename_seurat_html/renamed_file, doc: "QC HTML Summary"}
-  seurat_qc_rds: {type: File, outputSource: rename_seurat_qc_rds/renamed_file }
-  seurat_raw_rds: {type: File, outputSource: rename_seurat_raw_rds/renamed_file }
+  qc_plots: { type: File, outputSource: seurat_hbc_qc/qc_plots, doc: "Pre and post filtering metrics PDF plots"}
+  qc_boxplot_stats: { type: File, outputSource: seurat_hbc_qc/qc_boxplot_stats, doc: "Pre and post filtering boxplot stats TSV" }
+  cell_counts: { type: File, outputSource: seurat_hbc_qc/cell_counts, doc: "Pre and post filtering cell counts TSV" }
+  seurat_prefilter_data: { type: File,  outputSource: seurat_hbc_qc/seurat_prefilter_data, doc: "Seurat Rdata object with prefilter counts and metrics" }
+  seurat_filtered_data: { type: File,  outputSource: seurat_hbc_qc/seurat_filtered_data, doc: "Seurat Rdata object with basic filter counts and metrics" }
+  variable_features_plot: { type: File, outputSource: seurat_hbc_qc/variable_features_plot, doc: "PDF with a dot plot of variable genes with top 15 labeled"}
 steps:
   star_solo_align:
     run: ../tools/star_solo_2.7.10b.cwl
@@ -250,40 +254,19 @@ steps:
         valueFrom: $(self).STAR_Solo_Cell_Ranger_mimic.count.tar.gz
       input_dir: mimic_cr_counts_dir/cr_like_counts_dir
     out: [output]
-  seurat_qc:
-    run: ../tools/seurat_qc.cwl
+  seurat_hbc_qc:
+    run: ../tools/seurat_hbc_scrna_qc.cwl
     in:
-      filtered_bc_matrix_dir: mimic_cr_counts_dir/cr_like_counts_dir
-      sample_name: sample_name
-      min_genes: seurat_qc_min_genes
-      max_mt: seurat_qc_max_mt
-      normalize_method: seurat_qc_normalize_method
-      num_pcs: seurat_qc_num_pcs
-    out: [result_dir, summary_html, qc_rds, seurat_raw_rds]
-  rename_seurat_html:
-    run: ../tools/rename_file.cwl
-    in:
-      in_file: seurat_qc/summary_html
-      out_filename:
-        source: output_basename
-        valueFrom: $(self).seurat.qc.html
-    out: [renamed_file]
-  rename_seurat_qc_rds:
-    run: ../tools/rename_file.cwl
-    in:
-      in_file: seurat_qc/qc_rds
-      out_filename:
-        source: output_basename
-        valueFrom: $(self).seurat.qc.rds
-    out: [renamed_file]
-  rename_seurat_raw_rds:
-    run: ../tools/rename_file.cwl
-    in:
-      in_file: seurat_qc/seurat_raw_rds
-      out_filename:
-        source: output_basename
-        valueFrom: $(self).seurat.raw.rds
-    out: [renamed_file]
+      h5_matrix_inputs: create_h5_output/raw_converted_h5
+      sample_id: sample_name
+      output_basename: output_basename
+      min_umi: qc_min_umi
+      min_genes: qc_min_genes
+      min_complexity: qc_min_complexity
+      max_mito_ratio: qc_max_mito_ratio
+      min_gene_prevalence: qc_min_gene_prevalence
+    out: [qc_plots, qc_boxplot_stats, cell_counts, seurat_prefilter_data, seurat_filtered_data, variable_features_plot]
+
 sbg:license: Apache License 2.0
 sbg:publisher: KFDRC
 $namespaces:
