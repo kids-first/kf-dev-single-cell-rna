@@ -9,14 +9,11 @@ Quote from the STAR repo manual pdf:
 >STARsolo output is designed to be a drop-in replacement for 10X CellRanger gene quantification output. It follows CellRanger logic for cell barcode whitelisting and UMI deduplication, and produces nearly identical gene counts in the same format. At the same time STARsolo is 10 times faster than the CellRanger.
 
 Some custom tools are used to create Cell Ranger-like output file structure and h5 files for downstream refinement compatibility
-A custom QC R markdown notebook developed by @AntoniaChroni is also run, which includes as it's main engine Seurat and [scooter](https://github.com/igordot/scooter)
-
+Output QC is based on [this tutorial](https://github.com/hbctraining/scRNA-seq_online/blob/scRNAseq/lessons/04_SC_quality_control.md) and [this doc](./10X_SEURAT_HBC_SCRNA_QC.md) summarizes the process and outputs
 ## Software
 
 - STAR Solo 2.7.10b
 - Seurat 4.3.0.1
-- miQC 1.10.0
-- SoupX 1.6.2
 
 ## Inputs
 ### multi-step
@@ -101,5 +98,5 @@ A custom QC R markdown notebook developed by @AntoniaChroni is also run, which i
  - `seurat_filtered_data`: Seurat Rdata object with basic filter counts and metrics
  - `variable_features_plot`: PDF with a dot plot of variable genes with top 15 labeled
 ## Appendix: Seurat HBC QC Output
-QC Outputs are based primarily on the training materials provided by the [Harvard Chan Bioinformatics Core](https://github.com/hbctraining/scRNA-seq_online/blob/master/lessons/04_SC_quality_control.md).
-An overview of how the QC was performed and overview of the outputs are provided [here](../docs/10X_SEURAT_HBC_SCRNA_QC.md)
+QC Outputs are based primarily on the training materials provided by the [Harvard Chan Bioinformatics Core](https://github.com/hbctraining/scRNA-seq_online/blob/scRNAseq/lessons/04_SC_quality_control.md).
+An overview of how the QC was performed and overview of the outputs are provided [here](./10X_SEURAT_HBC_SCRNA_QC.md)

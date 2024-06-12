@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-# QC Script that follows https://github.com/hbctraining/scRNA-seq_online/blob/master/lessons/04_SC_quality_control.md
+# QC Script that follows https://github.com/hbctraining/scRNA-seq_online/blob/scRNAseq/lessons/04_SC_quality_control.md
 
 suppressMessages(library(Seurat))
 suppressMessages(library(tidyverse))

@@ -1,6 +1,6 @@
 # Seurat HBC scRNA QC Outputs
-Based on [this tutorial](https://github.com/hbctraining/scRNA-seq_online/blob/master/lessons/04_SC_quality_control.md) and some Kids First-specific tweaks, the [QC step/script](../scripts/seurat_hbc_scrna_qc.R) does the following:
-1. Calculate novelty score: log<sub>10</sub>(nFeaureRNA)/log<sub>10</sub>(nCount_RNA). This is described well [here](https://github.com/hbctraining/scRNA-seq_online/blob/master/lessons/04_SC_quality_control.md#complexity)
+Based on [this tutorial](https://github.com/hbctraining/scRNA-seq_online/blob/scRNAseq/lessons/04_SC_quality_control.md) and some Kids First-specific tweaks, the [QC step/script](../scripts/seurat_hbc_scrna_qc.R) does the following:
+1. Calculate novelty score: log<sub>10</sub>(nFeaureRNA)/log<sub>10</sub>(nCount_RNA). This is described well [here](https://github.com/hbctraining/scRNA-seq_online/blob/scRNAseq/lessons/04_SC_quality_control.md#complexity)
 1. Calculate mitochondrial ratio. This is done by searching gene symbols starting with `MT-` 
 1. _Save Seurat object with counts and metrics_
 1. Apply cell-level filters. These are adjustable, and are considered a reasonable start without prior experimental knowledge. Defaults are:
