@@ -34,6 +34,8 @@ inputs:
   runThreadN: { type: 'int?', default: 16, inputBinding: { position: 5, prefix: '--runThreadN' } }
   outFileNamePrefix: { type: string, doc: "output files name prefix (including full or relative path). Can only be defined on the command line. \
     Tool will add '.' after prefix to easily delineate between file name and suffix" }
+  twopassMode: { type: ['null', {type: enum, name: twopassMode, symbols: ["Basic", "None"]}], default: "None",
+    doc: "Enable two pass mode to detect novel splice events. Default is None (off).", inputBinding: { position: 5, prefix: '--twopassMode' } }
   outSAMattrRGline: { type: 'string?', doc: "Set if outputting bam, with TABS SEPARATING \
       THE TAGS, format is: ID:sample_name LB:aliquot_id PL:platform SM:BSID for \
       example ID:7316-242 LB:750189 PL:ILLUMINA SM:BS_W72364MN",

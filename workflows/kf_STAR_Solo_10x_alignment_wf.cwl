@@ -116,6 +116,8 @@ inputs:
   runThreadN: {type: 'int?', doc: "Num threads for STAR Solo to use", default: 16}
   outSAMattrRGline: {type: 'string?', doc: "Set if outputting bam, with TABS SEPARATING THE TAGS, format is: ID:sample_name LB:aliquot_id
       PL:platform SM:BSID for example ID:7316-242 LB:750189 PL:ILLUMINA SM:BS_W72364MN"}
+  twopassMode: { type: ['null', {type: enum, name: twopassMode, symbols: ["Basic", "None"]}], default: "Basic",
+    doc: "Enable two pass mode to detect novel splice events. Default is Basic (on)." }
   solo_type: {type: ['null', {type: enum, name: soloType, symbols: ["CB_UMI_Simple", "CB UMI Complex", "CB samTagOut", "SmartSeq"]}],
     doc: "type of single-cell RNAseq. CB_UMI_Simple: (a.k.a. Droplet) one UMI and one Cell Barcode of fixed length in read2, e.g.
       Drop-seq and 10X Chromium, CB UMI_Complex: multiple Cell Barcodes of varying length, one UMI of fixed length and one adapter
@@ -204,6 +206,7 @@ steps:
     run: ../tools/star_solo_2.7.10b.cwl
     in:
       outSAMattrRGline: outSAMattrRGline
+      twopassMode: twopassMode
       genomeDir: genomeDir
       readFilesIn1: readFilesIn1
       readFilesIn2: readFilesIn2

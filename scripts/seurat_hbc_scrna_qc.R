@@ -153,7 +153,7 @@ boxplot_summary <- function(m1, m2, table_fn){
   rownames(summary_to_print) <- summary_box_stats$names
   # Do some formatting because R hates you
   formatted_summary <- rownames_to_column(round(as.data.frame(summary_to_print),digits=2), var="Metrics")
-  write.table(formatted_summary, table_fn, quote=FALSE, row.names=FALSE)
+  write.table(formatted_summary, table_fn, quote=FALSE, row.names=FALSE, sep="\t")
 }
 
 opts <- parse_args(OptionParser(option_list = option_list), print_help_and_exit = TRUE)
@@ -233,11 +233,21 @@ table_fn = paste0(opts$output_basename, ".boxplot_summary_metrics.tsv")
 boxplot_summary(metadata_prefiltered, metadata_clean, table_fn)
 
 message("Print before and after cell count")
-ct_head = c("Pre-filter cell counts", "Post-filter cell counts")
+# calculate individual contributions of cell dropping
+umi_low = length(which(seurat_counts$nCount_RNA < opts$min_umi))
+gene_low = length(which(seurat_counts$nFeature_RNA < opts$min_genes))
+complexity_low = length(which(seurat_counts$log10GenesPerUMI <= opts$min_complexity))
+mito_high = length(which(seurat_counts$mitoRatio >= opts$max_mito_ratio))
+ct_head = c("Pre-filter cell counts",
+  paste0("UMIs below ", opts$min_umi),
+  paste0("Genes below ", opts$min_genes),
+  paste0("Complexity below ", opts$min_complexity),
+  paste0("Mito ratio above ", opts$max_mito_ratio),
+  "Post-filter cell counts")
 
-cell_cts = c(length(seurat_counts$sample), length(filtered_seurat$sample))
+cell_cts = c(length(seurat_counts$sample), umi_low, gene_low, complexity_low, mito_high, length(filtered_seurat$sample))
 ct_tbl_fn <- paste0(opts$output_basename, ".cell_counts.tsv")
 ct_tbl = as.data.frame(t(cell_cts))
 colnames(ct_tbl) <- ct_head
-write.table(ct_tbl, ct_tbl_fn, quote=FALSE, row.names=FALSE)
+write.table(ct_tbl, ct_tbl_fn, quote=FALSE, row.names=FALSE, sep="\t")
 message("QC complete!")
