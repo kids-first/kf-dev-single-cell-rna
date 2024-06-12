@@ -76,12 +76,12 @@ Output QC is based on [this tutorial](https://github.com/hbctraining/scRNA-seq_o
    - default: "EmptyDrops_CR"
   outSAMtype: type of SAM/BAM output. None: no SAM/BAM output. Otherwise, first word is output type (BAM or SAM), second is sort type (Unsorted or SortedByCoordinate)
    - default: "None"
-### seurat hbc qc
+### seurat Harvard Bioinformatics Core (HBC) qc
  - `qc_min_umi`: minimum number of umi for cell-level filtering
  - `qc_min_genes`: minimum number of genes for cell-level filtering
  - `qc_min_complexity`: minimum novelty score (log10GenesPerUMI)
  - `qc_max_mito_ratio`: maximum ratio mitochondrial reads per cell
- - `qc_min_gene_prevalence`: Minimum number of cells a gene must be expressed in to keep after filtering
+ - `qc_min_gene_prevalence`: minimum number of cells a gene must be expressed in to keep after filtering
 
 ## Outputs
  - `star_solo_counts_dir`: Tar gzipped counts output from STAR Solo

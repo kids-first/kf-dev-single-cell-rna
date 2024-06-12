@@ -152,7 +152,7 @@ inputs:
       gene, matching CellRanger > 3.0.0. Only works with -soloUMIdedup 1MM_CR", default: "MultiGeneUMI_CR"}
   soloUMIdedup: {type: ['null', {type: enum, name: soloUMIdedup, symbols: ["1MM_All", "1MM_Directional_UMItools", "1MM_Directional",
           "Exact", "NoDedup", "1MM_CR"]}], doc: "type of UMI deduplication (collapsing) algorithm). 1MM_All: all UMIs with 1 mismatch
-      distance to each other are collapsed (i.e. counted once). 1MM_Directional_UMItools: follows the ”directional” method from the
+      distance to each other are collapsed (i.e. counted once). 1MM_Directional_UMItools: follows the 'directional' method from the
       UMI-tools by Smith, Heger and Sudbery (Genome Research 2017). 1MM_Directional: same as 1MM Directional UMItools, but with more
       stringent criteria for duplicate UMIs. Exact: only exactly matching UMIs are collapsed NoDedup: no deduplication of UMIs, count
       all reads. 1MM_CR: CellRanger2-4 algorithm for 1MM UMI collapsing.", default: "1MM_CR"}
