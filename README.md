@@ -11,9 +11,9 @@ This repo contains tools and workflows for analyzing single cell RNA (scRNA) dat
 
 The repo is currently in alpha phase.
 
-## [10X Cell Ranger 6.2.1 Alignment Workflow](docs/10X_cell_ranger_alignment)
+## [10X Cell Ranger 6.2.1 Alignment Workflow](docs/10X_cell_ranger_alignment.md)
 Aligns and quantifies 10X single cell data using Cell Ranger
-## [10X STAR Solo 2.7.10b Alignment Workflow](docs/10X_STAR_Solo_alignment)
+## [10X STAR Solo 2.7.10b Alignment Workflow](docs/10X_STAR_Solo_alignment.md)
 Aligns and quantifies 10X single cell data using STAR Solo
 ## [10X Refinement Workflow](docs/10X_refinement.md)
 Filters and cleans up results from both Cell Ranger and STAR Solo outputs
