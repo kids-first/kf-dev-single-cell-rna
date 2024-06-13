@@ -24,17 +24,9 @@ arguments:
   - position: 0
     shellQuote: false
     valueFrom: >-
-      ${
-        var raw_dir = inputs.solo_counts_dir.path + "/" + inputs.soloFeatures + "/raw/";
-        var setup_raw_cmd = "mkdir RAW && cp " + raw_dir + "*.tsv RAW/ &&";
-        if (inputs.raw_count_choice == "Unique" || inputs.raw_count_choice == null){
-          setup_raw_cmd +=  " cp " + raw_dir + "matrix.mtx RAW/ &&"
-        }
-        else{
-          setup_raw_cmd += " cp " + raw_dir + "UniqueAndMult-" + inputs.raw_count_choice + ".mtx RAW/matrix.mtx &&";
-        }
-        return setup_raw_cmd;
-      }
+      mkdir RAW
+      && cp $(inputs.solo_counts_dir.path)/$(inputs.soloFeatures)/raw/*.tsv RAW/ 
+      && cp $(inputs.solo_counts_dir.path)/$(inputs.soloFeatures)/raw/$(["Unique",null].indexOf(inputs.raw_count_choice) != -1 ? "matrix" : "UniqueAndMult-" + inputs.raw_count_choice).mtx RAW/matrix.mtx &&
   - position: 1
     shellQuote: false
     valueFrom: >-
