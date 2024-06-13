@@ -114,7 +114,6 @@ knitr::opts_chunk$set(echo = FALSE,
 # Load counts to a list of matrices
 counts_mat <- load_sample_counts_matrix(path = data_path,
                                         sample_name = sample_name)
-
 # Create seurat object using gene expression data
 seurat_obj <- create_seurat_obj(counts_matrix = counts_mat[["Gene Expression"]],
                                 assay = "RNA",

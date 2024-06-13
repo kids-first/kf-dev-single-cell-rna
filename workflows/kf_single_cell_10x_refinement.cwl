@@ -55,6 +55,8 @@ inputs:
   sample_name: {type: 'string', doc: "used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the
       names of the underlying fastqs are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz, one per input fastq
       in the same order"}
+  # scdblfinder
+  scdblfinder_ram: { type: 'int?', doc: "Amount in GB ram to resrve for scdblfinder", default: 16}
 outputs:
   soupx_rplots: {type: File, outputSource: rename_rplots/renamed_file}
   soupx_marker_plots: {type: File, outputSource: rename_marker_plots/renamed_file}
@@ -102,6 +104,7 @@ steps:
     in:
       seurat_raw_object: seurat_raw_rds
       sample_name: sample_name
+      ram: scdblfinder_ram
     out: [result_dir]
   rename_doublets:
     run: ../tools/rename_file.cwl
