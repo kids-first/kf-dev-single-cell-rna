@@ -6,8 +6,7 @@ doc: "Run custom QC on 10X output"
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: "pgc-images.sbgenomics.com/d3b-bixu/hbc_scrna_qc:scrnaseq
-"
+    dockerPull: "pgc-images.sbgenomics.com/d3b-bixu/hbc_scrna_qc:scrnaseq"
   - class: InlineJavascriptRequirement
   - class: InitialWorkDirRequirement
     listing:
