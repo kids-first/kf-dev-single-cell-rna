@@ -176,7 +176,7 @@ message("Collating metadata")
 metadata_prefiltered <- seurat_counts@meta.data
 metadata_prefiltered$sample <- opts$sample_id
 message("Printing prefiltered QC Metrics")
-write.table(rownames_to_column(metadata_prefiltered, var="cell_ids"), paste0(opts$output_basename, ".barcode_qc.metrics.tsv"), quote=FALSE, row.names=FALSE)
+write.table(rownames_to_column(metadata_prefiltered, var="cell_ids"), paste0(opts$output_basename, ".barcode_qc.metrics.tsv"), quote=FALSE, row.names=FALSE, sep = "\t")
 seurat_counts@meta.data <- metadata_prefiltered
 
 message("Applying cell-level filters")
@@ -192,7 +192,7 @@ keep_genes <- Matrix::rowSums(nonzero) >= opts$min_gene_prevalence
 filtered_counts <- counts[keep_genes, ]
 filtered_seurat <- CreateSeuratObject(filtered_counts, meta.data = filtered_seurat@meta.data)
 message("Output QC filtered count matrix")
-filtered_ct_matrix_fname = paste0(output_basename, ".qc_filtered.counts_matrix.h5")
+filtered_ct_matrix_fname = paste0(opts$output_basename, ".qc_filtered.counts_matrix.h5")
 DropletUtils::write10xCounts(path = filtered_ct_matrix_fname, x = filtered_seurat@assays$RNA@data, type="HDF5")
 message("Repeating metrics and plots for filtered data")
 filtered_seurat <- calculate_metrics(filtered_seurat)
@@ -211,7 +211,7 @@ filtered_seurat <- FindVariableFeatures(filtered_seurat,
 filtered_seurat <- ScaleData(filtered_seurat)
 # Identify the 15 most highly variable genes
 ranked_variable_genes <- VariableFeatures(filtered_seurat)
-top_genes <- ranked_variable_genes[1:15]
+top_genes <- ranked_variable_genes[1:20]
 
 # Plot the average expression and variance of these genes
 # With labels to indicate which genes are in the top 15

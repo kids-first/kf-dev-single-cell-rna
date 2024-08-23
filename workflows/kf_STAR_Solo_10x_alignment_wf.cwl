@@ -207,15 +207,13 @@ outputs:
   star_solo_junctions: {type: File, outputSource: star_solo_align/junctions_out, doc: "STAR splice junction result file"}
   star_solo_cr_mimic_counts: {type: File, outputSource: tar_solo_cr_mimic_dir/output, doc: "Tar ball of Cell Ranger-style counts dir
       from STAR Solo"}
+  qc_barcode_metrics: { type: File, outputSource: seurat_hbc_qc/qc_barcode_metrics, doc: "Table with barcodes and calculated QC metrics" }
   qc_plots: {type: File, outputSource: seurat_hbc_qc/qc_plots, doc: "Pre and post filtering metrics PDF plots"}
   qc_boxplot_stats: {type: File, outputSource: seurat_hbc_qc/qc_boxplot_stats, doc: "Pre and post filtering boxplot stats TSV"}
-  cell_counts: {type: File, outputSource: seurat_hbc_qc/cell_counts, doc: "Pre and post filtering cell counts TSV"}
-  seurat_prefilter_data: {type: File, outputSource: seurat_hbc_qc/seurat_prefilter_data, doc: "Seurat Rdata object with prefilter
-      counts and metrics"}
-  seurat_filtered_data: {type: File, outputSource: seurat_hbc_qc/seurat_filtered_data, doc: "Seurat Rdata object with basic filter
-      counts and metrics"}
-  variable_features_plot: {type: File, outputSource: seurat_hbc_qc/variable_features_plot, doc: "PDF with a dot plot of variable genes
-      with top 15 labeled"}
+  qc_cell_counts: {type: File, outputSource: seurat_hbc_qc/qc_cell_counts, doc: "Pre and post filtering cell counts TSV"}
+  qc_filtered_ct_matrix: {type: File, outputSource: seurat_hbc_qc/qc_filtered_ct_matrix, doc: "h5 formatted counts matrix after applying minimum QC filtering" }
+  qc_variable_features_plot: {type: File, outputSource: seurat_hbc_qc/qc_variable_features_plot, doc: "PDF with a dot plot of variable genes
+      with top 20 labeled"}
 steps:
   star_solo_align:
     run: ../tools/star_solo_2.7.10b.cwl
@@ -283,7 +281,7 @@ steps:
       min_complexity: qc_min_complexity
       max_mito_ratio: qc_max_mito_ratio
       min_gene_prevalence: qc_min_gene_prevalence
-    out: [qc_plots, qc_boxplot_stats, cell_counts, seurat_prefilter_data, seurat_filtered_data, variable_features_plot]
+    out: [qc_barcode_metrics, qc_plots, qc_boxplot_stats, qc_cell_counts, qc_filtered_ct_matrix, qc_variable_features_plot]
 
 sbg:license: Apache License 2.0
 sbg:publisher: KFDRC

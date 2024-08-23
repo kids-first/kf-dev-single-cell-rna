@@ -6,7 +6,7 @@ doc: "Run custom QC on 10X output"
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: "pgc-images.sbgenomics.com/d3b-bixu/hbc_scrna_qc:scrnaseq"
+    dockerPull: "pgc-images.sbgenomics.com/brownm28/hbc_scrna_qc:v1.0.0-scrnaseq"
   - class: InlineJavascriptRequirement
   - class: InitialWorkDirRequirement
     listing:
@@ -38,9 +38,9 @@ inputs:
     inputBinding: { position: 1, prefix: "--min_gene_prevalence" } }
 
 outputs:
+  qc_barcode_metrics: { type: File, outputBinding: { glob: "*.barcode_qc.metrics.tsv"}, doc: "Table with barcodes and calculated QC metrics" }
   qc_plots: { type: File, outputBinding: { glob: "*.QC_plots.pdf"}, doc: "Pre and post filtering metrics pdf plots"}
   qc_boxplot_stats: { type: File, outputBinding: { glob: "*_summary_metrics.tsv"}, doc: "Pre and post filtering boxplot stats tsv" }
-  cell_counts: { type: File, outputBinding: { glob: "*.cell_counts.tsv"}, doc: "Pre and post filtering cell counts tsv" }
-  seurat_prefilter_data: { type: File,  outputBinding: { glob: "*.seurat.counts_and_metrics.RData"}, doc: "Seurat Rdata object with prefilter counts and metrics" }
-  seurat_filtered_data: { type: File,  outputBinding: { glob: "*.seurat.filtered.counts_and_metrics.RData"}, doc: "Seurat Rdata object with basic filter counts and metrics" }
-  variable_features_plot: { type: File, outputBinding: { glob: "*.variable_features.pdf"} , doc: "PDF with a dot plot of variable genes with top 15 labeled"}
+  qc_cell_counts: { type: File, outputBinding: { glob: "*.cell_counts.tsv"}, doc: "Pre and post filtering cell counts tsv" }
+  qc_filtered_ct_matrix: { type: File, outputBinding: { glob: "*qc_filtered.counts_matrix.h5"}, doc: "h5 formatted counts matrix after applying minimum QC filtering" }
+  qc_variable_features_plot: { type: File, outputBinding: { glob: "*.variable_features.pdf"} , doc: "PDF with a dot plot of variable genes with top 20 labeled" }
