@@ -7,6 +7,7 @@ suppressMessages(library(Matrix))
 suppressMessages(library(scales))
 suppressMessages(library(cowplot))
 suppressMessages(library(RCurl))
+suppressMessages(library(DropletUtils))
 suppressMessages(library(optparse))
 
 option_list <- list(
@@ -174,10 +175,9 @@ seurat_counts <- calculate_metrics(seurat_counts)
 message("Collating metadata")
 metadata_prefiltered <- seurat_counts@meta.data
 metadata_prefiltered$sample <- opts$sample_id
+message("Printing prefiltered QC Metrics")
+write.table(rownames_to_column(metadata_prefiltered, var="cell_ids"), paste0(opts$output_basename, ".barcode_qc.metrics.tsv"), quote=FALSE, row.names=FALSE)
 seurat_counts@meta.data <- metadata_prefiltered
-
-message("Saving Seurat object with counts and metrics")
-save(seurat_counts, file=paste0(opts$output_basename, ".seurat.counts_and_metrics.RData"))
 
 message("Applying cell-level filters")
 filtered_seurat <- subset(x = seurat_counts, 
@@ -191,7 +191,9 @@ nonzero <- counts > 0
 keep_genes <- Matrix::rowSums(nonzero) >= opts$min_gene_prevalence
 filtered_counts <- counts[keep_genes, ]
 filtered_seurat <- CreateSeuratObject(filtered_counts, meta.data = filtered_seurat@meta.data)
-
+message("Output QC filtered count matrix")
+filtered_ct_matrix_fname = paste0(output_basename, ".qc_filtered.counts_matrix.h5")
+DropletUtils::write10xCounts(path = filtered_ct_matrix_fname, x = filtered_seurat@assays$RNA@data, type="HDF5")
 message("Repeating metrics and plots for filtered data")
 filtered_seurat <- calculate_metrics(filtered_seurat)
 metadata_clean <- filtered_seurat@meta.data
@@ -220,9 +222,6 @@ var_features_fn <- paste0(opts$output_basename, ".variable_features.pdf")
 pdf(var_features_fn, onefile = TRUE)
 print(p)
 dev.off()
-
-message("Saving Seurat object with filtered counts and metrics")
-save(filtered_seurat, file=paste0(opts$output_basename, ".seurat.filtered.counts_and_metrics.RData"))
 
 message("Creating QC plots")
 plots_fname = paste0(opts$output_basename, ".QC_plots.pdf")
