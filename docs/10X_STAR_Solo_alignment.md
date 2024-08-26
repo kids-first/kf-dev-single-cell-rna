@@ -91,11 +91,10 @@ Output QC is based on [this tutorial](https://github.com/hbctraining/scRNA-seq_o
  - `star_solo_log_final_out`: STAR align summary stats
  - `star_solo_junctions`: STAR splice junction result file
  - `star_solo_cr_mimic_counts`: Tar ball of Cell Ranger-style counts dir from STAR Solo
+ - `qc_barcode_metrics`: Table with barcodes and calculated QC metrics
  - `qc_plots`: Pre and post filtering metrics PDF plots
  - `qc_boxplot_stats`: Pre and post filtering boxplot stats TSV
- - `cell_counts`: Pre and post filtering cell counts TSV
- - `seurat_prefilter_data`: Seurat Rdata object with prefilter counts and metrics
- - `seurat_filtered_data`: Seurat Rdata object with basic filter counts and metrics
+ - `qc_cell_counts`: Pre and post filtering cell counts TSV
  - `variable_features_plot`: PDF with a dot plot of variable genes with top 15 labeled
 ## Appendix: Seurat HBC QC Output
 QC Outputs are based primarily on the training materials provided by the [Harvard Chan Bioinformatics Core](https://github.com/hbctraining/scRNA-seq_online/blob/scRNAseq/lessons/04_SC_quality_control.md).

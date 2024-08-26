@@ -6,7 +6,7 @@ doc: "Run custom QC on 10X output"
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: "pgc-images.sbgenomics.com/brownm28/hbc_scrna_qc:v1.0.0-scrnaseq"
+    dockerPull: "pgc-images.sbgenomics.com/d3b-bixu/hbc_scrna_qc:scrnaseq"
   - class: InlineJavascriptRequirement
   - class: InitialWorkDirRequirement
     listing:
@@ -22,7 +22,7 @@ baseCommand: [Rscript, seurat_hbc_scrna_qc.R]
 inputs:
   bc_matrix_dir: { type: 'Directory?', loadListing: deep_listing, doc: "Path to 10X counts, like 'outs/raw_feature_bc_matrix'. Leave blank if using H5 inputs",
     inputBinding: { position: 1, prefix: "--data_dir"} }
-  h5_matrix_inputs: { type: 'File?', doc: "Path to h5 file with 10X count results. Leave bpanlif using counts directory",
+  h5_matrix_inputs: { type: 'File?', doc: "Path to h5 file with 10X count results. Leave blank if using counts directory",
     inputBinding: { position: 1, prefix: "--h5_counts" } }
   sample_id: { type: string, inputBinding: { position: 1, prefix: "--sample_id"} }
   output_basename: { type: string, inputBinding: { position: 1, prefix: "--output_basename"} }

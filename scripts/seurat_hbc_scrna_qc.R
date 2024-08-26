@@ -19,7 +19,7 @@ option_list <- list(
   make_option(
     opt_str = "--h5_counts",
     type = "character",
-    help = "Path to 10X  h5-foramtted counts. Only use if not using matrix counts directory data_dir"
+    help = "Path to 10X  h5-formatted counts. Only use if not using matrix counts directory data_dir"
   ),
   make_option(
     opt_str = "--sample_id",
@@ -60,7 +60,7 @@ option_list <- list(
     opt_str = "--max_mito_ratio",
     type = "numeric",
     default = 0.2,
-    help = "Maximum ratio of mitichondrial genes per cell"
+    help = "Maximum ratio of mitochondrial genes per cell"
   ),
   make_option(
     opt_str = "--min_gene_prevalence",
@@ -73,7 +73,7 @@ option_list <- list(
 
 calculate_metrics <- function(seurat_obj){
   message("Calculating novelty score")
-  seurat_obj$log10GenesPerUMI <- log10(seurat_obj$nFeature_RNA) / log10(seurat_obj$nCount_RNA)
+  seurat_obj$log10GenesPerUMI <- log10(seurat_obj$nGene) / log10(seurat_obj$nUMI)
 
   message("Calculating mito ratio")
   seurat_obj$mitoRatio <- PercentageFeatureSet(object = seurat_obj, pattern = "^MT-")
@@ -89,7 +89,7 @@ plot_qc <- function(out_filename, m1, m2, min_umi, min_genes, min_complexity, ma
   message("Plot Number of transcripts per cell")
   # need to assign then "print" each fig so that it gets output to same pdf
   a <- metadata %>% 
-      ggplot(aes(color=sample, x=nCount_RNA, fill= sample)) + 
+      ggplot(aes(color=sample, x=nUMI, fill= sample)) + 
       geom_density(alpha = 0.2) + 
       scale_x_log10() + 
       theme_classic() +
@@ -100,7 +100,7 @@ plot_qc <- function(out_filename, m1, m2, min_umi, min_genes, min_complexity, ma
   print(a)
   message("Plot number of genes per cell")
   b <- metadata %>% 
-      ggplot(aes(color=sample, x=nFeature_RNA, fill= sample)) + 
+      ggplot(aes(color=sample, x=nGene, fill= sample)) + 
       geom_density(alpha = 0.2) + 
       theme_classic() +
       ggtitle("Number of Genes per Cell") +
@@ -127,7 +127,7 @@ plot_qc <- function(out_filename, m1, m2, min_umi, min_genes, min_complexity, ma
   print(d)
   message("Plot joint filtering effects")
   e <- metadata %>% 
-      ggplot(aes(x=nCount_RNA, y=nFeature_RNA, color=mitoRatio, group=interaction(nCount_RNA, nFeature_RNA))) + 
+      ggplot(aes(x=nUMI, y=nGene, color=mitoRatio, group=interaction(nUMI, nGene))) + 
       geom_point() + 
       scale_colour_gradient(low = "gray90", high = "black") +
       stat_smooth(method=lm) +
@@ -146,7 +146,7 @@ plot_qc <- function(out_filename, m1, m2, min_umi, min_genes, min_complexity, ma
 
 
 boxplot_summary <- function(m1, m2, table_fn){
-  summary_box_stats <- boxplot(m1$nCount_RNA, m2$nCount_RNA, m1$nFeature_RNA, m2$nFeature_RNA, m1$log10GenesPerUMI, m2$log10GenesPerUMI, m1$mitoRatio, m2$mitoRatio,
+  summary_box_stats <- boxplot(m1$nUMI, m2$nUMI, m1$nGene, m2$nGene, m1$log10GenesPerUMI, m2$log10GenesPerUMI, m1$mitoRatio, m2$mitoRatio,
       names=c("Num_UMIs_pre-filter", "Num_UMIs_post-filter", "Num_Genes_pre-filter", "Num_Genes_post-filter", "Novelty_Score_pre-filter", "Novelty_Score_post-filter","Mito_Ratio_pre-filter", "Mito_Ratio_post-filter"))
   col_names = c("Lower_whisker", "Lower_hinge", "Median", "Upper_hinge", "Upper_whisker")
   summary_to_print <- t(summary_box_stats$stats)
@@ -174,6 +174,11 @@ seurat_counts <- calculate_metrics(seurat_counts)
 
 message("Collating metadata")
 metadata_prefiltered <- seurat_counts@meta.data
+message("Rename orig.ident -> seq_source, nCount_RNA -> nUMI, nFeature_RNA -> nGene for ease of use")
+metadata_prefiltered <- metadata_prefiltered %>%
+        dplyr::rename(seq_source = orig.ident,
+                      nUMI = nCount_RNA,
+                      nGene = nFeature_RNA)
 metadata_prefiltered$sample <- opts$sample_id
 message("Printing prefiltered QC Metrics")
 write.table(rownames_to_column(metadata_prefiltered, var="cell_ids"), paste0(opts$output_basename, ".barcode_qc.metrics.tsv"), quote=FALSE, row.names=FALSE, sep = "\t")
@@ -181,8 +186,8 @@ seurat_counts@meta.data <- metadata_prefiltered
 
 message("Applying cell-level filters")
 filtered_seurat <- subset(x = seurat_counts, 
-                         subset= (nCount_RNA >= opts$min_umi) & 
-                           (nFeature_RNA >= opts$min_genes) & 
+                         subset= (nUMI >= opts$min_umi) & 
+                           (nGene >= opts$min_genes) & 
                            (log10GenesPerUMI > opts$min_complexity) & 
                            (mitoRatio < opts$max_mito_ratio))
 message("Dropping genes with 0 counts from cell-filtered data")
@@ -209,12 +214,12 @@ filtered_seurat <- FindVariableFeatures(filtered_seurat,
 		     
 # Scale the counts
 filtered_seurat <- ScaleData(filtered_seurat)
-# Identify the 15 most highly variable genes
+# Identify the 20 most highly variable genes
 ranked_variable_genes <- VariableFeatures(filtered_seurat)
 top_genes <- ranked_variable_genes[1:20]
 
 # Plot the average expression and variance of these genes
-# With labels to indicate which genes are in the top 15
+# With labels to indicate which genes are in the top 20
 message("Plotting variable genes")
 p <- VariableFeaturePlot(filtered_seurat)
 p <- LabelPoints(plot = p, points = top_genes, repel = TRUE)
@@ -233,8 +238,8 @@ boxplot_summary(metadata_prefiltered, metadata_clean, table_fn)
 
 message("Print before and after cell count")
 # calculate individual contributions of cell dropping
-umi_low = length(which(seurat_counts$nCount_RNA < opts$min_umi))
-gene_low = length(which(seurat_counts$nFeature_RNA < opts$min_genes))
+umi_low = length(which(seurat_counts$nUMI < opts$min_umi))
+gene_low = length(which(seurat_counts$nGene < opts$min_genes))
 complexity_low = length(which(seurat_counts$log10GenesPerUMI <= opts$min_complexity))
 mito_high = length(which(seurat_counts$mitoRatio >= opts$max_mito_ratio))
 ct_head = c("Pre-filter cell counts",
