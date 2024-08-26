@@ -95,7 +95,8 @@ Output QC is based on [this tutorial](https://github.com/hbctraining/scRNA-seq_o
  - `qc_plots`: Pre and post filtering metrics PDF plots
  - `qc_boxplot_stats`: Pre and post filtering boxplot stats TSV
  - `qc_cell_counts`: Pre and post filtering cell counts TSV
- - `variable_features_plot`: PDF with a dot plot of variable genes with top 15 labeled
+ - `qc_filtered_ct_matrix`: h5 formatted counts matrix after applying minimum QC filtering
+ - `qc_variable_features_plot`: PDF with a dot plot of variable genes with top 15 labeled
 ## Appendix: Seurat HBC QC Output
 QC Outputs are based primarily on the training materials provided by the [Harvard Chan Bioinformatics Core](https://github.com/hbctraining/scRNA-seq_online/blob/scRNAseq/lessons/04_SC_quality_control.md).
 An overview of how the QC was performed and overview of the outputs are provided [here](./10X_SEURAT_HBC_SCRNA_QC.md)

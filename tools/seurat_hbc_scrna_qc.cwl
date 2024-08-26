@@ -15,7 +15,7 @@ requirements:
           $include: ../scripts/seurat_hbc_scrna_qc.R
   - class: ResourceRequirement
     coresMin: 8
-    ramMin: 16000
+    ramMin: $(inputs.memory * 1000)
 
 baseCommand: [Rscript, seurat_hbc_scrna_qc.R]
 
@@ -36,6 +36,7 @@ inputs:
     inputBinding: { position: 1, prefix: "--max_mito_ratio"} }
   min_gene_prevalence: { type: 'int?', doc: "Minimum number of cells a gene must be expressed in to keep after filtering", default: 10,
     inputBinding: { position: 1, prefix: "--min_gene_prevalence" } }
+  memory: { type: 'int?', doc: "Memory in GB that ought to be available to the script", default: 16 }
 
 outputs:
   qc_barcode_metrics: { type: File, outputBinding: { glob: "*.barcode_qc.metrics.tsv"}, doc: "Table with barcodes and calculated QC metrics" }

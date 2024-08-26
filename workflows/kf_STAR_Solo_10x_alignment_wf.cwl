@@ -81,12 +81,12 @@ doc: |
      - default: "EmptyDrops_CR"
     outSAMtype: type of SAM/BAM output. None: no SAM/BAM output. Otherwise, first word is output type (BAM or SAM), second is sort type (Unsorted or SortedByCoordinate)
      - default: "None"
-  ### seurat hbc qc
+  ### seurat Harvard Bioinformatics Core (HBC) qc
    - `qc_min_umi`: minimum number of umi for cell-level filtering
    - `qc_min_genes`: minimum number of genes for cell-level filtering
    - `qc_min_complexity`: minimum novelty score (log10GenesPerUMI)
    - `qc_max_mito_ratio`: maximum ratio mitochondrial reads per cell
-   - `qc_min_gene_prevalence`: Minimum number of cells a gene must be expressed in to keep after filtering
+   - `qc_min_gene_prevalence`: minimum number of cells a gene must be expressed in to keep after filtering
 
   ## Outputs
    - `star_solo_counts_dir`: Tar gzipped counts output from STAR Solo
@@ -96,12 +96,12 @@ doc: |
    - `star_solo_log_final_out`: STAR align summary stats
    - `star_solo_junctions`: STAR splice junction result file
    - `star_solo_cr_mimic_counts`: Tar ball of Cell Ranger-style counts dir from STAR Solo
+   - `qc_barcode_metrics`: Table with barcodes and calculated QC metrics
    - `qc_plots`: Pre and post filtering metrics PDF plots
    - `qc_boxplot_stats`: Pre and post filtering boxplot stats TSV
-   - `cell_counts`: Pre and post filtering cell counts TSV
-   - `seurat_prefilter_data`: Seurat Rdata object with prefilter counts and metrics
-   - `seurat_filtered_data`: Seurat Rdata object with basic filter counts and metrics
-   - `variable_features_plot`: PDF with a dot plot of variable genes with top 15 labeled
+   - `qc_cell_counts`: Pre and post filtering cell counts TSV
+   - `qc_filtered_ct_matrix`: h5 formatted counts matrix after applying minimum QC filtering
+   - `qc_variable_features_plot`: PDF with a dot plot of variable genes with top 15 labeled
   ## Appendix: Seurat HBC QC Output
   QC Outputs are based primarily on the training materials provided by the [Harvard Chan Bioinformatics Core](https://github.com/hbctraining/scRNA-seq_online/blob/scRNAseq/lessons/04_SC_quality_control.md).
   An overview of how the QC was performed and overview of the outputs are provided [here](./10X_SEURAT_HBC_SCRNA_QC.md)
@@ -196,6 +196,8 @@ inputs:
   qc_min_complexity: {type: 'float?', doc: "minimum novelty score (log10GenesPerUMI)", default: 0.8}
   qc_max_mito_ratio: {type: 'float?', doc: "maximum ratio mitochondrial reads per cell", default: 0.2}
   qc_min_gene_prevalence: {type: 'int?', doc: "Minimum number of cells a gene must be expressed in to keep after filtering", default: 10}
+  qc_memory: { type: 'int?', doc: "Memory in GB that ought to be available to the script", default: 16 }
+
 outputs:
   star_solo_counts_dir: {type: File, outputSource: tar_solo_count_outdir/output, doc: "Tar gzipped counts output from STAR Solo"}
   star_solo_bam: {type: 'File?', outputSource: star_solo_align/genomic_bam_out, doc: "If flag given, aligned reads file"}
@@ -207,13 +209,14 @@ outputs:
   star_solo_junctions: {type: File, outputSource: star_solo_align/junctions_out, doc: "STAR splice junction result file"}
   star_solo_cr_mimic_counts: {type: File, outputSource: tar_solo_cr_mimic_dir/output, doc: "Tar ball of Cell Ranger-style counts dir
       from STAR Solo"}
-  qc_barcode_metrics: { type: File, outputSource: seurat_hbc_qc/qc_barcode_metrics, doc: "Table with barcodes and calculated QC metrics" }
+  qc_barcode_metrics: {type: File, outputSource: seurat_hbc_qc/qc_barcode_metrics, doc: "Table with barcodes and calculated QC metrics"}
   qc_plots: {type: File, outputSource: seurat_hbc_qc/qc_plots, doc: "Pre and post filtering metrics PDF plots"}
   qc_boxplot_stats: {type: File, outputSource: seurat_hbc_qc/qc_boxplot_stats, doc: "Pre and post filtering boxplot stats TSV"}
   qc_cell_counts: {type: File, outputSource: seurat_hbc_qc/qc_cell_counts, doc: "Pre and post filtering cell counts TSV"}
-  qc_filtered_ct_matrix: {type: File, outputSource: seurat_hbc_qc/qc_filtered_ct_matrix, doc: "h5 formatted counts matrix after applying minimum QC filtering" }
-  qc_variable_features_plot: {type: File, outputSource: seurat_hbc_qc/qc_variable_features_plot, doc: "PDF with a dot plot of variable genes
-      with top 20 labeled"}
+  qc_filtered_ct_matrix: {type: File, outputSource: seurat_hbc_qc/qc_filtered_ct_matrix, doc: "h5 formatted counts matrix after applying
+      minimum QC filtering"}
+  qc_variable_features_plot: {type: File, outputSource: seurat_hbc_qc/qc_variable_features_plot, doc: "PDF with a dot plot of variable
+      genes with top 20 labeled"}
 steps:
   star_solo_align:
     run: ../tools/star_solo_2.7.10b.cwl
@@ -281,6 +284,7 @@ steps:
       min_complexity: qc_min_complexity
       max_mito_ratio: qc_max_mito_ratio
       min_gene_prevalence: qc_min_gene_prevalence
+      memory: qc_memory
     out: [qc_barcode_metrics, qc_plots, qc_boxplot_stats, qc_cell_counts, qc_filtered_ct_matrix, qc_variable_features_plot]
 
 sbg:license: Apache License 2.0
