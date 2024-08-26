@@ -73,12 +73,21 @@ option_list <- list(
 
 calculate_metrics <- function(seurat_obj){
   message("Calculating novelty score")
-  seurat_obj$log10GenesPerUMI <- log10(seurat_obj$nGene) / log10(seurat_obj$nUMI)
+  seurat_obj$log10GenesPerUMI <- log10(seurat_obj$nFeature_RNA) / log10(seurat_obj$nCount_RNA)
 
   message("Calculating mito ratio")
   seurat_obj$mitoRatio <- PercentageFeatureSet(object = seurat_obj, pattern = "^MT-")
   seurat_obj$mitoRatio <- seurat_obj@meta.data$mitoRatio / 100
   return(seurat_obj)
+}
+
+rename_cols <- function(metadata){
+  message("Rename orig.ident -> seq_source, nCount_RNA -> nUMI, nFeature_RNA -> nGene for ease of use")
+  metadata <- metadata %>%
+          dplyr::rename(seq_source = orig.ident,
+                        nUMI = nCount_RNA,
+                        nGene = nFeature_RNA)
+  return(metadata)
 }
 
 plot_qc <- function(out_filename, m1, m2, min_umi, min_genes, min_complexity, max_mito_ratio){
@@ -144,7 +153,6 @@ plot_qc <- function(out_filename, m1, m2, min_umi, min_genes, min_complexity, ma
   dev.off()
 }
 
-
 boxplot_summary <- function(m1, m2, table_fn){
   summary_box_stats <- boxplot(m1$nUMI, m2$nUMI, m1$nGene, m2$nGene, m1$log10GenesPerUMI, m2$log10GenesPerUMI, m1$mitoRatio, m2$mitoRatio,
       names=c("Num_UMIs_pre-filter", "Num_UMIs_post-filter", "Num_Genes_pre-filter", "Num_Genes_post-filter", "Novelty_Score_pre-filter", "Novelty_Score_post-filter","Mito_Ratio_pre-filter", "Mito_Ratio_post-filter"))
@@ -174,11 +182,7 @@ seurat_counts <- calculate_metrics(seurat_counts)
 
 message("Collating metadata")
 metadata_prefiltered <- seurat_counts@meta.data
-message("Rename orig.ident -> seq_source, nCount_RNA -> nUMI, nFeature_RNA -> nGene for ease of use")
-metadata_prefiltered <- metadata_prefiltered %>%
-        dplyr::rename(seq_source = orig.ident,
-                      nUMI = nCount_RNA,
-                      nGene = nFeature_RNA)
+metadata_prefiltered <- rename_cols(metadata_prefiltered)
 metadata_prefiltered$sample <- opts$sample_id
 message("Printing prefiltered QC Metrics")
 write.table(rownames_to_column(metadata_prefiltered, var="cell_ids"), paste0(opts$output_basename, ".barcode_qc.metrics.tsv"), quote=FALSE, row.names=FALSE, sep = "\t")
@@ -196,13 +200,14 @@ nonzero <- counts > 0
 keep_genes <- Matrix::rowSums(nonzero) >= opts$min_gene_prevalence
 filtered_counts <- counts[keep_genes, ]
 filtered_seurat <- CreateSeuratObject(filtered_counts, meta.data = filtered_seurat@meta.data)
+# drop extra columns metadata made by CreateSeuratObject
+filtered_seurat@meta.data <- subset(filtered_seurat@meta.data, select = -c(`orig.ident`, `nCount_RNA`, `nFeature_RNA`))
+
 message("Output QC filtered count matrix")
 filtered_ct_matrix_fname = paste0(opts$output_basename, ".qc_filtered.counts_matrix.h5")
 DropletUtils::write10xCounts(path = filtered_ct_matrix_fname, x = filtered_seurat@assays$RNA@data, type="HDF5")
 message("Repeating metrics and plots for filtered data")
-filtered_seurat <- calculate_metrics(filtered_seurat)
 metadata_clean <- filtered_seurat@meta.data
-
 message("Normalizing read counts")
 filtered_seurat <- NormalizeData(filtered_seurat)
 
