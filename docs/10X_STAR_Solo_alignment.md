@@ -32,6 +32,20 @@ Output QC is based on [this tutorial](https://github.com/hbctraining/scRNA-seq_o
    - Smart-seq: each cell in a separate FASTQ (paired- or single-end), barcodes are corresponding read-groups, no UMI sequences, alignments deduplicated according to alignment start and end (after extending soft-clipped bases)
    - default: "CB_UMI_Simple"
  - `soloCBwhitelist`: file with whitelist of cell barcodes
+ - `soloMultiMappers`: Possible one or more values: 'Unique', 'Uniform', 'PropUnique', 'EM', 'Rescue'. Including
+      multi-gene reads allows for more accurate gene quantification and, more importantly, enables detection of gene expression from
+      certain classes of genes that are supported only by multi-gene reads, such as overlapping genes and highly similar paralog families.
+      Unique: software default, count only reads that map to unique genes Uniform: uniformly distributes the multi-gene UMIs to all
+      genes in its gene set. Each gene gets a fractional count of 1/N_genes, where N_genes is the number of genes in the set. This
+      is the simplest possible option, and it offers higher sensitivity for gene detection at the expense of lower precision PropUnique:
+      distributes the multi-gene UMIs proportionally to the number of unique UMIs per gene. UMIs that map to genes that are not supported
+      by unique UMIs are distributed uniformly EM: uses Maximum Likelihood Estimation (MLE) to distribute multi-gene UMIs among their
+      genes, taking into account other UMIs (both unique- and multi-gene) from the same cell (i.e. with the same CB). Expectation-Maximization
+      (EM) algorithm is used to find the gene expression values that maximize the likelihood function. Recovering multi-gene reads
+      via MLE-EM model was previously used to quantify transposable elements in bulk RNA-seq {TEtranscripts} and in scRNA-seq {Alevin;
+      Kallisto-bustools}. Rescue: distributes multi-gene UMIs to their gene set proportionally to the sum of the number of unique-gene
+      UMIs and uniformly distributed multi-gene UMIs in each gene Mortazavi et al. It can be thought of as the first step of the EM
+      algorithm
  - `soloUMIlen`: UMI length, default: 12
  - `clipAdapterType`: adapter clipping type.
    - Hamming: adapter clipping based on Hamming distance, with the number of mismatches controlled by -clip5pAdapterMMp
@@ -74,8 +88,9 @@ Output QC is based on [this tutorial](https://github.com/hbctraining/scRNA-seq_o
    - CellRanger2.2: simple filtering of CellRanger 2.2. Can be followed by numbers: number of expected cells, robust maximum percentile for UMI count, maximum to minimum ratio for UMI count. The harcoded values are from CellRanger: nExpectedCells=3000; maxPercentile=0.99; maxMinRatio=10
    - EmptyDrops_CR: EmptyDrops filtering in CellRanger flavor. Please cite the original EmptyDrops paper: A.T.L Lun et al, Genome Biology, 20, 63 (2019): https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1662-y, Can be followed by 10 numeric parameters: nExpectedCells maxPercentile maxMinRatio indMin indMax umiMin umiMinFracMedian candMaxN FDR simN. The harcoded values are from CellRanger: 3000 0.99 10 45000 90000 500 0.01 20000 0.01 10000
    - default: "EmptyDrops_CR"
-  outSAMtype: type of SAM/BAM output. None: no SAM/BAM output. Otherwise, first word is output type (BAM or SAM), second is sort type (Unsorted or SortedByCoordinate)
+ - `outSAMtype`: type of SAM/BAM output. None: no SAM/BAM output. Otherwise, first word is output type (BAM or SAM), second is sort type (Unsorted or SortedByCoordinate)
    - default: "None"
+ - `star_extra_args`: Any additional arguments for this tool. See STAR Documentation for complete list of options. Example input: `--limitSjdbInsertNsj 1000001`
 ### seurat Harvard Bioinformatics Core (HBC) qc
  - `qc_min_umi`: minimum number of umi for cell-level filtering
  - `qc_min_genes`: minimum number of genes for cell-level filtering
