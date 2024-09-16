@@ -198,10 +198,10 @@ inputs:
       via MLE-EM model was previously used to quantify transposable elements in bulk RNA-seq {TEtranscripts} and in scRNA-seq {Alevin;
       Kallisto-bustools}. Rescue: distributes multi-gene UMIs to their gene set proportionally to the sum of the number of unique-gene
       UMIs and uniformly distributed multi-gene UMIs in each gene Mortazavi et al. It can be thought of as the first step of the EM
-      algorithm"}
+      algorithm", default: ["EM"]}
   raw_count_choice: {type: ['null', {type: enum, name: raw_count_choice, symbols: ["Unique", "Uniform", "PropUnique", "EM", "Rescue"]}],
     doc: "Based on `soloMultiMappers`, if you wish to include/handle multi-gene hits in downstream anaylsis instead of default (ignore
-      multi-gene mappers), pick the method you want to use", default: "Unique"}
+      multi-gene mappers), pick the method you want to use", default: "EM"}
   outSAMtype: {type: ['null', {type: enum, name: outSAMtype, symbols: ["BAM Unsorted", "None", "BAM SortedByCoordinate", "SAM Unsorted",
           "SAM SortedByCoordinate"]}], default: "None", doc: "type of SAM/BAM output. None: no SAM/BAM output. Otherwise, first word
       is output type (BAM or SAM), second is sort type (Unsorted or SortedByCoordinate)"}
