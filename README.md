@@ -10,7 +10,7 @@
 This repo contains tools and workflows for analyzing single cell RNA (scRNA) data from 10X and SmartSeq2
 
 ## Production Workflows
-These workflows are considered acceptable for Single Cell Anaylsis
+These workflows are considered acceptable for Single Cell Analysis
 ### [10X STAR Solo 2.7.10b Alignment Workflow](docs/10X_STAR_Solo_alignment.md)
 Aligns and quantifies 10X single cell data using STAR Solo
 

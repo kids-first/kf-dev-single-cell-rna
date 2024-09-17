@@ -20,6 +20,12 @@ doc: |
   - STAR Solo 2.7.10b
   - Seurat 4.3.0.1
 
+  ## References
+  When the worklow is run on CAVATICA, default file input references should automatically be copied into your project upon first task creation.
+  They can also be obtained from the following sources:
+   - KFDRC AWS S3 bucket: s3://kids-first-seq-data/pipline_references/
+   - CAVATICA: https://cavatica.sbgenomics.com/u/kfdrc-harmonization/kf-references/
+
   ## Inputs
   ### multi-step
    - `output_basename`: basename used to name output files
@@ -72,7 +78,7 @@ doc: |
      - MultiGeneUMI_All: basic + remove all UMIs that map to more than one gene
      - MultiGeneUMI_CR: basic + remove lower-count UMIs that map to more than one gene, matching CellRanger > 3.0.0. Only works with -soloUMIdedup 1MM_CR
      - default: "MultiGeneUMI_CR"
-   - `soloUMIdedup`: type of UMI deduplication (collapsing) algorithm)
+   - `soloUMIdedup`: type of UMI deduplication (collapsing) algorithm
      - 1MM_All: all UMIs with 1 mismatch distance to each other are collapsed (i.e. counted once)
      - 1MM_Directional_UMItools: follows the ”directional” method from the UMI-tools by Smith, Heger and Sudbery (Genome Research 2017)
      - 1MM_Directional: same as 1MM Directional UMItools, but with more stringent criteria for duplicate UMIs
@@ -128,7 +134,8 @@ inputs:
   # multi-step
   output_basename: {type: string, doc: "basename used to name output files"}
   sample_name: {type: string, doc: "used as prefix for labeling data for downstream anaylsis"}
-  genomeDir: {type: File, doc: "Tar gzipped reference that will be unzipped at run time"}
+  genomeDir: {type: File, doc: "Tar gzipped reference that will be unzipped at run time", "sbg:suggestedValue": {class: File, path: 66e98f72560be460e939d7d8,
+      name: STAR_2.7.10b_GENCODE39_10X.tar.gz}}
   readFilesIn1: {type: 'File[]', doc: "Input fastq file(s), gzipped or uncompressed"}
   readFilesIn2: {type: 'File[]', doc: "R2 or 'mates' reads file(s), gzipped or uncompressed"}
   runThreadN: {type: 'int?', doc: "Num threads for STAR Solo to use", default: 16}
@@ -143,7 +150,8 @@ inputs:
       tag. No UMI counting. –readFilesIn cDNA read1 [cDNA read2 if paired-end] CellBarcode read . Requires -outSAMtype BAM Unsorted
       [and/or SortedByCoordinate] Smart-seq: each cell in a separate FASTQ (paired- or single-end), barcodes are corresponding read-groups,
       no UMI sequences, alignments deduplicated according to alignment start and end (after extending soft-clipped bases)", default: "CB_UMI_Simple"}
-  soloCBwhitelist: {type: File, doc: "file with whitelist of cell barcodes"}
+  soloCBwhitelist: {type: File, doc: "file with whitelist of cell barcodes", "sbg:suggestedValue": {class: File, path: 66e98f72560be460e939d7d7,
+      name: 3M-february-2018.txt}}
   soloUMIlen: {type: 'int?', doc: "UMI length", default: 12}
   clipAdapterType: {type: ['null', {type: enum, name: clipAdapterType, symbols: ["Hamming", "CellRanger4", "None"]}], doc: "adapter
       clipping type. Hamming: adapter clipping based on Hamming distance, with the number of mismatches controlled by -clip5pAdapterMMp.
@@ -166,7 +174,7 @@ inputs:
       + remove all UMIs that map to more than one gene. MultiGeneUMI_CR: basic + remove lower-count UMIs that map to more than one
       gene, matching CellRanger > 3.0.0. Only works with -soloUMIdedup 1MM_CR", default: "MultiGeneUMI_CR"}
   soloUMIdedup: {type: ['null', {type: enum, name: soloUMIdedup, symbols: ["1MM_All", "1MM_Directional_UMItools", "1MM_Directional",
-          "Exact", "NoDedup", "1MM_CR"]}], doc: "type of UMI deduplication (collapsing) algorithm). 1MM_All: all UMIs with 1 mismatch
+          "Exact", "NoDedup", "1MM_CR"]}], doc: "type of UMI deduplication (collapsing) algorithm. 1MM_All: all UMIs with 1 mismatch
       distance to each other are collapsed (i.e. counted once). 1MM_Directional_UMItools: follows the 'directional' method from the
       UMI-tools by Smith, Heger and Sudbery (Genome Research 2017). 1MM_Directional: same as 1MM Directional UMItools, but with more
       stringent criteria for duplicate UMIs. Exact: only exactly matching UMIs are collapsed NoDedup: no deduplication of UMIs, count
@@ -305,10 +313,14 @@ steps:
       memory: qc_memory
     out: [qc_barcode_metrics, qc_plots, qc_boxplot_stats, qc_cell_counts, qc_filtered_ct_matrix, qc_variable_features_plot]
 
-sbg:license: Apache License 2.0
-sbg:publisher: KFDRC
 $namespaces:
   sbg: https://sevenbridges.com
+
+"sbg:license": Apache License 2.0
+"sbg:publisher": KFDRC
+"sbg:links":
+- id: 'https://github.com/kids-first/kf-dev-single-cell-rna/releases/tag/v1.1.0'
+  label: github-release
 hints:
 - class: 'sbg:maxNumberOfParallelInstances'
   value: 2
