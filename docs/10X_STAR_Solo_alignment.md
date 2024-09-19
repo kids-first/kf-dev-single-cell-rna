@@ -15,6 +15,12 @@ Output QC is based on [this tutorial](https://github.com/hbctraining/scRNA-seq_o
 - STAR Solo 2.7.10b
 - Seurat 4.3.0.1
 
+## References
+When the worklow is run on CAVATICA, default file input references should automatically be copied into your project upon first task creation.
+They can also be obtained from the following sources:
+ - KFDRC AWS S3 bucket: s3://kids-first-seq-data/pipline_references/
+ - CAVATICA: https://cavatica.sbgenomics.com/u/kfdrc-harmonization/kf-references/
+
 ## Inputs
 ### multi-step
  - `output_basename`: basename used to name output files
@@ -67,7 +73,7 @@ Output QC is based on [this tutorial](https://github.com/hbctraining/scRNA-seq_o
    - MultiGeneUMI_All: basic + remove all UMIs that map to more than one gene
    - MultiGeneUMI_CR: basic + remove lower-count UMIs that map to more than one gene, matching CellRanger > 3.0.0. Only works with -soloUMIdedup 1MM_CR
    - default: "MultiGeneUMI_CR"
- - `soloUMIdedup`: type of UMI deduplication (collapsing) algorithm)
+ - `soloUMIdedup`: type of UMI deduplication (collapsing) algorithm
    - 1MM_All: all UMIs with 1 mismatch distance to each other are collapsed (i.e. counted once)
    - 1MM_Directional_UMItools: follows the ”directional” method from the UMI-tools by Smith, Heger and Sudbery (Genome Research 2017)
    - 1MM_Directional: same as 1MM Directional UMItools, but with more stringent criteria for duplicate UMIs
