@@ -134,6 +134,9 @@ inputs:
   # multi-step
   output_basename: {type: string, doc: "basename used to name output files"}
   sample_name: {type: string, doc: "used as prefix for labeling data for downstream anaylsis"}
+  # cutadapt
+  fixed_length: { type: 'int[]?', doc: "A preprocessing step in the event that the sequencing center delivered data without removing junk 3' bases"}
+  # STAR
   genomeDir: {type: File, doc: "Tar gzipped reference that will be unzipped at run time", "sbg:suggestedValue": {class: File, path: 66e98f72560be460e939d7d8,
       name: STAR_2.7.10b_GENCODE39_10X.tar.gz}}
   readFilesIn1: {type: 'File[]', doc: "Input fastq file(s), gzipped or uncompressed"}
@@ -243,14 +246,29 @@ outputs:
   qc_variable_features_plot: {type: File, outputSource: seurat_hbc_qc/qc_variable_features_plot, doc: "PDF with a dot plot of variable
       genes with top 20 labeled"}
 steps:
+  cutadapt_fixed_length:
+    run: ../tools/cutadapt_fixed_length.cwl
+    when: $(inputs.fixed_length != null)
+    scatter: [readFilesIn1, readFilesIn2]
+    scatterMethod: dotproduct
+    in:
+      fixed_length: fixed_length
+      readFilesIn1: readFilesIn1
+      readFilesIn2: readFilesIn2
+    out: [trimmedReadsR1, trimmedReadsR2]
+
   star_solo_align:
     run: ../tools/star_solo_2.7.10b.cwl
     in:
       outSAMattrRGline: outSAMattrRGline
       twopassMode: twopassMode
       genomeDir: genomeDir
-      readFilesIn1: readFilesIn1
-      readFilesIn2: readFilesIn2
+      readFilesIn1:
+        source: [cutadapt_fixed_length/trimmedReadsR1, readFilesIn1]
+        pickValue: first_non_null
+      readFilesIn2:
+        source: [cutadapt_fixed_length/trimmedReadsR2, readFilesIn2]
+        pickValue: first_non_null
       runThreadN: runThreadN
       outFileNamePrefix: output_basename
       solo_type: solo_type
@@ -324,3 +342,5 @@ $namespaces:
 hints:
 - class: 'sbg:maxNumberOfParallelInstances'
   value: 2
+- class: 'sbg:AWSInstanceType'
+  value: m6i.4xlarge
