@@ -27,7 +27,7 @@ They can also be obtained from the following sources:
  - `output_basename`: basename used to name output files
  - `sample_name`: used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz, one per input fastq in the same order
 ### cutadapt
- - `fixed_length`: Use in the event that a sequencing center returned full length reads with unusable bases. This array will set the length of the read and lengths to the specified values. For example for 10X v3.1, use `[28, 90]`
+ - `fixed_length`: Use in the event that a sequencing center returned full length reads with unusable bases. This array will set the length of the read and lengths to the specified values. For example for 10X v3.1, use `[28, 91]`
 ### STAR Solo
  - `outSAMattrRGline`: Set if outputting bam, with TABS SEPARATING THE TAGS, format is: ID:sample_name LB:aliquot_id PL:platform SM:BSID for example ID:7316-242	LB:750189	PL:ILLUMINA	SM:BS_W72364MN
  - `genomeDir`: Tar gzipped reference that will be unzipped at run time

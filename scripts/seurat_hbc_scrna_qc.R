@@ -205,7 +205,7 @@ filtered_seurat@meta.data <- subset(filtered_seurat@meta.data, select = -c(`orig
 
 message("Output QC filtered count matrix")
 filtered_ct_matrix_fname = paste0(opts$output_basename, ".qc_filtered.counts_matrix.h5")
-DropletUtils::write10xCounts(path = filtered_ct_matrix_fname, x = filtered_seurat@assays$RNA@data, type="HDF5")
+DropletUtils::write10xCounts(path = filtered_ct_matrix_fname, x = filtered_seurat@assays$RNA@data, barcodes=colnames(filtered_seurat@assays$RNA@data), gene.id=rownames(filtered_seurat@assays$RNA@data), gene.type = "Gene Expression", version=3, type="HDF5", chemistry = "Single Cell 3' v3")
 message("Repeating metrics and plots for filtered data")
 metadata_clean <- filtered_seurat@meta.data
 message("Normalizing read counts")
