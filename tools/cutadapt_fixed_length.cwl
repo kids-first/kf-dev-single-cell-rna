@@ -14,15 +14,18 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      cutadapt -j 8 --length $(inputs.fixed_length[0]) -o TRIMMED.$(inputs.readFilesIn1.basename)
+      cutadapt -j 8 -o TRIMMED.$(inputs.readFilesIn1.basename)
   - position: 3
     shellQuote: false
     valueFrom: >-
-      && cutadapt -j 8 --length $(inputs.fixed_length[1]) -o TRIMMED.$(inputs.readFilesIn2.basename)
+      && cutadapt -j 8 -o TRIMMED.$(inputs.readFilesIn2.basename)
 
 
 inputs:
-  fixed_length: { type: 'int[]', doc: "Shorten reads to a fixed length. Useful for specialized protocols in which the instrument will read beyond useable sequence" }
+  r1_max_len: {type: int, doc: "Set read1 to a fixed length. Useful for single cell experiments in which the number of cycles was improperly configured during sequencing. Recommend 28 for 10X v3 chemistry",
+    inputBinding: { prefix: "--length", position: 1 } }
+  r2_max_len: {type: int, doc: "Set read2 to a fixed length. Useful for single cell experiments in which the number of cycles was improperly configured during sequencing. Recommend 91 for 10X v3 chemistry",
+    inputBinding: { prefix: "--length", position: 3 } }
   readFilesIn1: { type: File, doc: "read1 fastq file", inputBinding: {position: 2} }
   readFilesIn2: { type: File, doc: "read2 fastq file", inputBinding: {position: 4} }
 

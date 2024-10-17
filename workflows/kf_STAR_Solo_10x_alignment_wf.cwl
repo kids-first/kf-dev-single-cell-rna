@@ -32,7 +32,9 @@ doc: |
    - `output_basename`: basename used to name output files
    - `sample_name`: used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz, one per input fastq in the same order
   ### cutadapt
-   - `fixed_length`: Use in the event that a sequencing center returned full length reads with unusable bases. This array will set the length of the read and lengths to the specified values. For example for 10X v3.1, use `[28, 91]`
+   - `r1_max_len`: Set read1 to a fixed length. Useful for single cell experiments in which the number of cycles was improperly configured during sequencing. Recommend `28` for 10X v3 chemistry
+   - `r2_max_len`: Set read2 to a fixed length. Useful for single cell experiments in which the number of cycles was improperly configured during sequencing. Recommend `91` for 10X v3 chemistry
+
   ### STAR Solo
    - `outSAMattrRGline`: Set if outputting bam, with TABS SEPARATING THE TAGS, format is: ID:sample_name LB:aliquot_id PL:platform SM:BSID for example ID:7316-242	LB:750189	PL:ILLUMINA	SM:BS_W72364MN
    - `genomeDir`: Tar gzipped reference that will be unzipped at run time
@@ -138,8 +140,10 @@ inputs:
   output_basename: {type: string, doc: "basename used to name output files"}
   sample_name: {type: string, doc: "used as prefix for labeling data for downstream anaylsis"}
   # cutadapt
-  fixed_length: {type: 'int[]?', doc: "A preprocessing step in the event that the sequencing center delivered data without removing
-      junk 3' bases"}
+  r1_max_len: {type: 'int?', doc: "Set read1 to a fixed length. Useful for single cell experiments in which the number of cycles was
+      improperly configured during sequencing. Recommend 28 for 10X v3 chemistry"}
+  r2_max_len: {type: 'int?', doc: "Set read2 to a fixed length. Useful for single cell experiments in which the number of cycles was
+      improperly configured during sequencing. Recommend 91 for 10X v3 chemistry"}
   # STAR
   genomeDir: {type: File, doc: "Tar gzipped reference that will be unzipped at run time", "sbg:suggestedValue": {class: File, path: 66e98f72560be460e939d7d8,
       name: STAR_2.7.10b_GENCODE39_10X.tar.gz}}
@@ -253,13 +257,14 @@ steps:
   cutadapt_fixed_length:
     run: ../tools/cutadapt_fixed_length.cwl
     hints:
-      - class: 'sbg:AWSInstanceType'
-        value: c6i.2xlarge
-    when: $(inputs.fixed_length != null)
+    - class: 'sbg:AWSInstanceType'
+      value: c6i.2xlarge
+    when: $(inputs.r1_max_len != null && inputs.r2_max_len != null)
     scatter: [readFilesIn1, readFilesIn2]
     scatterMethod: dotproduct
     in:
-      fixed_length: fixed_length
+      r1_max_len: r1_max_len
+      r2_max_len: r2_max_len
       readFilesIn1: readFilesIn1
       readFilesIn2: readFilesIn2
     out: [trimmedReadsR1, trimmedReadsR2]
