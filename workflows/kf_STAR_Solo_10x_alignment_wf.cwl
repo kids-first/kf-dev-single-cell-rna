@@ -349,7 +349,7 @@ $namespaces:
 "sbg:license": Apache License 2.0
 "sbg:publisher": KFDRC
 "sbg:links":
-- id: 'https://github.com/kids-first/kf-dev-single-cell-rna/releases/tag/v1.1.0'
+- id: 'https://github.com/kids-first/kf-dev-single-cell-rna/releases/tag/v1.1.1'
   label: github-release
 hints:
 - class: 'sbg:maxNumberOfParallelInstances'
