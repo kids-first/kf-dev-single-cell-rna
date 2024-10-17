@@ -4,7 +4,7 @@
 suppressMessages(library(optparse))
 suppressMessages(library(DropletUtils))
 
-#process inputs
+# process inputs
 option_list <- list(
   make_option(
     opt_str = "--counts_dir",
@@ -23,12 +23,12 @@ option_list <- list(
   )
 )
 
-#parse options
+# parse options
 opts <- parse_args(OptionParser(option_list = option_list))
 counts_dir <- opts$counts_dir
 output_basename <- opts$output_basename
 sample_name <- opts$sample_name
 
-counts_in = DropletUtils::read10xCounts(counts_dir, sample.names=sample_name, col.names=TRUE)
-outfile = paste0(output_basename, ".h5")
-DropletUtils::write10xCounts(outfile, counts_in@assays@data@listData$counts, gene.id=counts_in@rowRanges@elementMetadata@listData$ID, gene.symbol=counts_in@rowRanges@elementMetadata@listData$Symbol, type="HDF5")
+counts_in <- DropletUtils::read10xCounts(counts_dir, sample.names = sample_name, col.names = TRUE)
+outfile <- paste0(output_basename, ".h5")
+DropletUtils::write10xCounts(outfile, counts_in@assays@data@listData$counts, gene.id = counts_in@rowRanges@elementMetadata@listData$ID, gene.symbol = counts_in@rowRanges@elementMetadata@listData$Symbol, gene.type = "Gene Expression", version = "3", type = "HDF5", chemistry = "Single Cell 3' v3")

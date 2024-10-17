@@ -16,9 +16,10 @@ doc: |
   Some custom tools are used to create Cell Ranger-like output file structure and h5 files for downstream refinement compatibility
   Output QC is based on [this tutorial](https://github.com/hbctraining/scRNA-seq_online/blob/scRNAseq/lessons/04_SC_quality_control.md) and [this doc](./10X_SEURAT_HBC_SCRNA_QC.md) summarizes the process and outputs
   ## Software
-
-  - STAR Solo 2.7.10b
-  - Seurat 4.3.0.1
+   - Cutadapt v3.4
+   - [STAR Solo 2.7.10b](https://github.com/alexdobin/STAR/archive/2.7.10b.tar.gz)
+   - [Seurat 4.3.0.1](https://cran.r-project.org/src/contrib/Archive/Seurat/Seurat_4.3.0.1.tar.gz)
+   - [Seurat Object 4.1.3](https://cran.r-project.org/src/contrib/Archive/SeuratObject/SeuratObject_4.1.3.tar.gz)
 
   ## References
   When the worklow is run on CAVATICA, default file input references should automatically be copied into your project upon first task creation.
@@ -30,6 +31,10 @@ doc: |
   ### multi-step
    - `output_basename`: basename used to name output files
    - `sample_name`: used as prefix for finding fastqs to analyze, e.g. 1k_PBMCs_TotalSeq_B_3p_LT_antibody if the names of the underlying fastqs are of the form 1k_PBMCs_TotalSeq_B_3p_LT_antibody_S1_L001_I1_001.fastq.gz, one per input fastq in the same order
+  ### cutadapt
+   - `r1_max_len`: Set read1 to a fixed length. Useful for single cell experiments in which the number of cycles was improperly configured during sequencing. Recommend `28` for 10X v3 chemistry
+   - `r2_max_len`: Set read2 to a fixed length. Useful for single cell experiments in which the number of cycles was improperly configured during sequencing. Recommend `91` for 10X v3 chemistry
+
   ### STAR Solo
    - `outSAMattrRGline`: Set if outputting bam, with TABS SEPARATING THE TAGS, format is: ID:sample_name LB:aliquot_id PL:platform SM:BSID for example ID:7316-242	LB:750189	PL:ILLUMINA	SM:BS_W72364MN
    - `genomeDir`: Tar gzipped reference that will be unzipped at run time
@@ -134,6 +139,12 @@ inputs:
   # multi-step
   output_basename: {type: string, doc: "basename used to name output files"}
   sample_name: {type: string, doc: "used as prefix for labeling data for downstream anaylsis"}
+  # cutadapt
+  r1_max_len: {type: 'int?', doc: "Set read1 to a fixed length. Useful for single cell experiments in which the number of cycles was
+      improperly configured during sequencing. Recommend 28 for 10X v3 chemistry"}
+  r2_max_len: {type: 'int?', doc: "Set read2 to a fixed length. Useful for single cell experiments in which the number of cycles was
+      improperly configured during sequencing. Recommend 91 for 10X v3 chemistry"}
+  # STAR
   genomeDir: {type: File, doc: "Tar gzipped reference that will be unzipped at run time", "sbg:suggestedValue": {class: File, path: 66e98f72560be460e939d7d8,
       name: STAR_2.7.10b_GENCODE39_10X.tar.gz}}
   readFilesIn1: {type: 'File[]', doc: "Input fastq file(s), gzipped or uncompressed"}
@@ -243,14 +254,33 @@ outputs:
   qc_variable_features_plot: {type: File, outputSource: seurat_hbc_qc/qc_variable_features_plot, doc: "PDF with a dot plot of variable
       genes with top 20 labeled"}
 steps:
+  cutadapt_fixed_length:
+    run: ../tools/cutadapt_fixed_length.cwl
+    hints:
+    - class: 'sbg:AWSInstanceType'
+      value: c6i.2xlarge
+    when: $(inputs.r1_max_len != null && inputs.r2_max_len != null)
+    scatter: [readFilesIn1, readFilesIn2]
+    scatterMethod: dotproduct
+    in:
+      r1_max_len: r1_max_len
+      r2_max_len: r2_max_len
+      readFilesIn1: readFilesIn1
+      readFilesIn2: readFilesIn2
+    out: [trimmedReadsR1, trimmedReadsR2]
+
   star_solo_align:
     run: ../tools/star_solo_2.7.10b.cwl
     in:
       outSAMattrRGline: outSAMattrRGline
       twopassMode: twopassMode
       genomeDir: genomeDir
-      readFilesIn1: readFilesIn1
-      readFilesIn2: readFilesIn2
+      readFilesIn1:
+        source: [cutadapt_fixed_length/trimmedReadsR1, readFilesIn1]
+        pickValue: first_non_null
+      readFilesIn2:
+        source: [cutadapt_fixed_length/trimmedReadsR2, readFilesIn2]
+        pickValue: first_non_null
       runThreadN: runThreadN
       outFileNamePrefix: output_basename
       solo_type: solo_type
