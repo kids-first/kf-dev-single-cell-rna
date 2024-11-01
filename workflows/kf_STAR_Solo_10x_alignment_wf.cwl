@@ -37,6 +37,7 @@ doc: |
 
   ### STAR Solo
    - `outSAMattrRGline`: Set if outputting bam, with TABS SEPARATING THE TAGS, format is: ID:sample_name LB:aliquot_id PL:platform SM:BSID for example ID:7316-242	LB:750189	PL:ILLUMINA	SM:BS_W72364MN
+   - `outSAMattributes`: Set if outputting bam, a string of desired SAM attributes, in the order desired for the output SAM. Tags can be listed in any combination/order. Please refer to the STAR manual, as there are numerous combinations: https://raw.githubusercontent.com/alexdobin/STAR/master/doc/STARmanual.pdf
    - `genomeDir`: Tar gzipped reference that will be unzipped at run time
    - `readFilesIn1`: Input fastq file(s), gzipped or uncompressed
    - `readFilesIn2` R2 or 'mates' reads file(s), gzipped or uncompressed
@@ -152,6 +153,8 @@ inputs:
   runThreadN: {type: 'int?', doc: "Num threads for STAR Solo to use", default: 16}
   outSAMattrRGline: {type: 'string?', doc: "Set if outputting bam, with TABS SEPARATING THE TAGS, format is: ID:sample_name LB:aliquot_id
       PL:platform SM:BSID for example ID:7316-242 LB:750189 PL:ILLUMINA SM:BS_W72364MN"}
+  outSAMattributes: {type: 'string?', doc: "a string of desired SAM attributes, in the order desired for the output SAM. Tags can
+      be listed in any combination/order. Please refer to the STAR manual, as there are numerous combinations: https://raw.githubusercontent.com/alexdobin/STAR/master/doc/STARmanual.pdf"}
   twopassMode: {type: ['null', {type: enum, name: twopassMode, symbols: ["Basic", "None"]}], default: "Basic", doc: "Enable two pass
       mode to detect novel splice events. Default is Basic (on)."}
   solo_type: {type: ['null', {type: enum, name: soloType, symbols: ["CB_UMI_Simple", "CB UMI Complex", "CB samTagOut", "SmartSeq"]}],
@@ -273,14 +276,15 @@ steps:
     run: ../tools/star_solo_2.7.10b.cwl
     in:
       outSAMattrRGline: outSAMattrRGline
+      outSAMattributes: outSAMattributes
       twopassMode: twopassMode
       genomeDir: genomeDir
       readFilesIn1:
         source: [cutadapt_fixed_length/trimmedReadsR1, readFilesIn1]
-        pickValue: first_non_null
+        valueFrom: "$(self[0].every(function(e) { return e != null }) ? self[0] : self[1])"
       readFilesIn2:
         source: [cutadapt_fixed_length/trimmedReadsR2, readFilesIn2]
-        pickValue: first_non_null
+        valueFrom: "$(self[0].every(function(e) { return e != null }) ? self[0] : self[1])"
       runThreadN: runThreadN
       outFileNamePrefix: output_basename
       solo_type: solo_type

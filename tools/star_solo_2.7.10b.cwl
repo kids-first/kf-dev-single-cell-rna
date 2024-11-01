@@ -40,6 +40,9 @@ inputs:
       THE TAGS, format is: ID:sample_name LB:aliquot_id PL:platform SM:BSID for \
       example ID:7316-242 LB:750189 PL:ILLUMINA SM:BS_W72364MN",
       inputBinding: { position: 5, prefix: '--outSAMattrRGline', shellQuote: false } }
+  outSAMattributes: { type: 'string?', doc: "a string of desired SAM attributes, in the order desired for the output SAM. Tags can be listed in any combination/order. \
+      Please refer to the STAR manual, as there are numerous combinations: https://raw.githubusercontent.com/alexdobin/STAR/master/doc/STARmanual.pdf",
+      inputBinding: { position: 5, prefix: '--outSAMattributes', shellQuote: false } }
   solo_type: { type: [ 'null', {type: enum, name: soloType, symbols: ["CB_UMI_Simple", "CB UMI Complex", "CB samTagOut", "SmartSeq"]}],
     doc: "type of single-cell RNAseq. \
     CB_UMI_Simple: (a.k.a. Droplet) one UMI and one Cell Barcode of fixed length in read2, e.g. Drop-seq and 10X Chromium, \

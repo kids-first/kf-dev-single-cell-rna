@@ -32,6 +32,7 @@ They can also be obtained from the following sources:
 
 ### STAR Solo
  - `outSAMattrRGline`: Set if outputting bam, with TABS SEPARATING THE TAGS, format is: ID:sample_name LB:aliquot_id PL:platform SM:BSID for example ID:7316-242	LB:750189	PL:ILLUMINA	SM:BS_W72364MN
+ - `outSAMattributes`: Set if outputting bam, a string of desired SAM attributes, in the order desired for the output SAM. Tags can be listed in any combination/order. Please refer to the STAR manual, as there are numerous combinations: https://raw.githubusercontent.com/alexdobin/STAR/master/doc/STARmanual.pdf
  - `genomeDir`: Tar gzipped reference that will be unzipped at run time
  - `readFilesIn1`: Input fastq file(s), gzipped or uncompressed
  - `readFilesIn2` R2 or 'mates' reads file(s), gzipped or uncompressed
