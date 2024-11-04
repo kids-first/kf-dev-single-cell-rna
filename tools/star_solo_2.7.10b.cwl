@@ -110,15 +110,15 @@ inputs:
     Rescue: distributes multi-gene UMIs to their gene set proportionally to the sum of the number of unique-gene UMIs and uniformly distributed multi-gene UMIs in each gene Mortazavi et al. It can be thought of as the first step of the EM algorithm",
     inputBinding: { position: 5, prefix: "--soloMultiMappers" } }
   extra_args: { type: 'string?', inputBinding: { position: 5, shellQuote: false }, doc: "Any additional arguments for this tool. See STAR Documentation for complete list of options. Example input: --limitSjdbInsertNsj 1000001" }
-  outSAMtype: { type: [ 'null', {type: enum, name: outSAMtype, symbols: ["BAM Unsorted", "None", "BAM SortedByCoordinate", "SAM Unsorted", "SAM SortedByCoordinate"]}],
+  outSAMtype: { type: [ 'null', {type: enum, name: outSAMtype, symbols: ["BAM Unsorted", "None", "BAM SortedByCoordinate", "SAM"]}],
     default: "None",
-    doc: "type of SAM/BAM output. None: no SAM/BAM output. Otherwise, first word is output type (BAM or SAM), second is sort type (Unsorted or SortedByCoordinate)",
+    doc: "type of SAM/BAM output. None: no SAM/BAM output. Otherwise, first word is output type (BAM or SAM), second, if BAM, is sort type (Unsorted or SortedByCoordinate)",
     inputBinding: { position: 3, prefix: '--outSAMtype', shellQuote: false } }
 
 outputs:
   log_progress_out: { type: File, doc: "Simple progress output. Can use to gauge speed and run time", outputBinding: {glob: '*Log.progress.out'} }
   log_out: { type: File, doc: "Contains a summary of all params used and reference files", outputBinding: {glob: '*Log.out'} }
   log_final_out: { type: File, doc: "Overall summary of read mapping statistics", outputBinding: {glob: '*Log.final.out'} }
-  genomic_bam_out: { type: 'File?', doc: "UNSORTED read mapping to genomic coordinates", outputBinding: {glob: '*Aligned*bam'} }
+  genomic_bam_out: { type: 'File?', doc: "Reads mapping to genomic coordinates", outputBinding: {glob: '*Aligned*[b|s]am'} }
   junctions_out: { type: File, doc: "high confidence collapsed splice junctions in tab-delimited form", outputBinding: {glob: '*SJ.out.tab'} }
   counts_dir: { type: Directory, doc: "Output dir with raw and filtered counts", outputBinding: { glob: '*.Solo.out'} }

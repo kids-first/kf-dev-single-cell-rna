@@ -36,7 +36,7 @@ doc: |
    - `r2_max_len`: Set read2 to a fixed length. Useful for single cell experiments in which the number of cycles was improperly configured during sequencing. Recommend `91` for 10X v3 chemistry
 
   ### STAR Solo
-   - `outSAMattrRGline`: Set if outputting bam, with TABS SEPARATING THE TAGS, format is: ID:sample_name LB:aliquot_id PL:platform SM:BSID for example ID:7316-242	LB:750189	PL:ILLUMINA	SM:BS_W72364MN
+   - `outSAMattrRGline`: Set if outputting bam, with TABS SEPARATING THE TAGS, format is: ID:sample_name LB:aliquot_id PL:platform SM:BSID for example `ID:HFWFVDMXX.L001	LB:750189	PL:ILLUMINA	SM:BS_W72364MN`. If more than one fastq pair in input, it is recommended to have one read group per pair, separated by space-comma-space (` , `)
    - `outSAMattributes`: Set if outputting bam, a string of desired SAM attributes, in the order desired for the output SAM. Tags can be listed in any combination/order. Please refer to the STAR manual, as there are numerous combinations: https://raw.githubusercontent.com/alexdobin/STAR/master/doc/STARmanual.pdf
    - `genomeDir`: Tar gzipped reference that will be unzipped at run time
    - `readFilesIn1`: Input fastq file(s), gzipped or uncompressed
@@ -105,7 +105,7 @@ doc: |
      - CellRanger2.2: simple filtering of CellRanger 2.2. Can be followed by numbers: number of expected cells, robust maximum percentile for UMI count, maximum to minimum ratio for UMI count. The harcoded values are from CellRanger: nExpectedCells=3000; maxPercentile=0.99; maxMinRatio=10
      - EmptyDrops_CR: EmptyDrops filtering in CellRanger flavor. Please cite the original EmptyDrops paper: A.T.L Lun et al, Genome Biology, 20, 63 (2019): https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1662-y, Can be followed by 10 numeric parameters: nExpectedCells maxPercentile maxMinRatio indMin indMax umiMin umiMinFracMedian candMaxN FDR simN. The harcoded values are from CellRanger: 3000 0.99 10 45000 90000 500 0.01 20000 0.01 10000
      - default: "EmptyDrops_CR"
-   - `outSAMtype`: type of SAM/BAM output. None: no SAM/BAM output. Otherwise, first word is output type (BAM or SAM), second is sort type (Unsorted or SortedByCoordinate)
+   - `outSAMtype`: type of SAM/BAM output. None: no SAM/BAM output. Otherwise, first word is output type (BAM or SAM), second, if BAM, is sort type (Unsorted or SortedByCoordinate)
      - default: "None"
    - `star_extra_args`: Any additional arguments for this tool. See STAR Documentation for complete list of options. Example input: `--limitSjdbInsertNsj 1000001`
   ### seurat Harvard Bioinformatics Core (HBC) qc
@@ -224,9 +224,9 @@ inputs:
   raw_count_choice: {type: ['null', {type: enum, name: raw_count_choice, symbols: ["Unique", "Uniform", "PropUnique", "EM", "Rescue"]}],
     doc: "Based on `soloMultiMappers`, if you wish to include/handle multi-gene hits in downstream anaylsis instead of default (ignore
       multi-gene mappers), pick the method you want to use", default: "EM"}
-  outSAMtype: {type: ['null', {type: enum, name: outSAMtype, symbols: ["BAM Unsorted", "None", "BAM SortedByCoordinate", "SAM Unsorted",
-          "SAM SortedByCoordinate"]}], default: "None", doc: "type of SAM/BAM output. None: no SAM/BAM output. Otherwise, first word
-      is output type (BAM or SAM), second is sort type (Unsorted or SortedByCoordinate)"}
+  outSAMtype: {type: ['null', {type: enum, name: outSAMtype, symbols: ["BAM Unsorted", "None", "BAM SortedByCoordinate", "SAM"]}],
+    default: "None", doc: "type of SAM/BAM output. None: no SAM/BAM output. Otherwise, first word is output type (BAM or SAM), second,
+      if BAM, is sort type (Unsorted or SortedByCoordinate)"}
   star_extra_args: {type: 'string?', doc: "Any additional arguments for this tool. See STAR Documentation for complete list of options.
       Example input: --limitSjdbInsertNsj 1000001"}
   # Seurat HBC QC
