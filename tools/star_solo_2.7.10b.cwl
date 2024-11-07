@@ -24,6 +24,7 @@ arguments:
       --genomeDir ./$(inputs.genomeDir.nameroot.replace(".tar", ""))/
       --readFilesCommand $(inputs.readFilesIn1[0].nameext == '.gz' ? 'zcat' : '-')
       --outFileNamePrefix $(inputs.outFileNamePrefix).
+      $(inputs.outSAMattrRGline ? "--outSAMattrRGline " + inputs.outSAMattrRGline.join(" , ") : "")
 
 inputs:
   genomeDir: { type: File, doc: "Tar gzipped reference that will be unzipped at run time" }
@@ -36,10 +37,9 @@ inputs:
     Tool will add '.' after prefix to easily delineate between file name and suffix" }
   twopassMode: { type: ['null', {type: enum, name: twopassMode, symbols: ["Basic", "None"]}], default: "None",
     doc: "Enable two pass mode to detect novel splice events. Default is None (off).", inputBinding: { position: 5, prefix: '--twopassMode' } }
-  outSAMattrRGline: { type: 'string?', doc: "Set if outputting bam, with TABS SEPARATING \
+  outSAMattrRGline: { type: 'string[]?', doc: "Set if outputting bam, with TABS SEPARATING \
       THE TAGS, format is: ID:sample_name LB:aliquot_id PL:platform SM:BSID for \
-      example ID:7316-242 LB:750189 PL:ILLUMINA SM:BS_W72364MN",
-      inputBinding: { position: 5, prefix: '--outSAMattrRGline', shellQuote: false } }
+      example ID:7316-242 LB:750189 PL:ILLUMINA SM:BS_W72364MN" }
   outSAMattributes: { type: 'string?', doc: "a string of desired SAM attributes, in the order desired for the output SAM. Tags can be listed in any combination/order. \
       Please refer to the STAR manual, as there are numerous combinations: https://raw.githubusercontent.com/alexdobin/STAR/master/doc/STARmanual.pdf",
       inputBinding: { position: 5, prefix: '--outSAMattributes', shellQuote: false } }

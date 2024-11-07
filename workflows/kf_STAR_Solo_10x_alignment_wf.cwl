@@ -36,7 +36,7 @@ doc: |
    - `r2_max_len`: Set read2 to a fixed length. Useful for single cell experiments in which the number of cycles was improperly configured during sequencing. Recommend `91` for 10X v3 chemistry
 
   ### STAR Solo
-   - `outSAMattrRGline`: Set if outputting bam, with TABS SEPARATING THE TAGS, format is: ID:sample_name LB:aliquot_id PL:platform SM:BSID for example `ID:HFWFVDMXX.L001	LB:750189	PL:ILLUMINA	SM:BS_W72364MN`. If more than one fastq pair in input, it is recommended to have one read group per pair, separated by space-comma-space (` , `)
+   - `outSAMattrRGline`: Set if outputting bam, with TABS SEPARATING THE TAGS, format is: ID:sample_name LB:aliquot_id PL:platform SM:BSID for example `ID:HFWFVDMXX.L001	LB:750189	PL:ILLUMINA	SM:BS_W72364MN`. If more than one fastq pair in input, it is recommended to have one read group per pair
    - `outSAMattributes`: Set if outputting bam, a string of desired SAM attributes, in the order desired for the output SAM. Tags can be listed in any combination/order. Please refer to the STAR manual, as there are numerous combinations: https://raw.githubusercontent.com/alexdobin/STAR/master/doc/STARmanual.pdf
    - `genomeDir`: Tar gzipped reference that will be unzipped at run time
    - `readFilesIn1`: Input fastq file(s), gzipped or uncompressed
@@ -151,7 +151,7 @@ inputs:
   readFilesIn1: {type: 'File[]', doc: "Input fastq file(s), gzipped or uncompressed"}
   readFilesIn2: {type: 'File[]', doc: "R2 or 'mates' reads file(s), gzipped or uncompressed"}
   runThreadN: {type: 'int?', doc: "Num threads for STAR Solo to use", default: 16}
-  outSAMattrRGline: {type: 'string?', doc: "Set if outputting bam, with TABS SEPARATING THE TAGS, format is: ID:sample_name LB:aliquot_id
+  outSAMattrRGline: {type: 'string[]?', doc: "Set if outputting bam, with TABS SEPARATING THE TAGS, format is: ID:sample_name LB:aliquot_id
       PL:platform SM:BSID for example ID:7316-242 LB:750189 PL:ILLUMINA SM:BS_W72364MN"}
   outSAMattributes: {type: 'string?', doc: "a string of desired SAM attributes, in the order desired for the output SAM. Tags can
       be listed in any combination/order. Please refer to the STAR manual, as there are numerous combinations: https://raw.githubusercontent.com/alexdobin/STAR/master/doc/STARmanual.pdf"}
