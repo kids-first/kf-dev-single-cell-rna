@@ -24,6 +24,7 @@ arguments:
       --genomeDir ./$(inputs.genomeDir.nameroot.replace(".tar", ""))/
       --readFilesCommand $(inputs.readFilesIn1[0].nameext == '.gz' ? 'zcat' : '-')
       --outFileNamePrefix $(inputs.outFileNamePrefix).
+      $(inputs.outSAMattrRGline ? "--outSAMattrRGline " + inputs.outSAMattrRGline.join(" , ") : "")
 
 inputs:
   genomeDir: { type: File, doc: "Tar gzipped reference that will be unzipped at run time" }
@@ -36,10 +37,12 @@ inputs:
     Tool will add '.' after prefix to easily delineate between file name and suffix" }
   twopassMode: { type: ['null', {type: enum, name: twopassMode, symbols: ["Basic", "None"]}], default: "None",
     doc: "Enable two pass mode to detect novel splice events. Default is None (off).", inputBinding: { position: 5, prefix: '--twopassMode' } }
-  outSAMattrRGline: { type: 'string?', doc: "Set if outputting bam, with TABS SEPARATING \
+  outSAMattrRGline: { type: 'string[]?', doc: "Set if outputting bam, with TABS SEPARATING \
       THE TAGS, format is: ID:sample_name LB:aliquot_id PL:platform SM:BSID for \
-      example ID:7316-242 LB:750189 PL:ILLUMINA SM:BS_W72364MN",
-      inputBinding: { position: 5, prefix: '--outSAMattrRGline', shellQuote: false } }
+      example ID:7316-242 LB:750189 PL:ILLUMINA SM:BS_W72364MN" }
+  outSAMattributes: { type: 'string?', doc: "a string of desired SAM attributes, in the order desired for the output SAM. Tags can be listed in any combination/order. \
+      Please refer to the STAR manual, as there are numerous combinations: https://raw.githubusercontent.com/alexdobin/STAR/master/doc/STARmanual.pdf",
+      inputBinding: { position: 5, prefix: '--outSAMattributes', shellQuote: false } }
   solo_type: { type: [ 'null', {type: enum, name: soloType, symbols: ["CB_UMI_Simple", "CB UMI Complex", "CB samTagOut", "SmartSeq"]}],
     doc: "type of single-cell RNAseq. \
     CB_UMI_Simple: (a.k.a. Droplet) one UMI and one Cell Barcode of fixed length in read2, e.g. Drop-seq and 10X Chromium, \
@@ -107,15 +110,15 @@ inputs:
     Rescue: distributes multi-gene UMIs to their gene set proportionally to the sum of the number of unique-gene UMIs and uniformly distributed multi-gene UMIs in each gene Mortazavi et al. It can be thought of as the first step of the EM algorithm",
     inputBinding: { position: 5, prefix: "--soloMultiMappers" } }
   extra_args: { type: 'string?', inputBinding: { position: 5, shellQuote: false }, doc: "Any additional arguments for this tool. See STAR Documentation for complete list of options. Example input: --limitSjdbInsertNsj 1000001" }
-  outSAMtype: { type: [ 'null', {type: enum, name: outSAMtype, symbols: ["BAM Unsorted", "None", "BAM SortedByCoordinate", "SAM Unsorted", "SAM SortedByCoordinate"]}],
+  outSAMtype: { type: [ 'null', {type: enum, name: outSAMtype, symbols: ["BAM Unsorted", "None", "BAM SortedByCoordinate", "SAM"]}],
     default: "None",
-    doc: "type of SAM/BAM output. None: no SAM/BAM output. Otherwise, first word is output type (BAM or SAM), second is sort type (Unsorted or SortedByCoordinate)",
+    doc: "type of SAM/BAM output. None: no SAM/BAM output. Otherwise, first word is output type (BAM or SAM), second, if BAM, is sort type (Unsorted or SortedByCoordinate)",
     inputBinding: { position: 3, prefix: '--outSAMtype', shellQuote: false } }
 
 outputs:
   log_progress_out: { type: File, doc: "Simple progress output. Can use to gauge speed and run time", outputBinding: {glob: '*Log.progress.out'} }
   log_out: { type: File, doc: "Contains a summary of all params used and reference files", outputBinding: {glob: '*Log.out'} }
   log_final_out: { type: File, doc: "Overall summary of read mapping statistics", outputBinding: {glob: '*Log.final.out'} }
-  genomic_bam_out: { type: 'File?', doc: "UNSORTED read mapping to genomic coordinates", outputBinding: {glob: '*Aligned*bam'} }
+  genomic_bam_out: { type: 'File?', doc: "Reads mapping to genomic coordinates", outputBinding: {glob: '*Aligned*[b|s]am'} }
   junctions_out: { type: File, doc: "high confidence collapsed splice junctions in tab-delimited form", outputBinding: {glob: '*SJ.out.tab'} }
   counts_dir: { type: Directory, doc: "Output dir with raw and filtered counts", outputBinding: { glob: '*.Solo.out'} }
