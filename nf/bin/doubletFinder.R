@@ -20,7 +20,7 @@ processes <- ''
 args <- commandArgs(trailingOnly = TRUE)
 
 # test if there is at least n arguments: if not, return an error
-nargs <- 10
+nargs <- 11
 if (length(args) < nargs) {
   stop(paste('At least ', nargs, 'arguments must be supplied.'), call. = FALSE)
 } else if (length(args) == nargs) {
@@ -34,6 +34,7 @@ if (length(args) < nargs) {
   components <- args[8]
   organism <- args[9]
   lib_path <- args[10]
+  processes <- args[11]
 }
 
 # LOAD LIBRARIES
@@ -49,8 +50,8 @@ suppressMessages(library(DoubletFinder, lib.loc = lib_path))
 
 # PARALLEL w/ FUTURE + SET SEED
 # --------------------------------------------------------------------
-options(future.globals.maxSize = 20000 * 1024^2)
-plan(multisession(workers = as.integer(6)))
+options(future.globals.maxSize = 16000 * 1024^2)
+plan(multisession(workers = as.integer(processes)))
 
 set.seed(42)
 # --------------------------------------------------------------------

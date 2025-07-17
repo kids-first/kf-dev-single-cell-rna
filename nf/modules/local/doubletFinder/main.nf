@@ -25,6 +25,7 @@ process DOUBLETFINDER {
     $min_feature_threshold \\
     $int_components \\
     $organism \\
-    /usr/local/lib/R/site-library/
+    $params.r_lib_path \\
+    $params.dbl_threads
     """
 }

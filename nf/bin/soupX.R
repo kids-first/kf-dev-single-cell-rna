@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 # Author:	E. Reichenberger
 # Date:		2.16.2021
 
@@ -6,8 +7,8 @@
 # this script does not work for filtered only output...yet.
 #sample_name = basename(sample) #https://stackoverflow.com/questions/9693877/how-do-i-extract-a-file-folder-name-only-from-a-path
 
-sam <- ''
 lib_path <- ''
+sam <- ''
 data_type <- ''
 project <- ''
 soupX_input_path <- ''
@@ -30,6 +31,9 @@ library('SoupX', lib.loc=lib_path)
 library('DropletUtils', lib.loc=lib_path)
 
 set.seed(42)
+
+# CREATE OUT PATH
+dir.create(soupX_ouput_path, recursive=TRUE, showWarnings=FALSE)
 
 # CLEAN DATA: outs #
 #--------------------------------------------------------------------
@@ -59,14 +63,14 @@ if (data_type == 'outs')
 
 # CLEAN DATA: no cluster information  #
 #--------------------------------------------------------------------
-soupify_noclusters <- function(in_path, out_path)
+soupify_noclusters <- function(sam, in_path, out_path)
 {
 	library('Seurat', lib.loc=lib_path)
 
 	print(in_path)
 	print(out_path)
-	r=paste(in_path, 'outs/raw_feature_bc_matrix/', sep='')
-	f=paste(in_path, 'outs/filtered_feature_bc_matrix/', sep='')
+	r=file.path(in_path, 'outs/raw_feature_bc_matrix/')
+	f=file.path(in_path, 'outs/filtered_feature_bc_matrix/')
 
 	raw <- Read10X(data.dir=r)
 	filt <- Read10X(data.dir=f)
@@ -86,7 +90,7 @@ soupify_noclusters <- function(in_path, out_path)
 	filt <-Read10X(data.dir=f)
 	sc=SoupChannel(raw,filt)
 	sc=setClusters(sc,clusters)
-	pdf(file = paste0(soupX_ouput_path, project, '_', sam, '_', 'contam_plot.pdf'), height = 8, width = 8)
+	pdf(file = file.path(out_path, paste0(project, '_', sam, '_', 'contam_plot.pdf')), height = 8, width = 8)
 	sc=autoEstCont(sc)
 	dev.off()
 	out=adjustCounts(sc, roundToInt=TRUE)
@@ -96,7 +100,7 @@ soupify_noclusters <- function(in_path, out_path)
 # users need sub-directories (57,58), and no outs dir
 if (data_type == 'no_clusters')
 {
-	soupify_noclusters(soupX_input_path, soupX_ouput_path)
+	soupify_noclusters(sam, soupX_input_path, soupX_ouput_path)
 }
 #--------------------------------------------------------------------
 
@@ -140,5 +144,5 @@ if (data_type == 'h5')
 	#cellranger_data = paste(soupX_input_path, 'outs/', sep='')
 	#soupify_outs(cellranger_data, soupX_ouput_path)
 
-	soupify_noclusters(soupX_input_path, soupX_ouput_path)
+	soupify_noclusters(sam, soupX_input_path, soupX_ouput_path)
 }
