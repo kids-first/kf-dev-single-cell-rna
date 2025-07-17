@@ -6,13 +6,13 @@ process DOUBLETFINDER {
         val(sample)
         val(starting_data)
         path(input_dir)
-        path(output_dir)
+        val(output_dir)
         val(mito_fraction)
         val(min_feature_threshold)
         val(int_components)
         val(organism)
     output:
-    path('*_doublet_ids.txt')
+    path("data/endpoints/${params.project}/$sample/doubletFinder/tables/*_doublet_ids.txt")
     script:
     """
     doubletFinder.R \\

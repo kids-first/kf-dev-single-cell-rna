@@ -4,19 +4,21 @@ include { DOUBLETFINDER } from './modules/local/doubletFinder/main.nf'
 
 workflow {
     main:
-    sample = Channel.value(params.sample)
+    sample = Channel.fromList(params.sample).view()
+    project = params.project
     starting_data = Channel.value(params.starting_data)
-    input_dir = Channel.fromPath(params.input_dir)
-    output_dir = map {}
+    input_dir = Channel.fromPath(params.input_dir, type: 'dir').view()
+    output_dir = sample.map {"data/endpoints/$project/$it/doubletFinder"}
+    output_dir.view()
 
     DOUBLETFINDER(
         sample,
-        starting_data.collect()
+        starting_data,
         input_dir,
-        output_dir
-        params.mito_fraction.collect()
-        params.min_feature_threshold.collect()
-        params.int_components.collect()
-        params.organism.collect()
+        output_dir,
+        params.mito_cutoff,
+        params.min_feature_threshold,
+        params.int_components,
+        params.organism
     )
 }

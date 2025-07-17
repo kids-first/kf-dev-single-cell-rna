@@ -1,6 +1,8 @@
 {
     "project": "hope_test",
     "sample": ["7316-4842", "7316-4844"],
-    "input_dir": ["/home/ubuntu/volume/SWANS/bc984b76-95f4-4cc8-b2ed-3e19db1b1c2c/, /home/ubuntu/volume/SWANS/5e8f4878-c888-4487-8d5e-d480a3374215/"],
+    "starting_data": "cellranger",
+    "input_dir": ["/home/ubuntu/volume/SWANS/bc984b76-95f4-4cc8-b2ed-3e19db1b1c2c/", "/home/ubuntu/volume/SWANS/5e8f4878-c888-4487-8d5e-d480a3374215/"],
+    "dbl_mem": 45,
     "aws_test_instance": true
 }
