@@ -3,16 +3,15 @@ process DOUBLETFINDER {
     container "francothyroidlab/swans:latest"
 
     input:
-        val(sample)
+        tuple val(sample), path(input_dir)
         val(starting_data)
-        path(input_dir)
         val(output_dir)
         val(mito_fraction)
         val(min_feature_threshold)
         val(int_components)
         val(organism)
     output:
-    path("data/endpoints/${params.project}/$sample/doubletFinder/tables/*_doublet_ids.txt")
+    tuple val(sample), path("data/endpoints/${params.project}/$sample/doubletFinder/tables/*_doublet_ids.txt")
     script:
     """
     doubletFinder.R \\

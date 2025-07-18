@@ -5,28 +5,36 @@ include { SOUPX } from './modules/local/soupX/main.nf'
 
 workflow {
     main:
-    sample = Channel.fromList(params.sample).view()
+    sample_list = Channel.fromList(params.sample).view()
     project = params.project
     starting_data = Channel.value(params.starting_data)
-    input_dir = Channel.fromPath(params.input_dir, type: 'dir').view()
-    output_base = sample.map {"data/endpoints/$project/$it"}
-    doubletFinder_output_dir = output_base.map { dir -> "$dir/doubletFinder" }
-    soupx_output_dir = output_base.map { dir -> "$dir/soupX" }
-    doubletFinder_output_dir.view()
+    input_dir_list = Channel.fromPath(params.input_dir, type: 'dir').view()
+    output_base = sample_list.map {"data/endpoints/$project/$it"}
+    doubletfinder_output_dir = output_base.map { dir -> "$dir/doubletFinder" }
+    soupx_output_dir = output_base.map { dir -> "$dir/soupX/" }
+    doubletfinder_output_dir.view()
 
-    DOUBLETFINDER(
-        sample,
-        starting_data,
-        input_dir,
-        doubletFinder_output_dir,
-        params.mito_cutoff,
-        params.min_feature_threshold,
-        params.int_components,
-        params.organism
-    )
-    SOUPX(
-        sample,
-        params.data_type,
-        input_dir,
-        soupx_output_dir    )
+    input_list = sample_list.merge(input_dir_list).map { sample, input_dir ->
+        [sample, input_dir]
+    }.view()
+    if (!params.disable_soupx){
+        SOUPX(
+            input_list,
+            params.data_type,
+            soupx_output_dir
+        )
+        SOUPX.out.filtered_counts_dir.view()
+    }
+    if (!params.disable_doubletfinder){
+        DOUBLETFINDER(
+            input_list,
+            starting_data,
+            doubletfinder_output_dir,
+            params.mito_cutoff,
+            params.min_feature_threshold,
+            params.int_components,
+            params.organism
+        )
+    }
+
 }

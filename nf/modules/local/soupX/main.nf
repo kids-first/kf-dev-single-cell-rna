@@ -1,16 +1,13 @@
 process SOUPX {
-    label 'M4'
+    label 'C4'
     container "francothyroidlab/swans:latest"
 
     input:
-        val(sample)
+        tuple val(sample), path(input_dir)
         val(data_type)
-        path(input_dir)
         val(output_dir)
     output:
-    path("data/endpoints/${params.project}/$sample/soupX/barcodes.tsv.gz"), emit: barcodes_path
-    path("data/endpoints/${params.project}/$sample/soupX/features.tsv.gz"), emit: features_path
-    path("data/endpoints/${params.project}/$sample/soupX/matrix.tsv.gz"), emit: matrix_path
+    tuple val(sample), path("data/endpoints/${params.project}/$sample/soupX/"), emit: filtered_counts_dir
     script:
     """
     soupX.R \\
