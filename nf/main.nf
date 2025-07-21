@@ -21,7 +21,8 @@ workflow {
         SOUPX(
             input_list,
             params.data_type,
-            soupx_output_dir
+            soupx_output_dir,
+            starting_data
         )
         SOUPX.out.filtered_counts_dir.view()
     }
