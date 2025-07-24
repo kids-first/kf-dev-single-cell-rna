@@ -1,6 +1,6 @@
 process SOUPX {
     label 'C4'
-    container "francothyroidlab/swans:latest"
+    container "swans:alpha"
 
     input:
         tuple val(sample), path(input_dir)
