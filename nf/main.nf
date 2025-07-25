@@ -26,16 +26,16 @@ workflow {
         )
         SOUPX.out.filtered_counts_dir
     }
-    if (!params.disable_doubletfinder){
-        DOUBLETFINDER(
-            input_list,
-            starting_data,
-            doubletfinder_output_dir,
-            params.mito_cutoff,
-            params.min_feature_threshold,
-            params.int_components,
-            params.organism
-        )
-    }
+    // if (!params.disable_doubletfinder){
+    //     DOUBLETFINDER(
+    //         input_list,
+    //         starting_data,
+    //         doubletfinder_output_dir,
+    //         params.mito_cutoff,
+    //         params.min_feature_threshold,
+    //         params.int_components,
+    //         params.organism
+    //     )
+    // }
 
 }

@@ -8,7 +8,7 @@ process SOUPX {
         val(output_dir)
         val(starting_data)
     output:
-    tuple val(sample), path("data/endpoints/${params.project}/$sample/soupX/"), emit: filtered_counts_dir
+    tuple val(sample), path("$output_dir*"), emit: filtered_counts_dir
     script:
     """
     soupX.R \\

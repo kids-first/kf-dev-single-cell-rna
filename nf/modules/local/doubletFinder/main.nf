@@ -11,7 +11,7 @@ process DOUBLETFINDER {
         val(int_components)
         val(organism)
     output:
-    tuple val(sample), path("data/endpoints/${params.project}/$sample/doubletFinder/tables/*_doublet_ids.txt")
+    tuple val(sample), path("$output_dir/doubletFinder/tables/*_doublet_ids.txt")
     script:
     """
     doubletFinder.R \\
