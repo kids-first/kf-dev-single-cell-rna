@@ -3,12 +3,14 @@ process SOUPX {
     container "swans:alpha"
 
     input:
-        tuple val(sample), path(input_dir)
+        val(sample)
+        path(input_dir)
         val(data_type)
         val(output_dir)
         val(starting_data)
     output:
-    tuple val(sample), path("$output_dir*"), emit: filtered_counts_dir
+    path("${sample}_soupX/")
+
     script:
     """
     soupX.R \\
@@ -18,6 +20,8 @@ process SOUPX {
     $params.project \\
     $input_dir \\
     $output_dir \\
-    $starting_data
+    $starting_data \\
+    && mkdir ${sample}_soupX \\
+    && mv $output_dir/$params.project/$sample/* ${sample}_soupX/
     """
 }
