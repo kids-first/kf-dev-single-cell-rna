@@ -3,13 +3,12 @@ process SOUPX {
     container "swans:alpha"
 
     input:
-        val(sample)
-        path(input_dir)
+        tuple val(sample), path(input_dir)
         val(data_type)
         val(output_dir)
         val(starting_data)
     output:
-    path("${sample}_soupX/")
+    tuple val(sample), path("${sample}_soupX/")
 
     script:
     """
@@ -22,6 +21,6 @@ process SOUPX {
     $output_dir \\
     $starting_data \\
     && mkdir ${sample}_soupX \\
-    && mv $output_dir/$params.project/$sample/* ${sample}_soupX/
+    && mv $output_dir/$params.project/$sample/soupX/* ${sample}_soupX/
     """
 }

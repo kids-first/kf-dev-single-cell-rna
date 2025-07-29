@@ -3,8 +3,7 @@ process DOUBLETFINDER {
     container "swans:alpha"
 
     input:
-        val(sample)
-        path(input_dir)
+        tuple val(sample), path(input_dir)
         val(starting_data)
         val(output_dir)
         val(mito_fraction)
@@ -12,7 +11,7 @@ process DOUBLETFINDER {
         val(int_components)
         val(organism)
     output:
-    path("${sample}_doubletFinder/")
+    tuple val(sample), path("${sample}_doubletFinder/")
     script:
     """
     doubletFinder.R \\
@@ -28,6 +27,6 @@ process DOUBLETFINDER {
     $params.r_lib_path \\
     $params.dbl_threads \\
     && mkdir ${sample}_doubletFinder \\
-    && mv $output_dir/$params.project/$sample/* ${sample}_doubletFinder/
+    && mv $output_dir/$params.project/$sample/doubletFinder/* ${sample}_doubletFinder/
     """
 }

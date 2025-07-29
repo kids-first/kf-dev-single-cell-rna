@@ -3,6 +3,7 @@ process CREATE_INITIAL_SEURAT {
     container "swans:alpha"
 
     input:
+        path(collated_data)
         val(sample)
         val(condition)
         path(input_dir)
@@ -14,10 +15,10 @@ process CREATE_INITIAL_SEURAT {
         val(max_feature_threshold)
         val(seurat_file_name)
     output:
-    tuple val(sample), path("data/endpoints/${params.project}/$sample/doubletFinder/tables/*_doublet_ids.txt")
+    path("data/endpoints/${params.project}/analysis")
     script:
     // Create input file table
-    def sample_list_str = ""
+    def sample_list_str = "samples\tcondition\tpath_to_starting_data\n"
     def i = 0
     sample.each { s->
         sample_list_str += s + "\t" + condition[i] + "\t" + input_dir[i] + "\n";
@@ -26,16 +27,16 @@ process CREATE_INITIAL_SEURAT {
     """
     echo -e "$sample_list_str" > samples.sample_list
     create_initial_seurat.R \\
-    $sample \\
-    $params.project \\
-    $seurat_creation_source \\
-    $input_dir \\
-    $run_doubletfinder \\
-    $mito_cutoff \\
-    $ribo_cutoff \\
-    $min_feature_threshold \\
-    $max_feature_threshold
-    $seurat_file_name \\
+    --sample_file samples.sample_list \\
+    --project $params.project \\
+    --organism $params.organism \\
+    --seurat_creation_source $seurat_creation_source \\
+    --run_doubletfinder $run_doubletfinder \\
+    --mito_cutoff $mito_cutoff \\
+    --ribo_cutoff $ribo_cutoff \\
+    --min_feature_threshold $min_feature_threshold \\
+    --max_feature_threshold $max_feature_threshold \\
+    --seurat_file_name $seurat_file_name \\
     $params.r_lib_path
     """
 }
