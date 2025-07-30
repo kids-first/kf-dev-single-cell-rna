@@ -15,17 +15,17 @@ process DOUBLETFINDER {
     script:
     """
     doubletFinder.R \\
-    $sample \\
-    $params.project \\
-    $starting_data \\
-    $input_dir \\
-    $output_dir \\
-    $mito_fraction \\
-    $min_feature_threshold \\
-    $int_components \\
-    $organism \\
+    --sample $sample \\
+    --project $params.project \\
+    --starting_data $starting_data \\
+    --input_path $input_dir \\
+    --output_path $output_dir \\
+    --mito_cutoff $mito_fraction \\
+    --min_feature_threshold $min_feature_threshold \\
+    --components $int_components \\
+    --organism $organism \\
+    --processes $params.dbl_threads \\
     $params.r_lib_path \\
-    $params.dbl_threads \\
     && mkdir ${sample}_doubletFinder \\
     && mv $output_dir/$params.project/$sample/doubletFinder/* ${sample}_doubletFinder/
     """

@@ -13,13 +13,13 @@ process SOUPX {
     script:
     """
     soupX.R \\
+    --sample $sample \\
+    --data_type $data_type \\
+    --project $params.project \\
+    --soupX_input_path $input_dir \\
+    --soupX_output_path $output_dir \\
+    --starter_data $starting_data \\
     $params.r_lib_path \\
-    $sample \\
-    $data_type \\
-    $params.project \\
-    $input_dir \\
-    $output_dir \\
-    $starting_data \\
     && mkdir ${sample}_soupX \\
     && mv $output_dir/$params.project/$sample/soupX/* ${sample}_soupX/
     """
