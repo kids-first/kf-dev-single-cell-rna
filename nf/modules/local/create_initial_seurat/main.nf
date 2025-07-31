@@ -14,6 +14,7 @@ process CREATE_INITIAL_SEURAT {
         val(min_feature_threshold)
         val(max_feature_threshold)
         val(seurat_file_name)
+        path(qc_config)
     output:
     path("data/endpoints/${params.project}/analysis")
     script:
@@ -41,6 +42,6 @@ process CREATE_INITIAL_SEURAT {
     $params.r_lib_path \\
     && echo "Generating R markdown QC report" \\
     && cp /SWANS/src/rmd/qc_report.Rmd ./ \\
-    && Rscript -e 'library(rmarkdown); rmarkdown::render("qc_report.Rmd", output_file=\"$qc_html_fn\", params = list(root_dir = \"./\", data_dir = \"./data/endpoints/\"))'
+    && Rscript -e 'library(rmarkdown); rmarkdown::render("qc_report.Rmd", output_file=\"$qc_html_fn\", params = list(root_dir = "./", data_dir = "./data/endpoints/", qc_config = "$qc_config.name"))' \\
     """
 }
