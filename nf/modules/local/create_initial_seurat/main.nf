@@ -39,9 +39,12 @@ process CREATE_INITIAL_SEURAT {
     --min_feature_threshold $min_feature_threshold \\
     --max_feature_threshold $max_feature_threshold \\
     --seurat_file_name $seurat_file_name \\
-    $params.r_lib_path \\
-    && echo "Generating R markdown QC report" \\
-    && cp /SWANS/src/rmd/qc_report.Rmd ./ \\
-    && Rscript -e 'library(rmarkdown); rmarkdown::render("qc_report.Rmd", output_file="$qc_html_fn", params = list(project = "$params.project", root_dir = "./", data_dir = "./data/endpoints/", qc_config = "./${qc_config}"))'
+    $params.r_lib_path
+    echo "Generating R markdown QC report"
+    cp /SWANS/src/rmd/qc_report.Rmd ./
+    Rscript -e 'library(rmarkdown); \
+    rmarkdown::render("qc_report.Rmd", \
+    output_file="$qc_html_fn", \
+    params = list(project = "$params.project", root_dir = "./", data_dir = "./data/endpoints", qc_config = "${qc_config}"))'
     """
 }

@@ -10,7 +10,7 @@ def create_yml_config() {
     def yml_config_str = "PROJECT: ${params.project}\n"
     yml_config_str += "ORGANISM: ${params.organism}\n"
     yml_config_str += "RUN_SOUPX: ${!params.disable_soupx ? "true" : "false"}\n"
-    yml_config_str += "RUN_DOUBLETFINDER: ${params.disable_doubletfinder ? "true" : "false"}\n"
+    yml_config_str += "RUN_DOUBLETFINDER: ${!params.disable_doubletfinder ? "true" : "false"}\n"
     yml_config_str += "MITO: ${params.mito_cutoff}\n"
     yml_config_str += "RIBO: ${params.ribo_cutoff}\n"
     yml_config_str += "MIN_FEATURE_THRESHOLD: ${params.min_feature_threshold}\n"
