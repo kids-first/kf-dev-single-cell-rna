@@ -24,7 +24,7 @@ process DOUBLETFINDER {
     --min_feature_threshold $min_feature_threshold \\
     --components $int_components \\
     --organism $organism \\
-    --processes $params.dbl_threads \\
+    --processes $task.cpus \\
     $params.r_lib_path \\
     && mkdir ${sample}_doubletFinder \\
     && mv $output_dir/$params.project/$sample/doubletFinder/* ${sample}_doubletFinder/

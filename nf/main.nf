@@ -7,14 +7,16 @@ include { CREATE_INITIAL_SEURAT } from './modules/local/create_initial_seurat/ma
 
 
 def create_yml_config() {
-    def yml_config_str = "PROJECT: ${params.project}\n"
-    yml_config_str += "ORGANISM: ${params.organism}\n"
-    yml_config_str += "RUN_SOUPX: ${!params.disable_soupx ? "true" : "false"}\n"
-    yml_config_str += "RUN_DOUBLETFINDER: ${!params.disable_doubletfinder ? "true" : "false"}\n"
-    yml_config_str += "MITO: ${params.mito_cutoff}\n"
-    yml_config_str += "RIBO: ${params.ribo_cutoff}\n"
-    yml_config_str += "MIN_FEATURE_THRESHOLD: ${params.min_feature_threshold}\n"
-    yml_config_str += "MAX_FEATURE_THRESHOLD: ${params.max_feature_threshold}\n"
+    def yml_config_str = """\
+        PROJECT: ${params.project}
+        ORGANISM: ${params.organism}
+        RUN_SOUPX: ${String.valueOf(!params.disable_soupx)}
+        RUN_DOUBLETFINDER: ${String.valueOf(!params.disable_doubletfinder)}
+        MITO: ${params.mito_cutoff}
+        RIBO: ${params.ribo_cutoff}
+        MIN_FEATURE_THRESHOLD: ${params.min_feature_threshold}
+        MAX_FEATURE_THRESHOLD: ${params.max_feature_threshold}\
+    """.stripIndent()
     def yml_config = file('qc_config.yml')
     yml_config.text = yml_config_str
     return yml_config
@@ -49,7 +51,7 @@ workflow {
         )
     }
     // collate results so that next step can use them all together
-    samples = SOUPX.out.map { it[0] }.collect().combine(DOUBLETFINDER.out.map { it[0] }.collect())
+    samples = SOUPX.out.map { it[0] }.concat(DOUBLETFINDER.out.map { it[0] }).collect()
     input_dirs = SOUPX.out.map { it[1] }.collect().combine(DOUBLETFINDER.out.map { it[1] }.collect())
     COLLATE_OUTPUTS(
         samples,
