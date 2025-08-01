@@ -42,6 +42,6 @@ process CREATE_INITIAL_SEURAT {
     $params.r_lib_path \\
     && echo "Generating R markdown QC report" \\
     && cp /SWANS/src/rmd/qc_report.Rmd ./ \\
-    && Rscript -e 'library(rmarkdown); rmarkdown::render("qc_report.Rmd", output_file=\"$qc_html_fn\", params = list(root_dir = "./", data_dir = "./data/endpoints/", qc_config = "$qc_config.name"))' \\
+    && Rscript -e 'library(rmarkdown); rmarkdown::render("qc_report.Rmd", output_file="$qc_html_fn", params = list(project = "$params.project", root_dir = "./", data_dir = "./data/endpoints/", qc_config = "./${qc_config}"))'
     """
 }
