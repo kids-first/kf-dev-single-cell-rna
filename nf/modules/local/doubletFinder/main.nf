@@ -13,13 +13,14 @@ process DOUBLETFINDER {
     output:
     tuple val(sample), path("${sample}_doubletFinder/")
     script:
+    def doubletFinder_output_path = "$output_dir/$params.project/$sample/doubletFinder/"
     """
     doubletFinder.R \\
     --sample $sample \\
     --project $params.project \\
     --starting_data $starting_data \\
     --input_path $input_dir \\
-    --output_path $output_dir \\
+    --output_path $doubletFinder_output_path \\
     --mito_cutoff $mito_fraction \\
     --min_feature_threshold $min_feature_threshold \\
     --components $int_components \\
@@ -27,6 +28,6 @@ process DOUBLETFINDER {
     --processes $task.cpus \\
     $params.r_lib_path \\
     && mkdir ${sample}_doubletFinder \\
-    && mv $output_dir/$params.project/$sample/doubletFinder/* ${sample}_doubletFinder/
+    && mv $doubletFinder_output_path/* ${sample}_doubletFinder/
     """
 }
