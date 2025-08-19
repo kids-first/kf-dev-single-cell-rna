@@ -16,7 +16,8 @@ process CREATE_INITIAL_SEURAT {
         val(seurat_file_name)
         path(qc_config)
     output:
-    path("data/endpoints/${params.project}/analysis")
+        path("data/endpoints/${params.project}/analysis"), emit: analysis_dir
+        path("$seurat_file_name"), emit: seurat_file
     script:
     // Create input file table
     def sample_list_str = "samples\tcondition\tpath_to_starting_data\n"

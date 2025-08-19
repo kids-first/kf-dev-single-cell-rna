@@ -4,6 +4,7 @@ include { DOUBLETFINDER } from './modules/local/doubletFinder/main.nf'
 include { SOUPX } from './modules/local/soupX/main.nf'
 include { COLLATE_OUTPUTS } from './modules/local/collate_outputs/main.nf'
 include { CREATE_INITIAL_SEURAT } from './modules/local/create_initial_seurat/main.nf'
+include  {ANALYZE_SEURAT_OBJECT } from './modules/local/analyze_seurat_object/main.nf'
 
 
 def create_yml_config() {
@@ -28,7 +29,8 @@ workflow {
     condition_list = Channel.fromList(params.condition_list).collect()
     starting_data = Channel.value(params.starting_data)
     input_dir_list = Channel.fromPath(params.input_dir_list, type: 'dir')
-    data_dir = "data/endpoints"
+    regression_file = params.regression_file ? Channel.fromPath(params.regression_file): Channel.value([])
+    data_dir = params.data_dir
 
     input_list = sample_list.merge(input_dir_list).map { sample, input_dir -> [sample, input_dir]}
     if (!params.disable_doubletfinder){
@@ -76,5 +78,23 @@ workflow {
         seurat_filename,
         qc_config
     )
+    ANALYZE_SEURAT_OBJECT(
+        CREATE_INITIAL_SEURAT.out.seurat_file,
+        params.int_components,
+        params.mito_regression,
+        params.ribo_regression,
+        params.cc_regression,
+        params.num_var_features,
+        params.scale_data_features,
+        params.split_layers_by,
+        params.normalization_config,
+        params.integration_config,
+        params.ref_based_integration,
+        params.run_azimuth,
+        params.run_transferdata,
+        params.resolution_config,
+        params.include_tsne,
+        params.analyzed_seurat_object,
+        params.report_path_figures    )
 
 }
