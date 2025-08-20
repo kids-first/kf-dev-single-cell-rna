@@ -49,5 +49,7 @@ process CREATE_INITIAL_SEURAT {
     rmarkdown::render("qc_report.Rmd", \
     output_file="$qc_html_fn", \
     params = list(project = "$params.project", root_dir = "./", data_dir = "./data/endpoints", qc_config = "${qc_config}"))'
+
+    cp -r data/endpoints/${params.project}/analysis ./
     """
 }

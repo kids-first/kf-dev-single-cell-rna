@@ -52,5 +52,7 @@ process ANALYZE_SEURAT_OBJECT {
     --memory_file memory.txt \\
     $args \\
     $params.r_lib_path
+
+    cp -r data/endpoints/${params.project}/analysis ./
     """
 }
