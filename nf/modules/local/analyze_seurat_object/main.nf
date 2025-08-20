@@ -21,8 +21,10 @@ process ANALYZE_SEURAT_OBJECT {
         val(analyzed_seurat_object)
         val(report_path_figures)
     output:
-        path("data/endpoints/${params.project}/analysis")
+        path("data/endpoints/${params.project}/analysis"), emit: anaylsis_path
+        path(analyzed_seurat_object), emit: analyzed_seurat_object_file
     script:
+    def args = task.ext.args ?: ''
     """
     echo -e "$params.aso_memory" > memory.txt
     
@@ -48,6 +50,7 @@ process ANALYZE_SEURAT_OBJECT {
     --report_path_figures $report_path_figures \\
     --processes $params.aso_processes \\
     --memory_file memory.txt \\
+    $args \\
     $params.r_lib_path
     """
 }

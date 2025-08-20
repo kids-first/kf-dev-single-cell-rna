@@ -5,6 +5,7 @@ include { SOUPX } from './modules/local/soupX/main.nf'
 include { COLLATE_OUTPUTS } from './modules/local/collate_outputs/main.nf'
 include { CREATE_INITIAL_SEURAT } from './modules/local/create_initial_seurat/main.nf'
 include  {ANALYZE_SEURAT_OBJECT } from './modules/local/analyze_seurat_object/main.nf'
+include { CREATE_IMAGES_DGE } from './modules/local/create_images_dge/main.nf'
 
 
 def create_yml_config() {
@@ -29,7 +30,6 @@ workflow {
     condition_list = Channel.fromList(params.condition_list).collect()
     starting_data = Channel.value(params.starting_data)
     input_dir_list = Channel.fromPath(params.input_dir_list, type: 'dir')
-    regression_file = params.regression_file ? Channel.fromPath(params.regression_file): Channel.value([])
     data_dir = params.data_dir
 
     input_list = sample_list.merge(input_dir_list).map { sample, input_dir -> [sample, input_dir]}
@@ -95,6 +95,18 @@ workflow {
         params.resolution_config,
         params.include_tsne,
         params.analyzed_seurat_object,
-        params.report_path_figures    )
+        params.report_path_figures
+    )
+    CREATE_IMAGES_DGE(
+        params.storage,
+        params.normalization_config,
+        params.integration_config,
+        params.resolution_config,
+        params.conserved_genes,
+        ANALYZE_SEURAT_OBJECT.out.analyzed_seurat_object_file,
+        params.include_tsne,
+        "${params.data_dir}/${params.project}/analysis/final_analysis/tables",
+        params.visualization
+    )
 
 }
