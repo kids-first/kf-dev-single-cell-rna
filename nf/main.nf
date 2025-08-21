@@ -4,7 +4,7 @@ include { DOUBLETFINDER } from './modules/local/doubletFinder/main.nf'
 include { SOUPX } from './modules/local/soupX/main.nf'
 include { COLLATE_OUTPUTS } from './modules/local/collate_outputs/main.nf'
 include { CREATE_INITIAL_SEURAT } from './modules/local/create_initial_seurat/main.nf'
-include  {ANALYZE_SEURAT_OBJECT } from './modules/local/analyze_seurat_object/main.nf'
+include { ANALYZE_SEURAT_OBJECT } from './modules/local/analyze_seurat_object/main.nf'
 include { CREATE_IMAGES_DGE } from './modules/local/create_images_dge/main.nf'
 include { COLLATE_ANALYSIS } from './modules/local/collate_anaylsis/main.nf'
 
