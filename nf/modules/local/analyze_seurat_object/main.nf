@@ -21,7 +21,7 @@ process ANALYZE_SEURAT_OBJECT {
         val(analyzed_seurat_object)
         val(report_path_figures)
     output:
-        path("data/endpoints/${params.project}/analysis"), emit: anaylsis_path
+        path("./analyze_seurat_object_output"), emit: analysis_path
         path(analyzed_seurat_object), emit: analyzed_seurat_object_file
     script:
     def args = task.ext.args ?: ''
@@ -53,6 +53,6 @@ process ANALYZE_SEURAT_OBJECT {
     $args \\
     $params.r_lib_path
 
-    cp -r data/endpoints/${params.project}/analysis ./
+    cp -r data/endpoints/${params.project}/analysis ./analyze_seurat_object_output
     """
 }

@@ -13,7 +13,7 @@ process CREATE_IMAGES_DGE {
         val(report_table_path)
         val(visualization)
     output:
-        path("data/endpoints/${params.project}/analysis")
+        path("./create_images_dge_output")
     script:
     def args = task.ext.args ?: ''
     """
@@ -31,5 +31,7 @@ process CREATE_IMAGES_DGE {
     --visualization $visualization \\
     $args \\
     $params.r_lib_path
+
+    cp -r data/endpoints/${params.project}/analysis ./create_images_dge_output
     """
 }

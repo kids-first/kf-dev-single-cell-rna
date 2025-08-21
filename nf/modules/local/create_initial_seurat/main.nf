@@ -16,7 +16,7 @@ process CREATE_INITIAL_SEURAT {
         val(seurat_file_name)
         path(qc_config)
     output:
-        path("data/endpoints/${params.project}/analysis"), emit: analysis_dir
+        path("./create_inital_seurat_output"),  emit: analysis_dir
         path("$seurat_file_name"), emit: seurat_file
     script:
     // Create input file table
@@ -50,6 +50,6 @@ process CREATE_INITIAL_SEURAT {
     output_file="$qc_html_fn", \
     params = list(project = "$params.project", root_dir = "./", data_dir = "./data/endpoints", qc_config = "${qc_config}"))'
 
-    cp -r data/endpoints/${params.project}/analysis ./
+    cp -r data/endpoints/${params.project}/analysis ./create_inital_seurat_output
     """
 }

@@ -6,6 +6,7 @@ include { COLLATE_OUTPUTS } from './modules/local/collate_outputs/main.nf'
 include { CREATE_INITIAL_SEURAT } from './modules/local/create_initial_seurat/main.nf'
 include  {ANALYZE_SEURAT_OBJECT } from './modules/local/analyze_seurat_object/main.nf'
 include { CREATE_IMAGES_DGE } from './modules/local/create_images_dge/main.nf'
+include { COLLATE_ANALYSIS } from './modules/local/collate_anaylsis/main.nf'
 
 
 def create_yml_config() {
@@ -97,6 +98,7 @@ workflow {
         params.analyzed_seurat_object,
         params.report_path_figures
     )
+    report_table_path = "${params.data_dir}/${params.project}/analysis/final_analysis/tables"
     CREATE_IMAGES_DGE(
         params.storage,
         params.normalization_config,
@@ -105,8 +107,11 @@ workflow {
         params.conserved_genes,
         ANALYZE_SEURAT_OBJECT.out.analyzed_seurat_object_file,
         params.include_tsne,
-        "${params.data_dir}/${params.project}/analysis/final_analysis/tables",
+        report_table_path,
         params.visualization
     )
-
+    analysis_dirs = CREATE_INITIAL_SEURAT.out.analysis_dir.combine(ANALYZE_SEURAT_OBJECT.out.analysis_path).combine(CREATE_IMAGES_DGE.out)
+    COLLATE_ANALYSIS(
+        analysis_dirs
+    )
 }
