@@ -3,31 +3,27 @@ process DOUBLETFINDER {
     container "swans:alpha"
 
     input:
+        val(meta_config)
         tuple val(sample), path(input_dir)
-        val(starting_data)
-        val(output_dir)
-        val(mito_fraction)
-        val(min_feature_threshold)
-        val(int_components)
-        val(organism)
+
     output:
     tuple val(sample), path("${sample}_doubletFinder/")
     script:
-    def doubletFinder_output_path = "$output_dir/$params.project/$sample/doubletFinder/"
+    def doubletFinder_output_path = "data/endpoints/$meta_config.PROJECT/$sample/doubletFinder/"
     """
     doubletFinder.R \\
     --sample $sample \\
-    --project $params.project \\
-    --starting_data $starting_data \\
+    --project $meta_config.PROJECT \\
+    --starting_data $meta_config.STARTING_DATA \\
     --input_path $input_dir \\
     --output_path $doubletFinder_output_path \\
-    --mito_cutoff $mito_fraction \\
-    --min_feature_threshold $min_feature_threshold \\
-    --components $int_components \\
-    --organism $organism \\
+    --mito_cutoff $meta_config.MITO \\
+    --min_feature_threshold $meta_config.MIN_FEATURE_THRESHOLD \\
+    --components $meta_config.COMPONENTS \\
+    --organism $meta_config.ORGANISM \\
     --processes $task.cpus \\
-    $params.r_lib_path \\
+    $meta_config.RPATH \\
     && mkdir ${sample}_doubletFinder \\
-    && mv $doubletFinder_output_path/* ${sample}_doubletFinder/
+    && mv $doubletFinder_output_path* ${sample}_doubletFinder/
     """
 }

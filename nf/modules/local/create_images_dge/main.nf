@@ -4,34 +4,28 @@ process CREATE_IMAGES_DGE {
 
     input:
         val(storage)
-        val(normalization_method)
-        val(integration_method)
-        val(resolution)
-        val (conserved_genes)
-        path(analyzed_seurat_object)
-        val(tsne_plot)
-        val(report_table_path)
-        val(visualization)
+        tuple val(meta_config), path(analyzed_seurat_object)
     output:
         path("./create_images_dge_output")
     script:
+    def report_table_path = "data/endpoints/$meta_config.PROJECT/analysis/final_analysis/tables"
     def args = task.ext.args ?: ''
     """
     create_images_DGE.R \\
-    --project $params.project \\
+    --project $meta_config.PROJECT \\
     --storage $storage \\
-    --normalization_method $normalization_method \\
-    --integration_method $integration_method \\
-    --resolution $resolution \\
-    --conserved_genes $conserved_genes \\
+    --normalization_method $meta_config.SEURAT_NORMALIZATION_METHOD \\
+    --integration_method $meta_config.SEURAT_INTEGRATION_METHOD \\
+    --resolution $meta_config.RESOLUTION \\
+    --conserved_genes $meta_config.CONSERVED_GENES \\
     --analyzed_seurat_object $analyzed_seurat_object \\
-    --processes 4 \\
-    --tsne_plot $tsne_plot \\
+    --processes $task.cpus \\
+    --tsne_plot $meta_config.TSNE \\
     --report_table_path $report_table_path \\
-    --visualization $visualization \\
+    --visualization $meta_config.VISUALIZATION \\
     $args \\
-    $params.r_lib_path
+    $meta_config.RPATH
 
-    cp -r data/endpoints/${params.project}/analysis ./create_images_dge_output
+    cp -r data/endpoints/$meta_config.PROJECT/analysis ./create_images_dge_output
     """
 }
