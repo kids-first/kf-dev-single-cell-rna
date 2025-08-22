@@ -17,6 +17,9 @@ Aligns and quantifies 10X single cell data using STAR Solo
 ## Alpha Phase Workflows
 These workflows are currently in alpha phase
 
+### [SWANS 2.0: Single-entity Workflow ANalysiS Pipeline](docs/SWANS_PRELIMINARY_ANALYSIS.md)
+Complete QC and analysis pipeline. https://doi.org/10.1101/2025.05.14.654073.
+
 ### [10X Cell Ranger 6.2.1 Alignment Workflow](docs/10X_cell_ranger_alignment.md)
 Aligns and quantifies 10X single cell data using Cell Ranger
 ### [10X Refinement Workflow](docs/10X_refinement.md)

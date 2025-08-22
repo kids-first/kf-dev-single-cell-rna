@@ -1,0 +1,25 @@
+process SOUPX {
+    label 'C4'
+    container "swans:alpha"
+
+    input:
+        val(meta_config)
+        tuple val(sample), path(input_dir)
+    output:
+    tuple val(sample), path("${sample}_soupX/")
+
+    script:
+    def soupX_output_path = "data/endpoints/$params.project/$sample/soupX/"
+    """
+    soupX.R \\
+    --sample $sample \\
+    --data_type $meta_config.SOUPX_START \\
+    --project $meta_config.PROJECT \\
+    --soupX_input_path $input_dir \\
+    --soupX_output_path $soupX_output_path \\
+    --starter_data $meta_config.STARTING_DATA \\
+    $meta_config.RPATH \\
+    && mkdir ${sample}_soupX \\
+    && mv $soupX_output_path* ${sample}_soupX/
+    """
+}
