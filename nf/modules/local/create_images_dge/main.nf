@@ -8,7 +8,7 @@ process CREATE_IMAGES_DGE {
     output:
         path("./create_images_dge_output")
     script:
-    def report_table_path = "data/endpoints/$meta_config.PROJECT/analysis/final_analysis/tables"
+    def report_table_path = "data/endpoints/$meta_config.PROJECT/analysis/report/tables"
     def args = task.ext.args ?: ''
     """
     create_images_DGE.R \\

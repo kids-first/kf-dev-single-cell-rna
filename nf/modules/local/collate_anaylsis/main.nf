@@ -1,6 +1,6 @@
 process COLLATE_ANALYSIS{
     label 'C4'
-    container "ubuntu:latest"
+    container "swans:alpha"
     input:
         path(input_dirs)
     output:
@@ -16,6 +16,8 @@ process COLLATE_ANALYSIS{
     mkdir -p $collate_dir
 
     $cp_dirs
+
+    cp /SWANS/src/rmd/Interactive_report.Rmd $collate_dir/report/
     """
 
 }
