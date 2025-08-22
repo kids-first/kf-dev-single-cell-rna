@@ -32,7 +32,7 @@ workflow {
         SEURAT_INTEGRATION_METHOD: params.integration_config,
         RESOLUTION: params.resolution_config,
         COMPONENTS: params.int_components,
-        MITO_REGREISSION: params.mito_regression,
+        MITO_REGRESSION: params.mito_regression,
         RIBO_REGRESSION: params.ribo_regression,
         CELL_CYCLE_REGRESSION: params.cc_regression,
         NUM_VARIABLE_FEATURES: params.num_var_features,

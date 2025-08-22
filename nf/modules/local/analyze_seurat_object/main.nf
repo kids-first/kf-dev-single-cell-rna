@@ -20,8 +20,8 @@ process ANALYZE_SEURAT_OBJECT {
     --project $meta_config.PROJECT \\
     --organism $meta_config.ORGANISM \\
     --n_components $meta_config.COMPONENTS \\
-    --mito_regression $meta_config.MITO_REGREISSION \\
-    --ribo_regression $meta_config.RIBO_REGREISSION \\
+    --mito_regression $meta_config.MITO_REGRESSION \\
+    --ribo_regression $meta_config.RIBO_REGRESSION \\
     --cc_regression $meta_config.CELL_CYCLE_REGRESSION \\
     --num_var_features $meta_config.NUM_VARIABLE_FEATURES \\
     --scale_data_features $meta_config.SCALE_DATA_FEATURES \\

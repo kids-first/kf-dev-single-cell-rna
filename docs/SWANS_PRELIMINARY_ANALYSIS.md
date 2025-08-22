@@ -1,0 +1,3 @@
+# SWANS 2.0: Single-entity Workflow ANalysiS Pipeline
+Citation: https://doi.org/10.1101/2025.05.14.654073.
+This is a NextFlow implementation of the [SWANS (Single-entity Workflow ANalysiS Pipeline)](https://github.com/FrancoResearchLab/SWANS) for Single Cell RNAseq Analysis. It is in alpha phase, but testing on two samples using a 8 core, 64GB EC2 was successful. The [test json](nf/test_inputs/test.json) has a bare bones example starting with cell ranger matrices using all defaults in the nextflow.config. After running the workflow, refer to https://github.com/FrancoResearchLab/SWANS/tree/main?tab=readme-ov-file#html--shiny-report on how to use the interactive report.
