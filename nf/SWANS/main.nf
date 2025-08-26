@@ -13,7 +13,7 @@ workflow {
     main:
     sample_list = Channel.fromList(params.sample_list)
     condition_list = Channel.fromList(params.condition_list).collect()
-    input_dir_list = Channel.fromPath(params.input_dir_list, type: 'dir')
+    input_dir_list = params.input_dir_list ? Channel.fromPath(params.input_dir_list.class == String ? params.input_dir_list.split(',') as List : params.input_dir_list) : Channel.empty()
 
     // Create meta dict of common inputs to reduce param passing and to mimic snakemake yaml
     meta = [
@@ -45,7 +45,18 @@ workflow {
         CONSERVED_GENES: params.conserved_genes,
         VISUALIZATION: params.visualization
     ]
+
+    // get the current directory
+    def currentDir = new File('.')
+    
+    // get names of all files/directories within current directory
+    def contents = currentDir.list()
+
+    println "Listing of '${currentDir.name}':"
+    contents.each { println it }
+
     input_list = sample_list.merge(input_dir_list).map { sample, input_dir -> [sample, input_dir]}
+    input_list.view()
     if (!params.disable_doubletfinder){
         DOUBLETFINDER(
             meta,
