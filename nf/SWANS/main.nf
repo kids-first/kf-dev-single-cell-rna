@@ -46,17 +46,7 @@ workflow {
         VISUALIZATION: params.visualization
     ]
 
-    // get the current directory
-    def currentDir = new File('.')
-    
-    // get names of all files/directories within current directory
-    def contents = currentDir.list()
-
-    println "Listing of '${currentDir.name}':"
-    contents.each { println it }
-
     input_list = sample_list.merge(input_dir_list).map { sample, input_dir -> [sample, input_dir]}
-    input_list.view()
     if (!params.disable_doubletfinder){
         DOUBLETFINDER(
             meta,
@@ -81,7 +71,7 @@ workflow {
     sample_list_flat = sample_list.collect()
     input_dir_list_flat = input_dir_list.collect()
     seurat_creation_source = params.disable_soupx ? "cellranger" : "soupX"
-    run_doubletfinder = !params.disable_doubletfinder ? "y" : "n"
+    run_doubletfinder = params.disable_doubletfinder ? "n" : "y"
     CREATE_INITIAL_SEURAT(
         COLLATE_OUTPUTS.out,
         sample_list_flat,
@@ -95,6 +85,7 @@ workflow {
         CREATE_INITIAL_SEURAT.out.seurat_file,
         params.aso_memory
     )
+    ANALYZE_SEURAT_OBJECT.out.analyzed_seurat_object_file.view()
     CREATE_IMAGES_DGE(
         params.storage,
         ANALYZE_SEURAT_OBJECT.out.analyzed_seurat_object_file

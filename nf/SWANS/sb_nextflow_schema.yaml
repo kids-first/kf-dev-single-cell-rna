@@ -129,7 +129,7 @@ inputs:
 -   id: dbl_threads
     inputBinding:
         prefix: --dbl_threads
-    default: 4
+    default: 2
     type:
     - 'null'
     - int
@@ -156,7 +156,7 @@ inputs:
 -   id: aso_memory
     inputBinding:
         prefix: --aso_memory
-    default: 62942000000
+    default: 30000000000
     type:
     - 'null'
     - int

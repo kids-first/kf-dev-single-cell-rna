@@ -11,8 +11,8 @@ process CREATE_INITIAL_SEURAT {
         val(run_doubletfinder)
         val(seurat_file_name)
     output:
-        path("./create_initial_seurat_output"),  emit: analysis_dir
-        tuple val(meta_config), path("$seurat_file_name"), emit: seurat_file
+        path("create_initial_seurat_output"),  emit: analysis_dir
+        tuple val(meta_config), path("create_initial_seurat_output/RDS/*.qs"), emit: seurat_file
     script:
     // Create input file table
     def sample_list_str = "samples\tcondition\tpath_to_starting_data\n"
