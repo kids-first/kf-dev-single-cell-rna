@@ -172,7 +172,7 @@ inputs:
         prefix: --azimuth_ref
     type:
     - 'null'
-    - File
+    - string
 -   id: run_transferdata
     inputBinding:
         prefix: --run_transferdata
