@@ -1,0 +1,391 @@
+app_content:
+    code_package: 68adec0613c54b4dd0aba1db
+    entrypoint: main.nf
+class: nextflow
+cwlVersion: None
+requirements:
+-   class: InlineJavascriptRequirement
+-   class: ShellCommandRequirement
+-   class: InitialWorkDirRequirement
+    listing:
+    - entryname: input_params.json
+      entry: |
+          $(JSON.stringify(
+          {
+          sample_list: inputs.sample_list ? inputs.sample_list : "",
+          condition_list: inputs.condition_list ? inputs.condition_list : ""
+          }
+          ))
+-   class: LoadListingRequirement
+    loadListing: deep_listing
+
+hints:
+-   class: sbg:NextflowExecutionMode
+    value: multi-instance
+-   class: "sbg:maxNumberOfParallelInstances"
+    value: 10
+arguments:
+-   position: 0
+    shellQuote: false
+    valueFrom: >
+        -params-file input_params.json
+inputs:
+-   id: r_lib_path
+    inputBinding:
+        prefix: --r_lib_path
+    default: /usr/local/lib/R/site-library/
+    type:
+    - 'null'
+    - string
+-   id: input_dir_list
+    type:
+    -   items: Directory
+        type: array
+    inputBinding:
+        shellQuote: false
+        itemSeparator: ','
+        prefix: --input_dir_list
+-   id: project
+    inputBinding:
+        prefix: --project
+    type:
+    - string
+-   id: sample_list
+    type:
+    -   items: string
+        type: array
+-   id: condition_list
+    type:
+    -   items: string
+        type: array
+-   id: starting_data
+    inputBinding:
+        prefix: --starting_data
+    type:
+    - string
+-   id: data_dir
+    inputBinding:
+        prefix: --data_dir
+    default: data/endpoints
+    type:
+    - 'null'
+    - string
+-   id: organism
+    inputBinding:
+        prefix: --organism
+    default: human
+    type:
+    - 'null'
+    - string
+-   id: disable_doubletfinder
+    inputBinding:
+        prefix: --disable_doubletfinder
+    type:
+    - 'null'
+    - boolean
+    default: false
+-   id: mito_cutoff
+    inputBinding:
+        prefix: --mito_cutoff
+    default: 15
+    type:
+    - 'null'
+    - int
+-   id: ribo_cutoff
+    inputBinding:
+        prefix: --ribo_cutoff
+    default: 100
+    type:
+    - 'null'
+    - int
+-   id: min_feature_threshold
+    inputBinding:
+        prefix: --min_feature_threshold
+    default: 200
+    type:
+    - 'null'
+    - int
+-   id: max_feature_threshold
+    inputBinding:
+        prefix: --max_feature_threshold
+    default: 3000
+    type:
+    - 'null'
+    - int
+-   id: int_components
+    inputBinding:
+        prefix: --int_components
+    default: 30
+    type:
+    - 'null'
+    - int
+-   id: dbl_mem
+    inputBinding:
+        prefix: --dbl_mem
+    default: 30
+    type:
+    - 'null'
+    - int
+-   id: dbl_threads
+    inputBinding:
+        prefix: --dbl_threads
+    default: 2
+    type:
+    - 'null'
+    - int
+-   id: disable_soupx
+    inputBinding:
+        prefix: --disable_soupx
+    type:
+    - 'null'
+    - boolean
+    default: false
+-   id: data_type
+    inputBinding:
+        prefix: --data_type
+    type:
+    - 'null'
+    - string
+-   id: aso_processes
+    inputBinding:
+        prefix: --aso_processes
+    default: 4
+    type:
+    - 'null'
+    - int
+-   id: aso_memory
+    inputBinding:
+        prefix: --aso_memory
+    default: 30000000000
+    type:
+    - 'null'
+    - int
+-   id: run_azimuth
+    inputBinding:
+        prefix: --run_azimuth
+    default: n
+    type:
+    - 'null'
+    - string
+-   id: azimuth_ref
+    inputBinding:
+        prefix: --azimuth_ref
+    type:
+    - 'null'
+    - string
+-   id: run_transferdata
+    inputBinding:
+        prefix: --run_transferdata
+    default: n
+    type:
+    - 'null'
+    - string
+-   id: transferdata_ref_file
+    inputBinding:
+        prefix: --transferdata_ref_file
+    type:
+    - 'null'
+    - File
+-   id: transferdata_reduction
+    inputBinding:
+        prefix: --transferdata_reduction
+    type:
+    - 'null'
+    - string
+-   id: transferdata_annocol
+    inputBinding:
+        prefix: --transferdata_annocol
+    type:
+    - 'null'
+    - string
+-   id: mito_regression
+    inputBinding:
+        prefix: --mito_regression
+    default: n
+    type:
+    - 'null'
+    - string
+-   id: ribo_regression
+    inputBinding:
+        prefix: --ribo_regression
+    default: n
+    type:
+    - 'null'
+    - string
+-   id: cc_regression
+    inputBinding:
+        prefix: --cc_regression
+    default: n
+    type:
+    - 'null'
+    - string
+-   id: cc_method
+    inputBinding:
+        prefix: --cc_method
+    default: standard
+    type:
+    - 'null'
+    - string
+-   id: num_var_features
+    inputBinding:
+        prefix: --num_var_features
+    default: 3000
+    type:
+    - 'null'
+    - int
+-   id: resolution_config
+    inputBinding:
+        prefix: --resolution_config
+    default: 0.1,0.2,0.3
+    type:
+    - 'null'
+    - string
+-   id: include_tsne
+    inputBinding:
+        prefix: --include_tsne
+    default: n
+    type:
+    - 'null'
+    - string
+-   id: scale_data_features
+    inputBinding:
+        prefix: --scale_data_features
+    default: variable
+    type:
+    - 'null'
+    - string
+-   id: split_layers_by
+    inputBinding:
+        prefix: --split_layers_by
+    default: Sample
+    type:
+    - 'null'
+    - string
+-   id: normalization_config
+    inputBinding:
+        prefix: --normalization_config
+    default: standard,sct
+    type:
+    - 'null'
+    - string
+-   id: integration_config
+    inputBinding:
+        prefix: --integration_config
+    default: cca,rpca,harmony
+    type:
+    - 'null'
+    - string
+-   id: ref_based_integration
+    inputBinding:
+        prefix: --ref_based_integration
+    default: n
+    type:
+    - 'null'
+    - string
+-   id: ref_samples
+    inputBinding:
+        prefix: --ref_samples
+    type:
+    - 'null'
+    - string
+-   id: regression_file
+    inputBinding:
+        prefix: --regression_file
+    type:
+    - 'null'
+    - File
+-   id: storage
+    inputBinding:
+        prefix: --storage
+    default: rds
+    type:
+    - 'null'
+    - string
+-   id: conserved_genes
+    inputBinding:
+        prefix: --conserved_genes
+    default: n
+    type:
+    - 'null'
+    - string
+-   id: visualization
+    inputBinding:
+        prefix: --visualization
+    default: dot
+    type:
+    - 'null'
+    - string
+-   id: user_gene_file
+    inputBinding:
+        prefix: --user_gene_file
+    type:
+    - 'null'
+    - File
+-   id: sbg_run
+    inputBinding:
+        prefix: --sbg_run
+    type:
+    - 'null'
+    - boolean
+    default: true
+-   id: outdir
+    inputBinding:
+        prefix: --outdir
+    label: Path to the output directory where the results will be saved.
+    sbg:category: Input/output options
+    sbg:icon: fas fa-folder-open
+    default: ./results
+    type: string
+-   doc: Use to set an upper-limit for the CPU requirement for each process. Should
+        be an integer e.g. `--max_cpus 1`
+    id: max_cpus
+    inputBinding:
+        prefix: --max_cpus
+    label: Maximum number of CPUs that can be requested for any single job.
+    sbg:category: Max job request options
+    sbg:hidden: true
+    sbg:icon: fas fa-microchip
+    default: 16
+    type:
+    - 'null'
+    - int
+-   doc: Use to set an upper-limit for the memory requirement for each process. Should
+        be a string in the format integer-unit e.g. `--max_memory '8.GB'`
+    id: max_memory
+    inputBinding:
+        prefix: --max_memory
+    label: Maximum amount of memory that can be requested for any single job.
+    sbg:category: Max job request options
+    sbg:hidden: true
+    sbg:icon: fas fa-memory
+    sbg:pattern: ^\d+(\.\d+)?\.?\s*(K|M|G|T)?B$
+    default: 128.GB
+    type:
+    - 'null'
+    - string
+-   doc: Use to set an upper-limit for the time requirement for each process. Should
+        be a string in the format integer-unit e.g. `--max_time '2.h'`
+    id: max_time
+    inputBinding:
+        prefix: --max_time
+    label: Maximum amount of time that can be requested for any single job.
+    sbg:category: Max job request options
+    sbg:hidden: true
+    sbg:icon: far fa-clock
+    sbg:pattern: ^(\d+\.?\s*(s|m|h|day)\s*)+$
+    default: 240.h
+    type:
+    - 'null'
+    - string
+label: SWANS Preliminary Analysis
+outputs:
+-   doc: This is a template output. You can modify the glob pattern to make outputs
+        more specific.
+    id: nf_publishdir
+    label: Publish Directory
+    outputBinding:
+        glob: 'data'
+    type:
+    - Directory
+
+sbg:revisionNotes: Uploaded using sbpack v2024.12.17

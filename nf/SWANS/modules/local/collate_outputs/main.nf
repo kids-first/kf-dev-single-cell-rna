@@ -2,7 +2,7 @@ process COLLATE_OUTPUTS{
     label 'C4'
     container "ubuntu:latest"
     input:
-    val(meta_config)
+        val(meta_config)
         val(samples)
         path(input_dirs)
     output:

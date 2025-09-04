@@ -13,7 +13,7 @@ workflow {
     main:
     sample_list = Channel.fromList(params.sample_list)
     condition_list = Channel.fromList(params.condition_list).collect()
-    input_dir_list = Channel.fromPath(params.input_dir_list, type: 'dir')
+    input_dir_list = params.input_dir_list ? Channel.fromPath(params.input_dir_list.class == String ? params.input_dir_list.split(',') as List : params.input_dir_list) : Channel.empty()
 
     // Create meta dict of common inputs to reduce param passing and to mimic snakemake yaml
     meta = [
@@ -45,6 +45,7 @@ workflow {
         CONSERVED_GENES: params.conserved_genes,
         VISUALIZATION: params.visualization
     ]
+
     input_list = sample_list.merge(input_dir_list).map { sample, input_dir -> [sample, input_dir]}
     if (!params.disable_doubletfinder){
         DOUBLETFINDER(
@@ -69,15 +70,11 @@ workflow {
     seurat_filename = "data/endpoints/$params.project/analysis/RDS/${params.project}_initial_seurat_object.qs"
     sample_list_flat = sample_list.collect()
     input_dir_list_flat = input_dir_list.collect()
-    seurat_creation_source = params.disable_soupx ? "cellranger" : "soupX"
-    run_doubletfinder = !params.disable_doubletfinder ? "y" : "n"
     CREATE_INITIAL_SEURAT(
         COLLATE_OUTPUTS.out,
         sample_list_flat,
         condition_list,
         input_dir_list_flat,
-        seurat_creation_source,
-        run_doubletfinder,
         seurat_filename
     )
     ANALYZE_SEURAT_OBJECT(

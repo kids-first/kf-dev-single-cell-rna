@@ -6,8 +6,8 @@ process ANALYZE_SEURAT_OBJECT {
         tuple val(meta_config), path(initial_seurat_object)
         val(aso_memory)
     output:
-        path("./analyze_seurat_object_output"), emit: analysis_path
-        tuple val(meta_config), path("data/endpoints/$meta_config.PROJECT/analysis/RDS/${meta_config.PROJECT}_analyzed_seurat_object.qs"), emit: analyzed_seurat_object_file
+        path("analyze_seurat_object_output"), emit: analysis_path
+        tuple val(meta_config), path("analyze_seurat_object_output/RDS/${meta_config.PROJECT}_analyzed_seurat_object.qs"), emit: analyzed_seurat_object_file
     script:
     def analyzed_seurat_object = "data/endpoints/$meta_config.PROJECT/analysis/RDS/${meta_config.PROJECT}_analyzed_seurat_object.qs"
     def report_path_figures = "data/endpoints/$params.project/analysis/report/figures" 

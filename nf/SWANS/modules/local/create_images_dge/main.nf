@@ -6,7 +6,7 @@ process CREATE_IMAGES_DGE {
         val(storage)
         tuple val(meta_config), path(analyzed_seurat_object)
     output:
-        path("./create_images_dge_output")
+        path("create_images_dge_output")
     script:
     def report_table_path = "data/endpoints/$meta_config.PROJECT/analysis/report/tables"
     def args = task.ext.args ?: ''
