@@ -7,8 +7,6 @@ process CREATE_INITIAL_SEURAT {
         val(sample)
         val(condition)
         path(input_dir)
-        val(seurat_creation_source)
-        val(run_doubletfinder)
         val(seurat_file_name)
     output:
         path("create_initial_seurat_output"),  emit: analysis_dir
@@ -32,8 +30,8 @@ process CREATE_INITIAL_SEURAT {
     --sample_file samples.sample_list \\
     --project $meta_config.PROJECT \\
     --organism $meta_config.ORGANISM \\
-    --seurat_creation_source $seurat_creation_source \\
-    --run_doubletfinder $run_doubletfinder \\
+    --seurat_creation_source ${meta_config.RUN_SOUPX == "true" ? "soupX": "cellranger" } \\
+    --run_doubletfinder ${meta_config.RUN_DOUBLETFINDER == "true" ? "y" : "n"} \\
     --mito_cutoff $meta_config.MITO \\
     --ribo_cutoff $meta_config.RIBO \\
     --min_feature_threshold $meta_config.MIN_FEATURE_THRESHOLD \\

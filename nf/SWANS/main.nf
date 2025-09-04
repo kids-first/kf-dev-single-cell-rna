@@ -70,22 +70,17 @@ workflow {
     seurat_filename = "data/endpoints/$params.project/analysis/RDS/${params.project}_initial_seurat_object.qs"
     sample_list_flat = sample_list.collect()
     input_dir_list_flat = input_dir_list.collect()
-    seurat_creation_source = params.disable_soupx ? "cellranger" : "soupX"
-    run_doubletfinder = params.disable_doubletfinder ? "n" : "y"
     CREATE_INITIAL_SEURAT(
         COLLATE_OUTPUTS.out,
         sample_list_flat,
         condition_list,
         input_dir_list_flat,
-        seurat_creation_source,
-        run_doubletfinder,
         seurat_filename
     )
     ANALYZE_SEURAT_OBJECT(
         CREATE_INITIAL_SEURAT.out.seurat_file,
         params.aso_memory
     )
-    ANALYZE_SEURAT_OBJECT.out.analyzed_seurat_object_file.view()
     CREATE_IMAGES_DGE(
         params.storage,
         ANALYZE_SEURAT_OBJECT.out.analyzed_seurat_object_file
