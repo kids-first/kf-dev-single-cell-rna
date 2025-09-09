@@ -26,7 +26,7 @@ process COUNT {
     """
     mkdir -p fastqs && $link_reads
     cellranger count \\
-    --id $sample
+    --id $sample \\
     --sample $sample \\
     --create-bam $create_bam \\
     --fastqs fastqs/ \\
