@@ -7,6 +7,6 @@
         "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/10X_fastqs_w_metadata/Sample_HBAD-B-1/fastq/HBAD-B-1_CTAGCGAG_HGHVJDSXY_L004_001.R2.fastq.gz"
     ],
     "transcriptome": "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/refdata_gencode39_cell_ranger/",
-    "create_bam": false,
+    "create_bam": true,
     "aws_test_instance": true
 }

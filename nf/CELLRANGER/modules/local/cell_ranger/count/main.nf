@@ -11,7 +11,7 @@ process COUNT {
         path(index_files) // optional
 
     output:
-    tuple path("${sample}/")
+    path("${sample}/")
 
     script:
     def link_reads = ""
@@ -25,6 +25,7 @@ process COUNT {
     }
     """
     mkdir -p fastqs && $link_reads
+    cellranger telemetry disable;
     cellranger count \\
     --id $sample \\
     --sample $sample \\
