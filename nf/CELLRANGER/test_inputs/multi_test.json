@@ -1,13 +1,13 @@
 {
     "library_fastq_id": "als_crazy_8",
-    "reads": ["/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/10X_fastqs_w_metadata/Sample_HBAD-B-1/fastq/HBAD-B-1_AGGCGTCA_HGHVJDSXY_L004_001.R1.fastq.gz",
-        "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/10X_fastqs_w_metadata/Sample_HBAD-B-1/fastq/HBAD-B-1_CTAGCGAG_HGHVJDSXY_L004_001.R1.fastq.gz"
+    "reads": ["/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/13330-KW-Pool01-GEX_S20_R1_001.fastq.gz"
     ],
-    "mates": ["/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/10X_fastqs_w_metadata/Sample_HBAD-B-1/fastq/HBAD-B-1_AGGCGTCA_HGHVJDSXY_L004_001.R2.fastq.gz",
-        "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/10X_fastqs_w_metadata/Sample_HBAD-B-1/fastq/HBAD-B-1_CTAGCGAG_HGHVJDSXY_L004_001.R2.fastq.gz"
+    "mates": ["/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/13330-KW-Pool01-GEX_S20_R2_001.fastq.gz"
     ],
-    "sample_csv": "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/nf/CELLRANGER/test_inputs/multi_sample_sheet.csv",
-    "transcriptome": "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/refdata_gencode39_cell_ranger/",
-    "create_bam": true,
+    "sample_csv": "//home/ubuntu/volume/SWANS/TEST_CR/multi_sample_sheet.csv",
+    "transcriptome": "/home/ubuntu/volume/SWANS/TEST_CR/refdata-gex-GRCh38-2024-A",
+    "probe_set": "/home/ubuntu/volume/SWANS/TEST_CR/Chromium_Human_Transcriptome_Probe_Set_v1.1.0_GRCh38-2024-A.csv",
+    "create_bam": false,
+    "mode": "multi",
     "aws_test_instance": true
 }

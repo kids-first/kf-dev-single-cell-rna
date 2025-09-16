@@ -5,19 +5,34 @@ process MULTI {
     input:
         val(library_fastq_id)
         val(create_bam)
-        path(reads)
+        path(reads, name: "FASTQS/")
+        path(mates, name: "FASTQS/")
         path(transcriptome)
+        val(feature_types)
+        path(sample_sheet)
+        path(probe_set_csv)
 
     output:
     path("${library_fastq_id}/")
 
     script:
-    def multi_csv = ""
+    def multi_config = "${library_fastq_id}.multi_config.csv"
 
     """
     cellranger telemetry disable;
+    echo -e "[gene-expression]
+    reference,\$PWD/$transcriptome
+    probe-set,\$PWD/$probe_set_csv
+    create-bam,$create_bam
+
+    [libraries]
+    fastq_id,fastqs,feature_types
+    $library_fastq_id,\$PWD/FASTQS/,$feature_types
+    
+    [samples]" > $multi_config && \\
+    cat $sample_sheet >> $multi_config && \\
     cellranger multi \\
     --id $library_fastq_id \\
-    --csv $multi_csv 
+    --csv $multi_config 
     """
 }
