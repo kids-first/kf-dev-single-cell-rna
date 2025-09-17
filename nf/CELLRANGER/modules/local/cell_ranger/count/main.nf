@@ -11,7 +11,7 @@ process COUNT {
         path(index_files) // optional
 
     output:
-    path("${sample}/")
+    path("${sample}/outs")
 
     script:
     def link_reads = ""
