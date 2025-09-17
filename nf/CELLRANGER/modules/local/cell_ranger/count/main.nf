@@ -24,6 +24,7 @@ process COUNT {
         }
     }
     """
+    cellranger telemetry disable;
     mkdir -p fastqs && $link_reads
     cellranger telemetry disable;
     cellranger count \\

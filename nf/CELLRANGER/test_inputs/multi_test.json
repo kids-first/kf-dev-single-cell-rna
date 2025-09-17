@@ -1,5 +1,5 @@
 {
-    "library_fastq_id": "als_crazy_8",
+    "library_fastq_id": "13330-KW-Pool01-GEX",
     "reads": ["/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/13330-KW-Pool01-GEX_S20_R1_001.fastq.gz"
     ],
     "mates": ["/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/13330-KW-Pool01-GEX_S20_R2_001.fastq.gz"
