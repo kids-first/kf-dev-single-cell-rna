@@ -28,6 +28,7 @@ workflow {
     } else if ((transcriptome_dir == "" && transcriptome_tar == "") || (transcriptome_dir != "" && transcriptome_tar != "")){
         error "Must provide one of either a path to a transcriptome directory or a tar file of the reference!"
     }
+
     if (mode == "count"){
         COUNT(
             sample,

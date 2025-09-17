@@ -173,6 +173,6 @@ outputs:
 - doc: The output directory containing the results from Cell Ranger.
   id: cellranger_output
   outputBinding:
-    glob: results/*
+    glob: "*"
   type: Directory
 
