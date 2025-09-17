@@ -44,11 +44,18 @@ inputs:
   type:
   - items: File
     type: array
-- id: transcriptome
+- id: transcriptome_dir
   inputBinding:
-    prefix: --transcriptome
+    prefix: --transcriptome_dir
   type:
   - Directory
+  - 'null'
+- id: transcriptome_tar
+  inputBinding:
+    prefix: --transcriptome_tar
+  type:
+  - File
+  - 'null'
 - id: indices
   type:
   - 'null'
