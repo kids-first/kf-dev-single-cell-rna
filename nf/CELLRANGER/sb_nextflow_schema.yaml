@@ -13,8 +13,9 @@ requirements:
     entry: |
       $(JSON.stringify({
           reads: inputs.reads ? inputs.reads.map(function(e) {return e.path}) : "",
-          mates: inputs.input_mates_list ? inputs.mates.map(function(e) {return e.path}): "",
-          indices: inputs.indices ? inputs.indices.map(function(e) {return e.path}) : ""
+          mates: inputs.mates ? inputs.mates.map(function(e) {return e.path}): "",
+          indices: inputs.indices ? inputs.indices.map(function(e) {return e.path}) : "",
+          create_bam: inputs.create_bam
           }))
       
 arguments:
@@ -57,8 +58,6 @@ inputs:
   doc: Create BAM output. Usually not recommended for `count`, but recommended for
     `multi`
   id: create_bam
-  inputBinding:
-    prefix: --create_bam
   type:
   - 'null'
   - boolean
