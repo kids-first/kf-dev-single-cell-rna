@@ -1,15 +1,27 @@
 app_content:
   code_package: 68cabdac8f27a538de5e5ae8
   entrypoint: main.nf
-arguments:
-- position: 0
-  shellQuote: false
-  valueFrom: '-params-file input_params.json
-
-    '
 class: nextflow
 cwlVersion: None
 executor_version: 23.04.1
+requirements:
+- class: InlineJavascriptRequirement
+- class: ShellCommandRequirement
+- class: InitialWorkDirRequirement
+  listing:
+  - entryname: input_params.json
+    entry: |
+      $(JSON.stringify({
+          reads: inputs.reads ? inputs.reads.map(function(e) {return e.path}) : "",
+          mates: inputs.input_mates_list ? inputs.mates.map(function(e) {return e.path}): "",
+          indices: inputs.indices ? inputs.indices.map(function(e) {return e.path}) : ""
+          }))
+      
+arguments:
+- position: 0
+  shellQuote: false
+  valueFrom: '-params-file input_params.json'
+
 hints:
 - class: sbg:NextflowExecutionMode
   value: multi-instance
@@ -61,14 +73,11 @@ inputs:
     - count
     - multi
     type: enum
-- doc: 'Required for `multi`. CSV file with columns: sample_id,probe_barcode_ids.
-
+- doc: |
+    Required for `multi`. CSV file with columns: sample_id,probe_barcode_ids.
     This is to fill out the [sample] section of the multi config.
-
     See https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts
     for details
-
-    '
   id: sample_csv
   inputBinding:
     prefix: --sample_csv
@@ -160,22 +169,4 @@ outputs:
   outputBinding:
     glob: results/*
   type: Directory
-requirements:
-- class: InlineJavascriptRequirement
-- class: ShellCommandRequirement
-- class: InitialWorkDirRequirement
-  listing:
-  - entry: '$(JSON.stringify({
 
-      reads: inputs.reads ? inputs.reads.map(function(e) {return e.path}) : "",
-
-      mates: inputs.input_mates_list ? inputs.mates.map(function(e) {return e.path})
-      : "",
-
-      indices: inputs.indices ? inputs.indices.map(function(e) {return e.path}) :
-      ""
-
-      }))
-
-      '
-    entryname: input_params.json
