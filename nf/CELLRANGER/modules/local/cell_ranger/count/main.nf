@@ -28,6 +28,7 @@ process COUNT {
     mkdir -p fastqs && $link_reads
     cellranger telemetry disable;
     cellranger count \\
+    --disable-ui \\
     --id $sample \\
     --sample $sample \\
     --create-bam $create_bam \\

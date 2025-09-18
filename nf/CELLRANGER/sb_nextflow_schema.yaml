@@ -67,6 +67,11 @@ inputs:
         prefix: --cr_cpus
     default: 8
     type: 'int?'
+-   id: cr_ram
+    inputBinding:
+        prefix: --cr_ram
+    default: 60
+    type: 'int?'
 -   id: sample_csv
     inputBinding:
         prefix: --sample_csv

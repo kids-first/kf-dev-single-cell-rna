@@ -30,12 +30,14 @@ process MULTI {
     fastq_id,fastqs,feature_types
     $library_fastq_id,\$PWD/FASTQS/,$feature_types
     
-    [samples]" > $multi_config && \\
-    cat $sample_sheet >> $multi_config && \\
+    [samples]" > $multi_config; \\
+    cat $sample_sheet >> $multi_config; \\
+    cat $multi_config; \\
     cellranger multi \\
+    --disable-ui \\
     --id $library_fastq_id \\
-    --csv $multi_config; \\
-    echo "Cell Ranger multi finished successfully, packaging results"; \\
-    tar -czf ${library_fastq_id}.tar.gz $library_fastq_id/outs
+    --csv $multi_config && \\
+    echo "Cell Ranger multi finished successfully, packaging results" && \\
+    tar -czvf ${library_fastq_id}.tar.gz $library_fastq_id/outs
     """
 }
