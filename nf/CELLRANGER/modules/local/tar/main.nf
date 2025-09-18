@@ -10,6 +10,6 @@ process UNTAR_REF {
 
     script:
     """
-    tar xf ${tar_file}
+    tar xvf ${tar_file}
     """
-}   
+}

@@ -1,5 +1,5 @@
 process MULTI {
-    label 'R8'
+    label 'CR'
     container "migbro/cellranger:9.0.1"
 
     input:
@@ -13,8 +13,7 @@ process MULTI {
         path(probe_set_csv)
 
     output:
-    path("${library_fastq_id}/outs/multi/"), emit: multi_out
-    path("${library_fastq_id}/outs/per_sample_outs"), emit: per_sample
+    path("${library_fastq_id}.tar.gz"), emit: multi_out
     path("*multi_config.csv"), emit: config
 
     script:
@@ -35,6 +34,8 @@ process MULTI {
     cat $sample_sheet >> $multi_config && \\
     cellranger multi \\
     --id $library_fastq_id \\
-    --csv $multi_config 
+    --csv $multi_config; \\
+    echo "Cell Ranger multi finished successfully, packaging results"; \\
+    tar -czf ${library_fastq_id}.tar.gz $library_fastq_id/outs
     """
 }

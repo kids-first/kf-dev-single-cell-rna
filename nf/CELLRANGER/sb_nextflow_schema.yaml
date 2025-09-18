@@ -1,6 +1,6 @@
 app_content:
-  code_package: 68cabdac8f27a538de5e5ae8
-  entrypoint: main.nf
+    code_package: 68cc135f8f27a538de63d311
+    entrypoint: main.nf
 class: nextflow
 cwlVersion: None
 executor_version: 23.04.1
@@ -15,7 +15,8 @@ requirements:
           reads: inputs.reads ? inputs.reads.map(function(e) {return e.path}) : "",
           mates: inputs.mates ? inputs.mates.map(function(e) {return e.path}): "",
           indices: inputs.indices ? inputs.indices.map(function(e) {return e.path}) : "",
-          create_bam: inputs.create_bam
+          create_bam: inputs.create_bam,
+          feature_types: inputs.feature_types ? inputs.feature_types : ""
           }))
       
 arguments:
@@ -29,150 +30,97 @@ hints:
 - class: sbg:maxNumberOfParallelInstances
   value: 3
 inputs:
-- doc: Sample name, required for `count`
-  id: sample
-  inputBinding:
-    prefix: --sample
-  type:
-  - string
-  - 'null'
-- id: reads
-  type:
-  - items: File
-    type: array
-- id: mates
-  type:
-  - items: File
-    type: array
-- id: transcriptome_dir
-  inputBinding:
-    prefix: --transcriptome_dir
-  type:
-  - Directory
-  - 'null'
-- id: transcriptome_tar
-  inputBinding:
-    prefix: --transcriptome_tar
-  type:
-  - File
-  - 'null'
-- id: indices
-  type:
-  - 'null'
-  - items: File
-    type: array
-- default: false
-  doc: Create BAM output. Usually not recommended for `count`, but recommended for
-    `multi`
-  id: create_bam
-  type:
-  - 'null'
-  - boolean
-- default: count
-  id: mode
-  inputBinding:
-    prefix: --mode
-  type:
-  - 'null'
-  - name: mode
-    symbols:
-    - count
-    - multi
-    type: enum
-- doc: |
-    Required for `multi`. CSV file with columns: sample_id,probe_barcode_ids.
-    This is to fill out the [sample] section of the multi config.
-    See https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts
-    for details
-  id: sample_csv
-  inputBinding:
-    prefix: --sample_csv
-  type:
-  - File
-  - 'null'
-- doc: Required for `multi`. Should be the prefix of the input FASTQ up until the
-    _S#_L##_R#_001.fastq.gz part
-  id: library_fastq_id
-  inputBinding:
-    prefix: --library_fastq_id
-  type:
-  - string
-  - 'null'
-- default: Gene Expression
-  doc: For mutli mode. Default is usually best, see https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts#feature-types
-  id: feature_types
-  inputBinding:
-    prefix: --feature_types
-  type:
-  - 'null'
-  - name: feature_types
-    symbols:
-    - Gene Expression
-    - Antibody Capture
-    - CRISPR Guide Capture
-    - Multiplexing Capture
-    - VDJ
-    - VDJ-T
-    - VDJ-T-GD
-    - Antigen Capture
-    - Custom
-    type: enum
-- doc: Required for Flex chemistries
-  id: probe_set
-  inputBinding:
-    prefix: --probe_set
-  type:
-  - File
-  - 'null'
-- default: true
-  id: sbg_run
-  inputBinding:
-    prefix: --sbg_run
-  type:
-  - boolean
-  - 'null'
-- default: ./results
-  id: outdir
-  inputBinding:
-    prefix: --outdir
-  label: Path to the output directory where the results will be saved.
-  type:
-  - string
-  - 'null'
-- default: 16
-  doc: Use to set an upper-limit for the CPU requirement for each process. Should
-    be an integer e.g. `--max_cpus 1`
-  id: max_cpus
-  inputBinding:
-    prefix: --max_cpus
-  label: Maximum number of CPUs that can be requested for any single job.
-  type:
-  - int
-  - 'null'
-- default: 128.GB
-  doc: Use to set an upper-limit for the memory requirement for each process. Should
-    be a string in the format integer-unit e.g. `--max_memory '8.GB'`
-  id: max_memory
-  inputBinding:
-    prefix: --max_memory
-  label: Maximum amount of memory that can be requested for any single job.
-  type:
-  - string
-  - 'null'
-- default: 240.h
-  doc: Use to set an upper-limit for the time requirement for each process. Should
-    be a string in the format integer-unit e.g. `--max_time '2.h'`
-  id: max_time
-  inputBinding:
-    prefix: --max_time
-  label: Maximum amount of time that can be requested for any single job.
-  type:
-  - string
-  - 'null'
+-   id: sample
+    inputBinding:
+        prefix: --sample
+    type: 'string?'
+    doc: Sample name, required for `count`
+-   id: reads
+    type: 'File[]'
+-   id: mates
+    type: 'File[]'
+-   id: transcriptome_dir
+    inputBinding:
+        prefix: --transcriptome_dir
+    type: 'Directory?'
+-   id: transcriptome_tar
+    inputBinding:
+        prefix: --transcriptome_tar
+    type: 'File?'
+-   id: indices
+    type: 'File[]?'
+-   id: create_bam
+    type: 'boolean?'
+-   id: mode
+    inputBinding:
+        prefix: --mode
+    default: count
+    type:
+    - 'null'
+    - name: mode
+      type: enum
+      symbols:
+        - count
+        - multi
+-   id: cr_cpus
+    inputBinding:
+        prefix: --cr_cpus
+    default: 8
+    type: 'int?'
+-   id: sample_csv
+    inputBinding:
+        prefix: --sample_csv
+    type: 'File?'
+    doc: |
+        Required for `multi`. CSV file with columns: sample_id,probe_barcode_ids.
+        This is to fill out the [sample] section of the multi config.
+        See https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts
+        for details
+-   id: library_fastq_id
+    inputBinding:
+        prefix: --library_fastq_id
+    type: 'string?'
+    doc: Required for `multi`. Should be the prefix of the input FASTQ up until the _S#_L##_R#_001.fastq.gz part
+-   id: feature_types
+    default: Gene Expression
+    type:
+    - 'null'
+    - name: feature_types
+      type: enum
+      symbols:
+        - Gene Expression
+        - Antibody Capture
+        - CRISPR Guide Capture
+        - Multiplexing Capture
+        - VDJ
+        - VDJ-T
+        - VDJ-T-GD
+        - Antigen Capture
+        - Custom
+      doc: For mutli mode. Default is usually best, see https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts#feature-types
+-   id: probe_set
+    inputBinding:
+        prefix: --probe_set
+    type: 'File?'
+    doc: Required for Flex chemistries
+-   id: sbg_run
+    inputBinding:
+        prefix: --sbg_run
+    default: true
+    type: 'boolean?'
+
+-   id: outdir
+    inputBinding:
+        prefix: --outdir
+    label: Path to the output directory where the results will be saved.
+    sbg:category: Input/output options
+    sbg:icon: fas fa-folder-open
+    default: ./results
+    type: 'string?'
 outputs:
-- doc: The output directory containing the results from Cell Ranger.
-  id: cellranger_output
+- id: cellranger_output
   outputBinding:
     glob: "*"
   type: Directory
+  doc: The output results from Cell Ranger.
 

@@ -1,5 +1,5 @@
 process COUNT {
-    label 'R8'
+    label 'CR'
     container "migbro/cellranger:9.0.1"
 
     input:
@@ -11,7 +11,7 @@ process COUNT {
         path(index_files) // optional
 
     output:
-    path("${sample}/outs")
+    path("${sample}.tar.gz")
 
     script:
     def link_reads = ""
@@ -32,6 +32,8 @@ process COUNT {
     --sample $sample \\
     --create-bam $create_bam \\
     --fastqs fastqs/ \\
-    --transcriptome $transcriptome
+    --transcriptome $transcriptome; \\
+    echo "Cell Ranger count finished successfully, packaging results";
+    tar czvf ${sample}.tar.gz $sample/outs
     """
 }

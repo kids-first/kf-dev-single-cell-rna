@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://raw.githubusercontent.com//home/ubuntu/tools/kf-dev-single-cell-rna/nf/CELLRANGER/master/nextflow_schema.json",
-    "title": "/home/ubuntu/tools/kf-dev-single-cell-rna/nf/CELLRANGER pipeline parameters",
+    "$id": "https://raw.githubusercontent.com//Users/brownm28/Documents/git_repos/kf-dev-single-cell-rna/nf/CELLRANGER/master/nextflow_schema.json",
+    "title": "/Users/brownm28/Documents/git_repos/kf-dev-single-cell-rna/nf/CELLRANGER pipeline parameters",
     "description": "",
     "type": "object",
     "definitions": {
@@ -105,7 +105,10 @@
         "mates": {
             "type": "string"
         },
-        "transcriptome": {
+        "transcriptome_dir": {
+            "type": "string"
+        },
+        "transcriptome_tar": {
             "type": "string"
         },
         "indices": {
@@ -117,6 +120,10 @@
         "mode": {
             "type": "string",
             "default": "count"
+        },
+        "cr_cpus": {
+            "type": "integer",
+            "default": 8
         },
         "sample_csv": {
             "type": "string"
