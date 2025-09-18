@@ -13,8 +13,8 @@ process MULTI {
         path(probe_set_csv)
 
     output:
-    path("${library_fastq_id}/multi/"), emit: multi_out
-    path("${library_fastq_id}/per_sample_outs"), emit: per_sample
+    path("${library_fastq_id}/outs/multi/"), emit: multi_out
+    path("${library_fastq_id}/outs/per_sample_outs"), emit: per_sample
     path("*multi_config.csv"), emit: config
 
     script:
