@@ -57,6 +57,9 @@ doc: |
     See [Multi Config](https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts) for details
     - `probe_set`: Probe set file obtainable from `references`
 
+    ## Outputs
+    - `cellranger_output`: tar ball + config file if multi run
+
 inputs:
 -   id: sample
     inputBinding:

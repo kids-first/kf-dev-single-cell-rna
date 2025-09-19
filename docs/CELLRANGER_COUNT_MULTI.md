@@ -24,3 +24,6 @@ This is to fill out the [sample] section of the multi config.
 ### Multi-specific Flex
 See [Multi Config](https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts) for details
 - `probe_set`: Probe set file obtainable from `references`
+
+## Outputs
+ - `cellranger_output`: tar ball + config file if multi run
