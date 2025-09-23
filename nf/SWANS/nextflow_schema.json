@@ -157,7 +157,7 @@
         "disable_soupx": {
             "type": "string"
         },
-        "data_type": {
+        "soupx_start": {
             "type": "string"
         },
         "aso_processes": {

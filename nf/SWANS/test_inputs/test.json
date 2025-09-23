@@ -6,9 +6,10 @@
     "starting_data": "cellranger",
     "dbl_mem": 30,
     "dbl_threads": 2,
-    "data_type": "no_clusters",
+    "soupx_start": "no_clusters",
     "include_tsne" : "y",
     "run_azimuth": "y",
     "azimuth_ref": "humancortexref",
+    "organism": "human",
     "aws_test_instance": true
 }

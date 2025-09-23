@@ -8,9 +8,60 @@ include { ANALYZE_SEURAT_OBJECT } from './modules/local/analyze_seurat_object/ma
 include { CREATE_IMAGES_DGE } from './modules/local/create_images_dge/main.nf'
 include { COLLATE_ANALYSIS } from './modules/local/collate_anaylsis/main.nf'
 
+def validate_inputs(param_obj){
+    // single value possibilities
+    def required_options = [
+        organism: ["mouse", "human"],
+        starting_data:["cellranger", "matrix"],
+        soupx_start: ["out", "no_clusters", "h5"],
+        split_layers_by: ["Sample", "Experiment"],
+        scale_data_features: ["all", "variable"]
+    ]
+    // multi value possibilities
+    def required_multi_options = [
+        normalization_config: ["sct", "standard"],
+        integration_config: ["cca", "harmony", "rpca"],
+        visualization: ["feature", "violin", "ridge", "dot"]
+    ]
+    param_obj.each { k, v ->
+        if (required_options.containsKey(k)){
+            if (!required_options[k].contains(v)){
+                error("Invalid option for parameter ${k}: ${v}. Valid options are: ${required_options[k]}")
+            }
+        }
+        else if (required_multi_options.containsKey(k)){
+            def vals = v.split(",")
+            vals.each { val ->
+                if (!required_multi_options[k].contains(val)){
+                    error("Invalid option for parameter ${k}: ${val}. Valid options are: ${required_multi_options[k]}")
+                }
+            }
+        }
+    }
+    // Validate optional dependent params
+    def dependent_params = [
+        cc_method: ["standard", "alternative"],
+        azimuth_ref_human: ["adiposeref", "bonemarrowref", "fetusref", "heartref", "humancortexref","kidneyref", "lungref", "pancreasref", "pbmcref", "tonsilref"],
+        azimuth_ref_mouse: ["mousecortexref"]
+    ]
+    if (param_obj.cc_regression == "y"){
+        if (!dependent_params.cc_method.contains(param_obj.cc_method)){
+            error("Invalid option for parameter cc_method: ${param_obj.cc_method}. Valid options are: ${dependent_params.cc_method}")
+        }
+    }
+    if (param_obj.run_azimuth == "y"){
+        if (param_obj.organism == "human" && !dependent_params.azimuth_ref_human.contains(param_obj.azimuth_ref)){
+            error("Invalid option for parameter azimuth_ref: ${param_obj.azimuth_ref}. Valid options are: ${dependent_params.azimuth_ref_human}")
+        }
+        else if (param_obj.organism == "mouse" && !dependent_params.azimuth_ref_mouse.contains(param_obj.azimuth_ref)){
+            error("Invalid option for parameter azimuth_ref: ${param_obj.azimuth_ref}. Valid options are: ${dependent_params.azimuth_ref_mouse}")
+        }
+    }
+}
 
 workflow {
     main:
+    validate_inputs(params)
     sample_list = Channel.fromList(params.sample_list)
     condition_list = Channel.fromList(params.condition_list).collect()
     input_dir_list = params.input_dir_list ? Channel.fromPath(params.input_dir_list.class == String ? params.input_dir_list.split(',') as List : params.input_dir_list) : Channel.empty()
@@ -21,7 +72,7 @@ workflow {
         ORGANISM: params.organism,
         RPATH: params.r_lib_path,
         RUN_SOUPX: String.valueOf(!params.disable_soupx),
-        SOUPX_START: params.data_type,
+        SOUPX_START: params.soupx_start,
         STARTING_DATA: params.starting_data,
         RUN_DOUBLETFINDER: String.valueOf(!params.disable_doubletfinder),
         MITO: params.mito_cutoff,
@@ -34,7 +85,7 @@ workflow {
         COMPONENTS: params.int_components,
         MITO_REGRESSION: params.mito_regression,
         RIBO_REGRESSION: params.ribo_regression,
-        CELL_CYCLE_REGRESSION: params.cc_regression,
+        cc_regression: params.cc_regression,
         NUM_VARIABLE_FEATURES: params.num_var_features,
         SCALE_DATA_FEATURES: params.scale_data_features,
         SPLIT_LAYERS_BY: params.split_layers_by,

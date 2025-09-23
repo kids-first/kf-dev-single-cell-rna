@@ -9,7 +9,7 @@ process DOUBLETFINDER {
     output:
     tuple val(sample), path("${sample}_doubletFinder/")
     script:
-    def doubletFinder_output_path = "data/endpoints/$meta_config.PROJECT/$sample/doubletFinder/"
+    def doubletFinder_output_path = "${sample}_doubletFinder/"
     """
     doubletFinder.R \\
     --sample $sample \\
@@ -22,8 +22,6 @@ process DOUBLETFINDER {
     --components $meta_config.COMPONENTS \\
     --organism $meta_config.ORGANISM \\
     --processes $task.cpus \\
-    $meta_config.RPATH \\
-    && mkdir ${sample}_doubletFinder \\
-    && mv $doubletFinder_output_path* ${sample}_doubletFinder/
+    $meta_config.RPATH
     """
 }
