@@ -6,12 +6,10 @@ process UNTAR_CR {
     tuple val(sample_id), path(tar_file)
 
     output:
-    tuple val(sample_id), path("cell_ranger_${sample_id}")
+    tuple val(sample_id), path("*")
 
     script:
     """
-    mkdir cell_ranger_${sample_id}
-
-    tar xvf ${tar_file} -C cell_ranger_${sample_id}
+    transform_cr_tar.sh ${tar_file}
     """
-}   
+}

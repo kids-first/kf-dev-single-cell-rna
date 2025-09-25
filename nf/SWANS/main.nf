@@ -1,5 +1,6 @@
 #!/usr/bin/env nextflow
 
+include { UNTAR_CR } from './modules/local/tar/main.nf'
 include { DOUBLETFINDER } from './modules/local/doubletFinder/main.nf'
 include { SOUPX } from './modules/local/soupX/main.nf'
 include { COLLATE_OUTPUTS } from './modules/local/collate_outputs/main.nf'
@@ -65,7 +66,7 @@ workflow {
     sample_list = Channel.fromList(params.sample_list)
     condition_list = Channel.fromList(params.condition_list).collect()
     input_dir_list = params.input_dir_list ? Channel.fromPath(params.input_dir_list.class == String ? params.input_dir_list.split(',') as List : params.input_dir_list) : Channel.empty()
-
+    input_cr_tar_list = params.input_cr_tar_list ? Channel.fromPath(params.input_cr_tar_list.class == String ? params.input_cr_tar_list.split(',') as List : params.input_cr_tar_list) : Channel.empty()
     // Create meta dict of common inputs to reduce param passing and to mimic snakemake yaml
     meta = [
         PROJECT: params.project,
@@ -98,46 +99,51 @@ workflow {
     ]
 
     input_list = sample_list.merge(input_dir_list).map { sample, input_dir -> [sample, input_dir]}
-    if (!params.disable_doubletfinder){
-        DOUBLETFINDER(
-            meta,
-            input_list
-        )
-    }
-    if (!params.disable_soupx){
-        SOUPX(
-            meta,
-            input_list
-        )
-    }
-    // collate results so that next step can use them all together
-    samples = SOUPX.out.map { it[0] }.concat(DOUBLETFINDER.out.map { it[0] }).collect()
-    input_dirs = SOUPX.out.map { it[1] }.collect().combine(DOUBLETFINDER.out.map { it[1] }.collect())
-    COLLATE_OUTPUTS(
-        meta,
-        samples,
-        input_dirs
+    input_tar_cr_list = sample_list.merge(input_cr_tar_list).map { sample, input_tar -> [sample, input_tar]}
+    UNTAR_CR(
+        input_tar_cr_list
     )
-    seurat_filename = "data/endpoints/$params.project/analysis/RDS/${params.project}_initial_seurat_object.qs"
-    sample_list_flat = sample_list.collect()
-    input_dir_list_flat = input_dir_list.collect()
-    CREATE_INITIAL_SEURAT(
-        COLLATE_OUTPUTS.out,
-        sample_list_flat,
-        condition_list,
-        input_dir_list_flat,
-        seurat_filename
-    )
-    ANALYZE_SEURAT_OBJECT(
-        CREATE_INITIAL_SEURAT.out.seurat_file,
-        params.aso_memory
-    )
-    CREATE_IMAGES_DGE(
-        params.storage,
-        ANALYZE_SEURAT_OBJECT.out.analyzed_seurat_object_file
-    )
-    analysis_dirs = CREATE_INITIAL_SEURAT.out.analysis_dir.combine(ANALYZE_SEURAT_OBJECT.out.analysis_path).combine(CREATE_IMAGES_DGE.out)
-    COLLATE_ANALYSIS(
-        analysis_dirs
-    )
+    UNTAR_CR.out.view()
+    // if (!params.disable_doubletfinder){
+    //     DOUBLETFINDER(
+    //         meta,
+    //         input_list
+    //     )
+    // }
+    // if (!params.disable_soupx){
+    //     SOUPX(
+    //         meta,
+    //         input_list
+    //     )
+    // }
+    // // collate results so that next step can use them all together
+    // samples = SOUPX.out.map { it[0] }.concat(DOUBLETFINDER.out.map { it[0] }).collect()
+    // input_dirs = SOUPX.out.map { it[1] }.collect().combine(DOUBLETFINDER.out.map { it[1] }.collect())
+    // COLLATE_OUTPUTS(
+    //     meta,
+    //     samples,
+    //     input_dirs
+    // )
+    // seurat_filename = "data/endpoints/$params.project/analysis/RDS/${params.project}_initial_seurat_object.qs"
+    // sample_list_flat = sample_list.collect()
+    // input_dir_list_flat = input_dir_list.collect()
+    // CREATE_INITIAL_SEURAT(
+    //     COLLATE_OUTPUTS.out,
+    //     sample_list_flat,
+    //     condition_list,
+    //     input_dir_list_flat,
+    //     seurat_filename
+    // )
+    // ANALYZE_SEURAT_OBJECT(
+    //     CREATE_INITIAL_SEURAT.out.seurat_file,
+    //     params.aso_memory
+    // )
+    // CREATE_IMAGES_DGE(
+    //     params.storage,
+    //     ANALYZE_SEURAT_OBJECT.out.analyzed_seurat_object_file
+    // )
+    // analysis_dirs = CREATE_INITIAL_SEURAT.out.analysis_dir.combine(ANALYZE_SEURAT_OBJECT.out.analysis_path).combine(CREATE_IMAGES_DGE.out)
+    // COLLATE_ANALYSIS(
+    //     analysis_dirs
+    // )
 }
