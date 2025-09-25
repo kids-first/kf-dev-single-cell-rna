@@ -20,8 +20,8 @@ Data are aligned to both the genome and the transcriptome. Genome aligned data a
  - rsem_reference: RSEM reference file, recommend RSEM_GENCODE39.tar.gz
  - hisat_gen_cpus: CPUs to allocate to call genome align task
  - hisat_gen_ram: RAM to allocate to call genome align task in gb
- - hisat_rsem_cpus: CPUs to allocate to call transriptome align task
- - hisat_rsem_ram: RAM to allocate to call transriptome align task in gb
+ - hisat_rsem_cpus: CPUs to allocate to call transcriptome align task
+ - hisat_rsem_ram: RAM to allocate to call transcriptome align task in gb
  - wf_strand_param: use 'default' for unstranded/auto, 'rf-stranded' if read1 in the fastq read pairs is reverse complement to the transcript, 'fr-stranded' if read1 same sense as transcript
  - paired: Flag for paired data, separate from wf_strand_param which describes the orientation of paired data [False]
 

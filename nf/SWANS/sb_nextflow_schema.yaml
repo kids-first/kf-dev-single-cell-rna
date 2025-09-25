@@ -2,6 +2,7 @@ app_content:
     code_package: 68adec0613c54b4dd0aba1db
     entrypoint: main.nf
 class: nextflow
+executor_version: 23.04.1
 cwlVersion: None
 requirements:
 -   class: InlineJavascriptRequirement
