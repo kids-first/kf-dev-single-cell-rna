@@ -99,11 +99,23 @@ workflow {
     ]
 
     input_list = sample_list.merge(input_dir_list).map { sample, input_dir -> [sample, input_dir]}
-    input_tar_cr_list = sample_list.merge(input_cr_tar_list).map { sample, input_tar -> [sample, input_tar]}
+    // input_list.view()
     UNTAR_CR(
-        input_tar_cr_list
+        input_cr_tar_list
     )
-    UNTAR_CR.out.view()
+    // sample IDs baked into dir structures from tar files
+    // Will leverage that to create per-tar sample list
+
+    paired_sample_dir = UNTAR_CR.out.flatMap { sample_str, dir_list ->
+        if (dir_list instanceof List) {
+            return [sample_str.tokenize("\n"), dir_list].transpose()
+        } else {
+            return [sample_str.tokenize("\n"), [dir_list]].transpose()
+        }
+    }
+
+    paired_sample_dir.view()
+
     // if (!params.disable_doubletfinder){
     //     DOUBLETFINDER(
     //         meta,

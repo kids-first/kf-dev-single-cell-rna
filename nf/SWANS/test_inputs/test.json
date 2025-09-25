@@ -1,9 +1,10 @@
 {
     "project": "UMICH",
-    "sample_list": ["13330-KW-7"],
+    "sample_list": ["13330-KW-7", "7316-3058"],
     "condition_list": ["HGG", "HGG"],
     "input_dir_list": ["/home/ubuntu/volume/SWANS/bc984b76-95f4-4cc8-b2ed-3e19db1b1c2c/", "/home/ubuntu/volume/SWANS/5e8f4878-c888-4487-8d5e-d480a3374215/"],
-    "input_cr_tar_list": ["/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/7316-3058.tar.gz"],
+    "input_cr_tar_list": ["/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/_4_13330-KW-Pool01-GEX_subset.tar.gz",
+                        "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/7316-3058.tar.gz"],
     "starting_data": "cellranger",
     "dbl_mem": 30,
     "dbl_threads": 2,

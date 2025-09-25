@@ -3,13 +3,21 @@ process UNTAR_CR {
     container 'ubuntu:latest'
 
     input:
-    tuple val(sample_id), path(tar_file)
+    path(tar_file)
 
     output:
-    tuple val(sample_id), path("*")
+    tuple stdout, path("*")
 
     script:
     """
-    transform_cr_tar.sh ${tar_file}
+    tar xvf $tar_file \
+    --ignore-failed-read \
+    --wildcards "*_bc_matrix*" "*clustering*" \
+    --transform  's%.*/\\([^/]*/count/.*\\)%\\1%' \
+    --transform 's%count%outs%' \
+    --transform 's%sample_\\([filtered|raw]\\)%\\1%g' \
+    --exclude '*outs/multi*' \
+    --show-transformed-names \
+    | cut -f 1 -d "/" | uniq
     """
 }
