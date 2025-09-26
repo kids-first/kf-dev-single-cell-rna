@@ -60,13 +60,15 @@ def validate_inputs(param_obj){
     }
 }
 
+
 workflow {
     main:
     validate_inputs(params)
-    sample_list = Channel.fromList(params.sample_list)
-    condition_list = Channel.fromList(params.condition_list).collect()
+    sample_condition_map = Channel.fromPath(params.sample_condition_map)
     input_dir_list = params.input_dir_list ? Channel.fromPath(params.input_dir_list.class == String ? params.input_dir_list.split(',') as List : params.input_dir_list) : Channel.empty()
-    input_cr_tar_list = params.input_cr_tar_list ? Channel.fromPath(params.input_cr_tar_list.class == String ? params.input_cr_tar_list.split(',') as List : params.input_cr_tar_list) : Channel.empty()
+    input_dir_src_list = params.input_dir_src_list ? Channel.fromList(params.input_dir_src_list) : Channel.value([])
+    input_tar_list = params.input_tar_list ? Channel.fromPath(params.input_tar_list.class == String ? params.input_tar_list.split(',') as List : params.input_tar_list) : Channel.empty()
+    input_tar_src_list = params.input_tar_src_list ? Channel.fromList(params.input_tar_src_list) : Channel.value([])
     // Create meta dict of common inputs to reduce param passing and to mimic snakemake yaml
     meta = [
         PROJECT: params.project,
@@ -97,24 +99,38 @@ workflow {
         CONSERVED_GENES: params.conserved_genes,
         VISUALIZATION: params.visualization
     ]
-
-    input_list = sample_list.merge(input_dir_list).map { sample, input_dir -> [sample, input_dir]}
-    // input_list.view()
+    // dir names typically drive sample names, but not always desired. use sample map to enforce desired names
+    input_meta_tar = input_tar_src_list.merge(input_tar_list).map { src, tar -> [src, tar] }
+    // input_meta_tar.view()
     UNTAR_CR(
-        input_cr_tar_list
+        input_meta_tar
     )
-    // sample IDs baked into dir structures from tar files
-    // Will leverage that to create per-tar sample list
-
-    paired_sample_dir = UNTAR_CR.out.flatMap { sample_str, dir_list ->
-        if (dir_list instanceof List) {
-            return [sample_str.tokenize("\n"), dir_list].transpose()
-        } else {
-            return [sample_str.tokenize("\n"), [dir_list]].transpose()
+    // UNTAR_CR.out.view()
+    // initiialize dir data with src data
+    src_sample_dir = input_dir_src_list.merge(input_dir_list).map { src, dir -> 
+        if (src.toLowerCase() == "doubletfinder") {
+            def sname_matcher = dir =~ /([^\/]+)[_\/]doubletFinder/
+            def preceding_str = sname_matcher ? sname_matcher[0][1] : error("Could not parse sample name from input_dir_list entry ${dir}. Ensure directory name contains 'doubletFinder'.")
+            return [src, preceding_str, dir]
+        }
+        else if (src.toLowerCase() == "soupx") {
+            def sname_matcher = dir =~ /([^\/]+)[_\/]soupX/
+            def preceding_str = sname_matcher ? sname_matcher[0][1] : error("Could not parse sample name from input_dir_list entry ${dir}. Ensure directory name contains 'soupX'.")
+            return [src, preceding_str, dir]
+        }
+        else {
+            return [src, dir.name, dir]
         }
     }
-
-    paired_sample_dir.view()
+    untar_src_sample_dir = UNTAR_CR.out.flatMap { data_src, sample_str, dir_list ->
+            if (dir_list instanceof List) {
+                return [[data_src] * dir_list.size(), sample_str.tokenize("\n"), dir_list].transpose()
+            } else {
+                return [[data_src], sample_str.tokenize("\n"), [dir_list]].transpose()
+            }
+        }
+    src_sample_dir.concat(untar_src_sample_dir).view()
+    // TODO parse to pass to correct process
 
     // if (!params.disable_doubletfinder){
     //     DOUBLETFINDER(
