@@ -4,7 +4,7 @@ process DOUBLETFINDER {
 
     input:
         val(meta_config)
-        tuple val(sample), path(input_dir)
+        tuple val(src), val(sample), path(input_dir)
 
     output:
     tuple val(sample), path("${sample}_doubletFinder/")
@@ -14,7 +14,7 @@ process DOUBLETFINDER {
     doubletFinder.R \\
     --sample $sample \\
     --project $meta_config.PROJECT \\
-    --starting_data $meta_config.STARTING_DATA \\
+    --starting_data $src \\
     --input_path $input_dir \\
     --output_path $doubletFinder_output_path \\
     --mito_cutoff $meta_config.MITO \\

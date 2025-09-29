@@ -14,7 +14,9 @@ requirements:
           $(JSON.stringify(
           {
           sample_list: inputs.sample_list ? inputs.sample_list : "",
-          condition_list: inputs.condition_list ? inputs.condition_list : ""
+          condition_list: inputs.condition_list ? inputs.condition_list : "",
+          input_dir_src_list: inputs.input_dir_src_list ? inputs.input_dir_src_list : "",
+          input_tar_src_list: inputs.input_tar_src_list ? inputs.input_tar_src_list : ""
           }
           ))
 -   class: LoadListingRequirement
@@ -39,35 +41,33 @@ inputs:
     - 'null'
     - string
 -   id: input_dir_list
-    type:
-    -   items: Directory
-        type: array
+    type: 'Directory[]?'
     inputBinding:
         shellQuote: false
         itemSeparator: ','
         prefix: --input_dir_list
+-   id: input_dir_src_list
+    type: 'string[]?'
+-   id: input_tar_list
+    type: 'File[]?'
+    inputBinding:
+        shellQuote: false
+        itemSeparator: ','
+        prefix: --input_tar_list
+-   id: input_tar_src_list
+    type: 'string[]?'
+-   id: sample_condition_map_file
+    inputBinding:
+        prefix: --sample_condition_map_file
+    type: File
 -   id: project
     inputBinding:
         prefix: --project
     type:
     - string
--   id: sample_list
-    type:
-    -   items: string
-        type: array
--   id: condition_list
-    type:
-    -   items: string
-        type: array
--   id: starting_data
-    inputBinding:
-        prefix: --starting_data
-    type:
-    - string
 -   id: data_dir
     inputBinding:
         prefix: --data_dir
-    default: data/endpoints
     type:
     - 'null'
     - string

@@ -1,6 +1,9 @@
 #!/usr/bin/env nextflow
 
-include { UNTAR_CR } from './modules/local/tar/main.nf'
+include { UNTAR_CR } from './modules/local/untar/main.nf'
+include { TAR_OUTPUTS } from './modules/local/tar/main.nf'
+include { TAR_OUTPUTS as TAR_OUTPUTS_DBL } from './modules/local/tar/main.nf'
+include { TAR_OUTPUTS as TAR_OUTPUTS_SOUP } from './modules/local/tar/main.nf'
 include { DOUBLETFINDER } from './modules/local/doubletFinder/main.nf'
 include { SOUPX } from './modules/local/soupX/main.nf'
 include { COLLATE_OUTPUTS } from './modules/local/collate_outputs/main.nf'
@@ -26,7 +29,6 @@ def validate_inputs(param_obj){
     // single value possibilities
     def required_options = [
         organism: ["mouse", "human"],
-        starting_data:["cellranger", "matrix"],
         soupx_start: ["out", "no_clusters", "h5"],
         split_layers_by: ["Sample", "Experiment"],
         scale_data_features: ["all", "variable"]
@@ -127,7 +129,6 @@ workflow {
         RPATH: params.r_lib_path,
         RUN_SOUPX: String.valueOf(!params.disable_soupx),
         SOUPX_START: params.soupx_start,
-        STARTING_DATA: params.starting_data,
         RUN_DOUBLETFINDER: String.valueOf(!params.disable_doubletfinder),
         MITO: params.mito_cutoff,
         RIBO: params.ribo_cutoff,
@@ -165,48 +166,65 @@ workflow {
         cellranger: parsed_input[0].toLowerCase() == "cellranger"
     }.set{src_sample_dir}
 
-    // TODO parse to pass to correct process
-    src_sample_dir.cellranger.concat(src_sample_dir.matrix).view()
-    // if (!params.disable_doubletfinder){
-    //     DOUBLETFINDER(
-    //         meta,
-    //         input_list
-    //     )
-    // }
-    // if (!params.disable_soupx){
-    //     SOUPX(
-    //         meta,
-    //         input_list
-    //     )
-    // }
+
+    if (!params.disable_doubletfinder){
+        dbl_input = src_sample_dir.cellranger.concat(src_sample_dir.matrix).map { src, sample, _condition, dir -> [src, sample, dir] }
+        DOUBLETFINDER(
+            meta,
+            dbl_input
+        )
+        def dbl_tar_input = DOUBLETFINDER.out.map {_sample, dir -> ["", dir] }
+        TAR_OUTPUTS_DBL(
+            dbl_tar_input
+        )
+    }
+    if (!params.disable_soupx){
+        soupx_input = src_sample_dir.cellranger.map { src, sample, _condition, dir -> [src, sample, dir] }
+        SOUPX(
+            meta,
+            soupx_input
+        )
+        def soupx_tar_input = SOUPX.out.map { _sample, dir -> ["", dir] }
+        TAR_OUTPUTS_SOUP(
+            soupx_tar_input
+        )
+    }
     // // collate results so that next step can use them all together
-    // samples = SOUPX.out.map { it[0] }.concat(DOUBLETFINDER.out.map { it[0] }).collect()
-    // input_dirs = SOUPX.out.map { it[1] }.collect().combine(DOUBLETFINDER.out.map { it[1] }.collect())
-    // COLLATE_OUTPUTS(
-    //     meta,
-    //     samples,
-    //     input_dirs
-    // )
-    // seurat_filename = "data/endpoints/$params.project/analysis/RDS/${params.project}_initial_seurat_object.qs"
-    // sample_list_flat = sample_list.collect()
-    // input_dir_list_flat = input_dir_list.collect()
-    // CREATE_INITIAL_SEURAT(
-    //     COLLATE_OUTPUTS.out,
-    //     sample_list_flat,
-    //     condition_list,
-    //     input_dir_list_flat,
-    //     seurat_filename
-    // )
-    // ANALYZE_SEURAT_OBJECT(
-    //     CREATE_INITIAL_SEURAT.out.seurat_file,
-    //     params.aso_memory
-    // )
-    // CREATE_IMAGES_DGE(
-    //     params.storage,
-    //     ANALYZE_SEURAT_OBJECT.out.analyzed_seurat_object_file
-    // )
-    // analysis_dirs = CREATE_INITIAL_SEURAT.out.analysis_dir.combine(ANALYZE_SEURAT_OBJECT.out.analysis_path).combine(CREATE_IMAGES_DGE.out)
-    // COLLATE_ANALYSIS(
-    //     analysis_dirs
-    // )
+    samples = SOUPX.out.map { it[0] }.concat(DOUBLETFINDER.out.map { it[0] }).collect()
+    input_dirs = SOUPX.out.map { it[1] }.collect().combine(DOUBLETFINDER.out.map { it[1] }.collect())
+    COLLATE_OUTPUTS(
+        meta,
+        samples,
+        input_dirs
+    )
+    seurat_filename = "data/endpoints/$params.project/analysis/RDS/${params.project}_initial_seurat_object.qs"
+    // use metadata from matrix and cellranger from src_sample_dir to help collate create the initial sample list file
+    def (sample_list_flat, condition_list, input_dir_list_flat) = [ [],  [], [] ]
+    src_sample_dir.cellranger.concat(src_sample_dir.matrix).map { _src, sample, condition, dir ->
+        sample_list_flat << sample
+        condition_list << condition
+        input_dir_list_flat << dir
+    }
+    CREATE_INITIAL_SEURAT(
+        COLLATE_OUTPUTS.out,
+        sample_list_flat,
+        condition_list,
+        input_dir_list_flat,
+        seurat_filename
+    )
+    ANALYZE_SEURAT_OBJECT(
+        CREATE_INITIAL_SEURAT.out.seurat_file,
+        params.aso_memory
+    )
+    CREATE_IMAGES_DGE(
+        params.storage,
+        ANALYZE_SEURAT_OBJECT.out.analyzed_seurat_object_file
+    )
+    analysis_dirs = CREATE_INITIAL_SEURAT.out.analysis_dir.combine(ANALYZE_SEURAT_OBJECT.out.analysis_path).combine(CREATE_IMAGES_DGE.out)
+    COLLATE_ANALYSIS(
+        analysis_dirs
+    )
+    TAR_OUTPUTS(
+        COLLATE_ANALYSIS.out.map { ["data/endpoints/$params.project", it[1]] }
+    )
 }
