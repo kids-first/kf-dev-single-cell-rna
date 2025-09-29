@@ -9,6 +9,19 @@ include { ANALYZE_SEURAT_OBJECT } from './modules/local/analyze_seurat_object/ma
 include { CREATE_IMAGES_DGE } from './modules/local/create_images_dge/main.nf'
 include { COLLATE_ANALYSIS } from './modules/local/collate_anaylsis/main.nf'
 
+
+def parse_map_file(file_text){
+    def sample_map = [:]
+    def lines = file_text.split("\n")
+    lines.drop(1).each { line ->
+        def (sample, condition, remap) = line.tokenize("\t")
+        if (remap == ""){
+            remap = sample
+        }
+        sample_map[sample] = [condition, remap]
+    }
+    return sample_map
+}
 def validate_inputs(param_obj){
     // single value possibilities
     def required_options = [
@@ -60,11 +73,49 @@ def validate_inputs(param_obj){
     }
 }
 
+def parse_input_dir_src(dir_channel, src_channel, sample_map){
+    // collate src and dir, parse out sample name from dir, and assign to desired name (could be same as original)
+    return src_channel.merge(dir_channel).map { src, dir -> 
+        if (src.toLowerCase() == "doubletfinder") {
+            def sname_matcher = dir =~ /([^\/]+)[_\/]doubletFinder/
+            def preceding_str = sname_matcher ? sname_matcher[0][1] : error("Could not parse sample name from input_dir_list entry ${dir}. Ensure directory name contains 'doubletFinder'.")
+            return [src, sample_map[preceding_str][1], sample_map[preceding_str][0], dir]
+        }
+        else if (src.toLowerCase() == "soupx") {
+            def sname_matcher = dir =~ /([^\/]+)[_\/]soupX/
+            def preceding_str = sname_matcher ? sname_matcher[0][1] : error("Could not parse sample name from input_dir_list entry ${dir}. Ensure directory name contains 'soupX'.")
+            return [src, sample_map[preceding_str][1], sample_map[preceding_str][0], dir]
+        }
+        else {
+            return [src, sample_map[dir.name][1], sample_map[dir.name][0], dir]
+        }
+    }
+}
 
+def process_untar_outputs(untar_output, sample_map){
+    return untar_output.flatMap { data_src, sample_str, dir_list ->
+        def sample_list = sample_str.tokenize("\n")
+        def remap = []
+        def cond = []
+        sample_list.each { sname ->
+            if (sample_map.containsKey(sname)){
+                remap << sample_map[sname][1] ?: sname
+                cond << sample_map[sname][0]
+            } else {
+                error("Sample name ${sname} not found in sample_condition_map_file. Please ensure all samples are mapped.")
+            }
+        }
+        if (dir_list instanceof List) {
+            return [[data_src] * dir_list.size(), remap, cond, dir_list].transpose()
+        } else {
+            return [[data_src], remap, cond, [dir_list]].transpose()
+        }
+    }
+}
 workflow {
     main:
     validate_inputs(params)
-    sample_condition_map = Channel.fromPath(params.sample_condition_map)
+    sample_condition_map_file = file(params.sample_condition_map_file)
     input_dir_list = params.input_dir_list ? Channel.fromPath(params.input_dir_list.class == String ? params.input_dir_list.split(',') as List : params.input_dir_list) : Channel.empty()
     input_dir_src_list = params.input_dir_src_list ? Channel.fromList(params.input_dir_src_list) : Channel.value([])
     input_tar_list = params.input_tar_list ? Channel.fromPath(params.input_tar_list.class == String ? params.input_tar_list.split(',') as List : params.input_tar_list) : Channel.empty()
@@ -101,37 +152,21 @@ workflow {
     ]
     // dir names typically drive sample names, but not always desired. use sample map to enforce desired names
     input_meta_tar = input_tar_src_list.merge(input_tar_list).map { src, tar -> [src, tar] }
-    // input_meta_tar.view()
     UNTAR_CR(
         input_meta_tar
     )
-    // UNTAR_CR.out.view()
-    // initiialize dir data with src data
-    src_sample_dir = input_dir_src_list.merge(input_dir_list).map { src, dir -> 
-        if (src.toLowerCase() == "doubletfinder") {
-            def sname_matcher = dir =~ /([^\/]+)[_\/]doubletFinder/
-            def preceding_str = sname_matcher ? sname_matcher[0][1] : error("Could not parse sample name from input_dir_list entry ${dir}. Ensure directory name contains 'doubletFinder'.")
-            return [src, preceding_str, dir]
-        }
-        else if (src.toLowerCase() == "soupx") {
-            def sname_matcher = dir =~ /([^\/]+)[_\/]soupX/
-            def preceding_str = sname_matcher ? sname_matcher[0][1] : error("Could not parse sample name from input_dir_list entry ${dir}. Ensure directory name contains 'soupX'.")
-            return [src, preceding_str, dir]
-        }
-        else {
-            return [src, dir.name, dir]
-        }
-    }
-    untar_src_sample_dir = UNTAR_CR.out.flatMap { data_src, sample_str, dir_list ->
-            if (dir_list instanceof List) {
-                return [[data_src] * dir_list.size(), sample_str.tokenize("\n"), dir_list].transpose()
-            } else {
-                return [[data_src], sample_str.tokenize("\n"), [dir_list]].transpose()
-            }
-        }
-    src_sample_dir.concat(untar_src_sample_dir).view()
-    // TODO parse to pass to correct process
+    // parse sample map file
+    sample_condition_map =  parse_map_file(sample_condition_map_file.text)
+    print(sample_condition_map)
+    // initialize dir, tar, and src data as one channel with src, sample_name, condition, dir
+    parse_input_dir_src(input_dir_list, input_dir_src_list, sample_condition_map).concat(process_untar_outputs(UNTAR_CR.out, sample_condition_map)).branch{ parsed_input -> 
+        doubletfinder: parsed_input[0].toLowerCase() == "doubletfinder"
+        matrix: parsed_input[0].toLowerCase() == "soupx"
+        cellranger: parsed_input[0].toLowerCase() == "cellranger"
+    }.set{src_sample_dir}
 
+    // TODO parse to pass to correct process
+    src_sample_dir.cellranger.concat(src_sample_dir.matrix).view()
     // if (!params.disable_doubletfinder){
     //     DOUBLETFINDER(
     //         meta,
