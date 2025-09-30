@@ -18,10 +18,7 @@ def parse_map_file(file_text){
     def lines = file_text.split("\n")
     lines.drop(1).each { line ->
         def (sample, condition, remap) = line.tokenize("\t")
-        if (remap == ""){
-            remap = sample
-        }
-        sample_map[sample] = [condition, remap]
+        sample_map[sample] = [condition, remap ?: sample]
     }
     return sample_map
 }
@@ -29,7 +26,7 @@ def validate_inputs(param_obj){
     // single value possibilities
     def required_options = [
         organism: ["mouse", "human"],
-        soupx_start: ["out", "no_clusters", "h5"],
+        soupx_start: ["outs", "no_clusters", "h5"],
         split_layers_by: ["Sample", "Experiment"],
         scale_data_features: ["all", "variable"]
     ]
@@ -165,7 +162,10 @@ workflow {
         matrix: parsed_input[0].toLowerCase() == "soupx"
         cellranger: parsed_input[0].toLowerCase() == "cellranger"
     }.set{src_sample_dir}
-
+    // debug stuff
+    src_sample_dir.doubletfinder.view { "doubletfinder: $it" }
+    src_sample_dir.matrix.view { "matrix: $it" }
+    src_sample_dir.cellranger.view { "cellranger: $it" }
 
     if (!params.disable_doubletfinder){
         dbl_input = src_sample_dir.cellranger.concat(src_sample_dir.matrix).map { src, sample, _condition, dir -> [src, sample, dir] }
@@ -224,7 +224,9 @@ workflow {
     COLLATE_ANALYSIS(
         analysis_dirs
     )
+    tar_output_input = COLLATE_ANALYSIS.out.map { it }.map { ["data/endpoints/$params.project", it] }
+    tar_output_input.view()
     TAR_OUTPUTS(
-        COLLATE_ANALYSIS.out.map { ["data/endpoints/$params.project", it[1]] }
+        tar_output_input
     )
 }

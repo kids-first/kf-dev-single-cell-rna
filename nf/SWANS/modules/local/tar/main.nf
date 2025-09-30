@@ -9,9 +9,10 @@ process TAR_OUTPUTS {
     path("*tar.gz")
 
     script:
-    def archive_name = level ? "${input_dir.split('/').last()}.tar.gz" : "${input_dir}.tar.gz"
-    def path_name = level ?: input_dir
+    def archive_name = level ? "${level.split('/').last()}.tar.gz" : "${input_dir}.tar.gz"
+    def flags = "chzvf" // create, compress, verbose, file
+    def path_name = level ? "-C ${level} ." : input_dir
     """
-    tar chzvf $archive_name $path_name
+    tar $flags $archive_name $path_name
     """
 }
