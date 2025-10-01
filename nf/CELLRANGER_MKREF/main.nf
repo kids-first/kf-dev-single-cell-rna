@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 
-include { MKREF } from '../CELLRANGER/modules/local/cell_ranger/mkref/main.nf'
+include { MKREF } from './modules/local/mkref/main.nf'
 
 workflow {
     main:
