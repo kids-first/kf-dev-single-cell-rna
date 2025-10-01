@@ -1,97 +1,113 @@
-$namespaces:
-  sbg: https://sevenbridges.com
 app_content:
-  code_package: 68dd2d3b8f828964f246c05e
-  entrypoint: main.nf
+    code_package: 68dd330b8f27a538deb443ae
+    entrypoint: main.nf
 class: nextflow
 cwlVersion: None
-inputs:
-- id: gtf
-  inputBinding:
-    prefix: --gtf
-  type: File
-- id: out_genome_name
-  inputBinding:
-    prefix: --out_genome_name
-  type: string
-- default: gene_biotype:protein_coding
-  id: attribute_filter
-  inputBinding:
-    prefix: --attribute_filter
-  type:
-  - string
-  - 'null'
-- default: 8
-  id: cr_cpus
-  inputBinding:
-    prefix: --cr_cpus
-  type:
-  - int
-  - 'null'
-- default: 60
-  id: cr_ram
-  inputBinding:
-    prefix: --cr_ram
-  type:
-  - int
-  - 'null'
-- default: true
-  id: sbg_run
-  inputBinding:
-    prefix: --sbg_run
-  type: boolean?
-- id: fasta
-  inputBinding:
-    prefix: --fasta
-  type: File
-- default: ./results
-  id: outdir
-  inputBinding:
-    prefix: --outdir
-  label: Path to the output directory where the results will be saved.
-  sbg:hidden: true
-  type:
-  - string
-  - 'null'
-- default: 16
-  doc: Use to set an upper-limit for the CPU requirement for each process. Should
-    be an integer e.g. `--max_cpus 1`
-  id: max_cpus
-  inputBinding:
-    prefix: --max_cpus
-  label: Maximum number of CPUs that can be requested for any single job.
-  sbg:hidden: true
-  type:
-  - int
-  - 'null'
-- default: 128.GB
-  doc: Use to set an upper-limit for the memory requirement for each process. Should
-    be a string in the format integer-unit e.g. `--max_memory '8.GB'`
-  id: max_memory
-  inputBinding:
-    prefix: --max_memory
-  label: Maximum amount of memory that can be requested for any single job.
-  sbg:hidden: true
-  type:
-  - string
-  - 'null'
-- default: 24.h
-  doc: Use to set an upper-limit for the time requirement for each process. Should
-    be a string in the format integer-unit e.g. `--max_time '2.h'`
-  id: max_time
-  inputBinding:
-    prefix: --max_time
-  label: Maximum amount of time that can be requested for any single job.
-  sbg:hidden: true
-  type:
-  - string
-  - 'null'
-outputs:
-- doc: This is a template output. Please change glob to directories specified in publishDir
-    in the workflow.
-  id: cr_reference
-  outputBinding:
-    glob: '*tar.gz'
-  type: File
 requirements:
-- class: InlineJavascriptRequirement
+-   class: InlineJavascriptRequirement
+hints:
+-   class: sbg:NextflowExecutionMode
+    value: multi-instance
+inputs:
+-   id: gtf
+    inputBinding:
+        prefix: --gtf
+    type: File
+-   id: out_genome_name
+    inputBinding:
+        prefix: --out_genome_name
+    type: string
+-   id: attribute_filter
+    inputBinding:
+        prefix: --attribute_filter
+    default: gene_biotype:protein_coding
+    type:
+    - 'null'
+    - string
+-   id: cr_cpus
+    inputBinding:
+        prefix: --cr_cpus
+    default: 8
+    type:
+    - 'null'
+    - int
+-   id: cr_ram
+    inputBinding:
+        prefix: --cr_ram
+    default: 60
+    type:
+    - 'null'
+    - int
+-   id: sbg_run
+    inputBinding:
+        prefix: --sbg_run
+    type: 'boolean?'
+    default: true
+    sbg:hidden: true
+-   id: outdir
+    inputBinding:
+        prefix: --outdir
+    label: Path to the output directory where the results will be saved.
+    sbg:category: Input/output options
+    sbg:icon: fas fa-folder-open
+    default: ./results
+    type: 'string?'
+    sbg:hidden: true
+-   doc: FASTA refernce to build against
+    format: text/plain
+    id: fasta
+    inputBinding:
+        prefix: --fasta
+    label: Path to FASTA genome file.
+    sbg:category: Reference genome options
+    sbg:icon: far fa-file-code
+    sbg:pattern: ^\S+\.fn?a(sta)?(\.gz)?$
+    type: File
+-   doc: Use to set an upper-limit for the CPU requirement for each process. Should
+        be an integer e.g. `--max_cpus 1`
+    id: max_cpus
+    inputBinding:
+        prefix: --max_cpus
+    label: Maximum number of CPUs that can be requested for any single job.
+    sbg:category: Max job request options
+    sbg:hidden: true
+    sbg:icon: fas fa-microchip
+    default: 16
+    type:
+    - 'null'
+    - int
+-   doc: Use to set an upper-limit for the memory requirement for each process. Should
+        be a string in the format integer-unit e.g. `--max_memory '8.GB'`
+    id: max_memory
+    inputBinding:
+        prefix: --max_memory
+    label: Maximum amount of memory that can be requested for any single job.
+    sbg:category: Max job request options
+    sbg:hidden: true
+    sbg:icon: fas fa-memory
+    sbg:pattern: ^\d+(\.\d+)?\.?\s*(K|M|G|T)?B$
+    default: 128.GB
+    type:
+    - 'null'
+    - string
+-   doc: Use to set an upper-limit for the time requirement for each process. Should
+        be a string in the format integer-unit e.g. `--max_time '2.h'`
+    id: max_time
+    inputBinding:
+        prefix: --max_time
+    label: Maximum amount of time that can be requested for any single job.
+    sbg:category: Max job request options
+    sbg:hidden: true
+    sbg:icon: far fa-clock
+    sbg:pattern: ^(\d+\.?\s*(s|m|h|day)\s*)+$
+    default: 24.h
+    type:
+    - 'null'
+    - string
+outputs:
+-   id: cr_reference
+    outputBinding:
+        glob: "*"
+    type: File
+
+sbg:revisionNotes: Uploaded using sbpack v2024.12.17
