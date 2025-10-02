@@ -23,10 +23,13 @@ workflow {
     library_fastq_id = params.library_fastq_id
     feature_types = params.feature_types
 
-    if (transcriptome_dir == "" && transcriptome_tar != ""){
-        transcriptome_dir = UNTAR_REF(transcriptome_tar)
-    } else if ((transcriptome_dir == "" && transcriptome_tar == "") || (transcriptome_dir != "" && transcriptome_tar != "")){
+    if (!params.transcriptome_tar && !params.transcriptome_dir) {
         error "Must provide one of either a path to a transcriptome directory or a tar file of the reference!"
+    } else if (params.transcriptome_dir) {
+        transcriptome_dir = Channel.fromPath(params.transcriptome_dir)
+    } else {
+        UNTAR_REF(transcription_tar)
+        transcriptome_dir = UNTAR_REF.out
     }
 
     if (mode == "count"){
