@@ -336,7 +336,7 @@ inputs:
     sbg:category: Input/output options
     sbg:icon: fas fa-folder-open
     default: ./results
-    type: string
+    type: 'string?'
 -   doc: Use to set an upper-limit for the CPU requirement for each process. Should
         be an integer e.g. `--max_cpus 1`
     id: max_cpus
@@ -385,7 +385,7 @@ outputs:
     id: nf_publishdir
     label: Publish Directory
     outputBinding:
-        glob: 'data'
+        glob: '*'
     type:
     - Directory
 

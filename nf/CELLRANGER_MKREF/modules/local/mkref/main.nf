@@ -23,6 +23,7 @@ process MKREF {
     --genome=$out_genome_name \\
     --fasta=$fasta \\
     --genes=filtered.gtf; \\
+    --disable-ui \\
     echo "Cell Ranger mkref finished successfully, packaging results";
     tar czvf ${out_genome_name}.tar.gz $out_genome_name/
     """

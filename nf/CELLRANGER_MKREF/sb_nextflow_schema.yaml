@@ -1,5 +1,5 @@
 app_content:
-    code_package: 68dd330b8f27a538deb443ae
+    code_package: 68dd37258f27a538deb44401
     entrypoint: main.nf
 class: nextflow
 cwlVersion: None
@@ -8,6 +8,8 @@ requirements:
 hints:
 -   class: sbg:NextflowExecutionMode
     value: multi-instance
+-   class: sbg:maxNumberOfParallelInstances
+    value: 3
 inputs:
 -   id: gtf
     inputBinding:
@@ -21,47 +23,35 @@ inputs:
     inputBinding:
         prefix: --attribute_filter
     default: gene_biotype:protein_coding
-    type:
-    - 'null'
-    - string
+    type: string
 -   id: cr_cpus
     inputBinding:
         prefix: --cr_cpus
     default: 8
-    type:
-    - 'null'
-    - int
+    type: 'int?'
 -   id: cr_ram
     inputBinding:
         prefix: --cr_ram
     default: 60
-    type:
-    - 'null'
-    - int
+    type: 'int?'
 -   id: sbg_run
     inputBinding:
         prefix: --sbg_run
     type: 'boolean?'
-    default: true
-    sbg:hidden: true
 -   id: outdir
     inputBinding:
         prefix: --outdir
     label: Path to the output directory where the results will be saved.
     sbg:category: Input/output options
     sbg:icon: fas fa-folder-open
+    sbg:hidden: true
     default: ./results
     type: 'string?'
-    sbg:hidden: true
--   doc: FASTA refernce to build against
+-   doc: FASTA ref to compare aganist
     format: text/plain
     id: fasta
     inputBinding:
         prefix: --fasta
-    label: Path to FASTA genome file.
-    sbg:category: Reference genome options
-    sbg:icon: far fa-file-code
-    sbg:pattern: ^\S+\.fn?a(sta)?(\.gz)?$
     type: File
 -   doc: Use to set an upper-limit for the CPU requirement for each process. Should
         be an integer e.g. `--max_cpus 1`
@@ -105,9 +95,11 @@ inputs:
     - 'null'
     - string
 outputs:
--   id: cr_reference
+-   doc: This is a template output. You can modify the glob pattern to make outputs
+        more specific.
+    id: cr_reference
+    label: Publish Directory
     outputBinding:
-        glob: "*"
+        glob: '*'
     type: File
-
 sbg:revisionNotes: Uploaded using sbpack v2024.12.17
