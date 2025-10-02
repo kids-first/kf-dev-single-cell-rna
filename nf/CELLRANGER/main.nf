@@ -27,7 +27,7 @@ workflow {
     } else if (params.transcriptome_dir) {
         transcriptome_dir = Channel.fromPath(params.transcriptome_dir)
     } else {
-        UNTAR_REF(transcription_tar)
+        UNTAR_REF(transcriptome_tar)
         transcriptome_dir = UNTAR_REF.out
     }
 
