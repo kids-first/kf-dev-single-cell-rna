@@ -3,10 +3,10 @@ process MKREF {
     container "migbro/cellranger:9.0.1"
 
     input:
-        path(fasta)
-        path(gtf)
-        val(out_genome_name)
-        val(attribute_filter)
+    path(fasta)
+    path(gtf)
+    val(out_genome_name)
+    val(attribute_filter)
 
     output:
     path("${out_genome_name}.tar.gz")
