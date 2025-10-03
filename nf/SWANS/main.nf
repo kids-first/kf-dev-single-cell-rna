@@ -72,17 +72,12 @@ def validate_inputs(param_obj){
     }
 }
 
-def parse_input_dir_src(dir_channel, src_channel, sample_map){
+def parse_input_dir_src(dir_channel, src_channel, sample_map, pattern_map){
     // collate src and dir, parse out sample name from dir, and assign to desired name (could be same as original)
     return src_channel.merge(dir_channel).map { src, dir -> 
-        if (src.toLowerCase() == "doubletfinder") {
-            def sname_matcher = dir =~ /([^\/]+)[_\/]doubletFinder/
-            def preceding_str = sname_matcher ? sname_matcher[0][1] : error("Could not parse sample name from input_dir_list entry ${dir}. Ensure directory name contains 'doubletFinder'.")
-            return [src, sample_map[preceding_str][1], sample_map[preceding_str][0], dir]
-        }
-        else if (src.toLowerCase() == "soupx") {
-            def sname_matcher = dir =~ /([^\/]+)[_\/]soupX/
-            def preceding_str = sname_matcher ? sname_matcher[0][1] : error("Could not parse sample name from input_dir_list entry ${dir}. Ensure directory name contains 'soupX'.")
+        if (pattern_map[src.toLowerCase()]) {
+            def sname_matcher = dir =~ pattern_map[src.toLowerCase()]
+            def preceding_str = sname_matcher ? sname_matcher[0][1] : error("Could not parse sample name from input_dir_list entry $dir. Ensure directory name contains $src.")
             return [src, sample_map[preceding_str][1], sample_map[preceding_str][0], dir]
         }
         else {
@@ -91,12 +86,17 @@ def parse_input_dir_src(dir_channel, src_channel, sample_map){
     }
 }
 
-def process_untar_outputs(untar_output, sample_map){
+def process_untar_outputs(untar_output, sample_map, pattern_map){
     return untar_output.flatMap { data_src, sample_str, dir_list ->
         def sample_list = sample_str.tokenize("\n")
         def remap = []
         def cond = []
         sample_list.each { sname ->
+            // extract sample name if coming from doubletfinder or soupx
+            if (pattern_map[data_src.toLowerCase()]){
+                def sname_matcher = sname =~ pattern_map[data_src.toLowerCase()]
+                sname = sname_matcher ? sname_matcher[0][1] : error("Could not parse sample name from untar_outputs entry $sname. Ensure directory name contains $data_src.")
+            }
             if (sample_map.containsKey(sname)){
                 remap << sample_map[sname][1] ?: sname
                 cond << sample_map[sname][0]
@@ -157,18 +157,25 @@ workflow {
     sample_condition_map =  parse_map_file(sample_condition_map_file.text)
     print(sample_condition_map)
     // initialize dir, tar, and src data as one channel with src, sample_name, condition, dir
-    parse_input_dir_src(input_dir_list, input_dir_src_list, sample_condition_map).concat(process_untar_outputs(UNTAR_CR.out, sample_condition_map)).branch{ parsed_input -> 
+    dirname_pattern = [
+        doubletfinder: /([^\/]+)[_\/]doubletFinder/,
+        matrix: /([^\/]+)[_\/]soupX/
+    ]
+    parse_input_dir_src(input_dir_list, input_dir_src_list, sample_condition_map, dirname_pattern).concat(process_untar_outputs(UNTAR_CR.out, sample_condition_map, dirname_pattern)).branch{ parsed_input -> 
         doubletfinder: parsed_input[0].toLowerCase() == "doubletfinder"
-        matrix: parsed_input[0].toLowerCase() == "soupx"
+        matrix: parsed_input[0].toLowerCase() == "matrix"
         cellranger: parsed_input[0].toLowerCase() == "cellranger"
     }.set{src_sample_dir}
     // debug stuff
     src_sample_dir.doubletfinder.view { "doubletfinder: $it" }
     src_sample_dir.matrix.view { "matrix: $it" }
     src_sample_dir.cellranger.view { "cellranger: $it" }
-
+    // if you've given matched doublet finder and soupX data, then you probably don't need to run doubletFinder again on that data
     if (!params.disable_doubletfinder){
-        dbl_input = src_sample_dir.cellranger.concat(src_sample_dir.matrix).map { src, sample, _condition, dir -> [src, sample, dir] }
+        def doubletfinder_samples = src_sample_dir.doubletfinder.map { it[1] }.collect()
+        dbl_input = src_sample_dir.cellranger
+            .concat(src_sample_dir.matrix.filter {  !(doubletfinder_samples.contains(it[1])) })
+            .map { src, sample, _condition, dir -> [src, sample, dir] }
         DOUBLETFINDER(
             meta,
             dbl_input
@@ -189,9 +196,16 @@ workflow {
             soupx_tar_input
         )
     }
-    // // collate results so that next step can use them all together
-    samples = SOUPX.out.map { it[0] }.concat(DOUBLETFINDER.out.map { it[0] }).collect()
-    input_dirs = SOUPX.out.map { it[1] }.collect().combine(DOUBLETFINDER.out.map { it[1] }.collect())
+    // // collate results and any existing results so that next step can use them all together
+    samples = SOUPX.out.map { it[0] }
+        .concat(DOUBLETFINDER.out.map { it[0] })
+        .concat(src_sample_dir.doubletfinder.map { it[1] })
+        .concat(src_sample_dir.matrix.map { it[1] })
+        .collect()
+    input_dirs = SOUPX.out.map { it[1] }.collect()
+    .combine(DOUBLETFINDER.out.map { it[1] }.collect())
+    .combine(src_sample_dir.doubletfinder.map { it[3] }.collect())
+    .combine(src_sample_dir.matrix.map { it[3] }.collect())
     COLLATE_OUTPUTS(
         meta,
         samples,
@@ -225,7 +239,6 @@ workflow {
         analysis_dirs
     )
     tar_output_input = COLLATE_ANALYSIS.out.map { it }.map { ["data/endpoints/$params.project", it] }
-    tar_output_input.view()
     TAR_OUTPUTS(
         tar_output_input
     )

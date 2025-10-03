@@ -11,13 +11,14 @@ After running the workflow, refer to https://github.com/FrancoResearchLab/SWANS/
 - `sample_condition_map_file`: tsv with input sample, condition, remap. Last column value can be blank if original sample name to be used. Original sample name should match what is part of the directory path name
 - `project`: string for project name
 ### Required, mutually exclusive
-Parameters in which one or both must be provided, but both cannot be blank
+Parameters in which one or both must be provided, but both cannot be blank.
+**Note**: `matrix` typically manes `soupX`
 #### Input data from _directories_, if applicable
-- `input_dir_list`: Input data from one or more of doubletFinder, soupX, cell ranger in directories
-- `input_dir_src_list`: Source of input dirs, options: doubletFinder, soupX, cellranger
+- `input_dir_list`: Input data from one or more of doubletFinder, matrix, cell ranger in directories
+- `input_dir_src_list`: Source of input dirs, options: doubletFinder, matrix, cellranger
 #### Input data from _tar balls_, if applicable
-- `input_tar_list`: Input data from one or more of doubletFinder, soupX, cell ranger in tar balls
-- `input_tar_src_list`: Source of input tar balls, options: doubletFinder, soupX, cellranger
+- `input_tar_list`: Input data from one or more of doubletFinder, matrix, cell ranger in tar balls
+- `input_tar_src_list`: Source of input tar balls, options: doubletFinder, matrix, cellranger
 Must have one of, or both a `directories` or `tar balls` input
 ### Required with defaults:
 - `organism`: `human`. Other optinon is `mouse`
