@@ -7,7 +7,6 @@ include { UNTAR_REF } from './modules/local/tar/main.nf'
 workflow {
     main:
     // general
-    mode = Channel.value(params.mode)
     reads = params.reads ? Channel.fromPath(params.reads.class == String ? params.reads.split(',') as List : params.reads).collect() : Channel.empty()
     mates = params.mates ? Channel.fromPath(params.mates.class == String ? params.mates.split(',') as List : params.mates).collect() : Channel.empty()
     transcriptome_dir = params.transcriptome_dir ? Channel.fromPath(params.transcriptome_dir) : ""

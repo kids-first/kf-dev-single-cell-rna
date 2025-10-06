@@ -5,19 +5,18 @@ process MKREF {
     input:
     path(fasta)
     path(gtf)
-    val(out_genome_name)
-    val(attribute_filter)
 
     output:
-    path("${out_genome_name}.tar.gz")
+    path("*tar.gz")
 
     script:
+    def out_genome_name = task.ext.prefix ?: "${gtf.baseName}"
+    def gtf_args = task.ext.args.gtf
     """
     cellranger telemetry disable;
     cellranger mkgtf \\
     $gtf \\
-    filtered.gtf \\
-    --attribute=$attribute_filter;
+    $gtf_args;
     echo "Filtered GTF created successfully"; \\
     cellranger mkref \\
     --genome=$out_genome_name \\

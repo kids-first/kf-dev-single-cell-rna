@@ -5,6 +5,19 @@ class: nextflow
 cwlVersion: None
 requirements:
 -   class: InlineJavascriptRequirement
+- class: InitialWorkDirRequirement
+  listing:
+  - entryname: input_params.json
+    entry: |
+      $(JSON.stringify({
+          attribute_filter: inputs.attribute_filter ? inputs.attribute_filter.map(function(e) {return e}) : ""
+          }))
+      
+arguments:
+- position: 0
+  shellQuote: false
+  valueFrom: '-params-file input_params.json'
+
 hints:
 -   class: sbg:NextflowExecutionMode
     value: multi-instance
@@ -22,8 +35,7 @@ inputs:
 -   id: attribute_filter
     inputBinding:
         prefix: --attribute_filter
-    default: gene_biotype:protein_coding
-    type: string
+    type: 'string[]?'
 -   id: cr_cpus
     inputBinding:
         prefix: --cr_cpus
