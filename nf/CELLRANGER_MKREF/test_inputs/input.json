@@ -2,6 +2,5 @@
     "fasta": "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/GRCh38.primary_assembly.genome.fa",
     "gtf": "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/gencode.v39.primary_assembly.annotation.gtf",
     "out_genome_name": "gencode_v39_GRCh38",
-    "attribute_filter": "gene_type:protein_coding",
     "aws_test_instance": true
 }

@@ -11,7 +11,7 @@ process MKREF {
 
     script:
     def out_genome_name = task.ext.prefix ?: "${gtf.baseName}"
-    def gtf_args = task.ext.args.gtf
+    def gtf_args = task.ext.args
     """
     cellranger telemetry disable;
     cellranger mkgtf \\
