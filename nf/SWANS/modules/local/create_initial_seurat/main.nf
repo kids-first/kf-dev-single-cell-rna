@@ -46,7 +46,7 @@ process CREATE_INITIAL_SEURAT {
     Rscript -e 'library(rmarkdown); \
     rmarkdown::render("qc_report.Rmd", \
     output_file="$qc_html_fn", \
-    params = list(project = "$meta_config.PROJECT", root_dir = "./", data_dir = "./data/endpoints", qc_config = "prelim_configs.yaml"))'
+    params = list(root_dir = "./", data_dir = "./data/endpoints", qc_config = "prelim_configs.yaml"))'
 
     cp prelim_configs.yaml data/endpoints/$meta_config.PROJECT/analysis/report/
 

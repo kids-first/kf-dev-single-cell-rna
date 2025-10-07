@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://raw.githubusercontent.com//Users/brownm28/Documents/git_repos/kf-dev-single-cell-rna/nf/SWANS/master/nextflow_schema.json",
-    "title": "/Users/brownm28/Documents/git_repos/kf-dev-single-cell-rna/nf/SWANS pipeline parameters",
+    "$id": "https://raw.githubusercontent.com//home/ubuntu/tools/kf-dev-single-cell-rna/nf/CELLRANGER_MKREF/master/nextflow_schema.json",
+    "title": "/home/ubuntu/tools/kf-dev-single-cell-rna/nf/CELLRANGER_MKREF pipeline parameters",
     "description": "",
     "type": "object",
     "definitions": {
@@ -24,7 +24,17 @@
             "type": "object",
             "fa_icon": "fas fa-dna",
             "description": "Reference genome related files and options required for the workflow.",
-            "properties": {}
+            "properties": {
+                "fasta": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
+                    "description": "Path to FASTA genome file.",
+                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
+                    "fa_icon": "far fa-file-code"
+                }
+            }
         },
         "institutional_config_options": {
             "title": "Institutional config options",
@@ -96,170 +106,26 @@
         }
     ],
     "properties": {
-        "r_lib_path": {
+        "gtf": {
+            "type": "string"
+        },
+        "out_genome_name": {
+            "type": "string"
+        },
+        "attribute_filter": {
             "type": "string",
-            "default": "/usr/local/lib/R/site-library/"
+            "default": "gene_biotype:protein_coding"
         },
-        "input_dir_list": {
-            "type": "string"
-        },
-        "project": {
-            "type": "string"
-        },
-        "sample_list": {
-            "type": "string"
-        },
-        "condition_list": {
-            "type": "string"
-        },
-        "starting_data": {
-            "type": "string"
-        },
-        "data_dir": {
-            "type": "string",
-            "default": "data/endpoints"
-        },
-        "organism": {
-            "type": "string",
-            "default": "human"
-        },
-        "disable_doubletfinder": {
-            "type": "string"
-        },
-        "mito_cutoff": {
+        "cr_cpus": {
             "type": "integer",
-            "default": 15
+            "default": 8
         },
-        "ribo_cutoff": {
+        "cr_ram": {
             "type": "integer",
-            "default": 100
-        },
-        "min_feature_threshold": {
-            "type": "integer",
-            "default": 200
-        },
-        "max_feature_threshold": {
-            "type": "integer",
-            "default": 3000
-        },
-        "int_components": {
-            "type": "integer",
-            "default": 30
-        },
-        "dbl_mem": {
-            "type": "integer",
-            "default": 30
-        },
-        "dbl_threads": {
-            "type": "integer",
-            "default": 4
-        },
-        "disable_soupx": {
-            "type": "string"
-        },
-        "soupx_start": {
-            "type": "string"
-        },
-        "aso_processes": {
-            "type": "integer",
-            "default": 4
-        },
-        "aso_memory": {
-            "type": "integer",
-            "default": 62942000000
-        },
-        "run_azimuth": {
-            "type": "string",
-            "default": "n"
-        },
-        "azimuth_ref": {
-            "type": "string"
-        },
-        "run_transferdata": {
-            "type": "string",
-            "default": "n"
-        },
-        "transferdata_ref_file": {
-            "type": "string"
-        },
-        "transferdata_reduction": {
-            "type": "string"
-        },
-        "transferdata_annocol": {
-            "type": "string"
-        },
-        "mito_regression": {
-            "type": "string",
-            "default": "n"
-        },
-        "ribo_regression": {
-            "type": "string",
-            "default": "n"
-        },
-        "cc_regression": {
-            "type": "string",
-            "default": "n"
-        },
-        "cc_method": {
-            "type": "string",
-            "default": "standard"
-        },
-        "num_var_features": {
-            "type": "integer",
-            "default": 3000
-        },
-        "resolution_config": {
-            "type": "string",
-            "default": "0.1,0.2,0.3"
-        },
-        "include_tsne": {
-            "type": "string",
-            "default": "n"
-        },
-        "scale_data_features": {
-            "type": "string",
-            "default": "variable"
-        },
-        "split_layers_by": {
-            "type": "string",
-            "default": "Sample"
-        },
-        "normalization_config": {
-            "type": "string",
-            "default": "standard,sct"
-        },
-        "integration_config": {
-            "type": "string",
-            "default": "cca,rpca,harmony"
-        },
-        "ref_based_integration": {
-            "type": "string",
-            "default": "n"
-        },
-        "ref_samples": {
-            "type": "string"
-        },
-        "regression_file": {
-            "type": "string"
-        },
-        "storage": {
-            "type": "string",
-            "default": "rds"
-        },
-        "conserved_genes": {
-            "type": "string",
-            "default": "n"
-        },
-        "visualization": {
-            "type": "string",
-            "default": "dot"
-        },
-        "user_gene_file": {
-            "type": "string"
+            "default": 60
         },
         "aws_test_instance": {
-            "type": "string",
-            "default": "true"
+            "type": "string"
         },
         "sbg_run": {
             "type": "string"

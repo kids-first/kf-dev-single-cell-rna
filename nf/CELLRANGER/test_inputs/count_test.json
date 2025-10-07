@@ -1,12 +1,12 @@
 {
     "sample": "7316-3058",
-    "reads": ["/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/10X_fastqs_w_metadata/Sample_HBAD-B-1/fastq/HBAD-B-1_AGGCGTCA_HGHVJDSXY_L004_001.R1.fastq.gz",
-        "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/10X_fastqs_w_metadata/Sample_HBAD-B-1/fastq/HBAD-B-1_CTAGCGAG_HGHVJDSXY_L004_001.R1.fastq.gz"
+    "reads": ["/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/Sample_HBAD-B-1/fastq/HBAD-B-1_AGGCGTCA_HGHVJDSXY_L004_001.R1.fastq.gz",
+        "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/Sample_HBAD-B-1/fastq/HBAD-B-1_CTAGCGAG_HGHVJDSXY_L004_001.R1.fastq.gz"
     ],
-    "mates": ["/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/10X_fastqs_w_metadata/Sample_HBAD-B-1/fastq/HBAD-B-1_AGGCGTCA_HGHVJDSXY_L004_001.R2.fastq.gz",
-        "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/10X_fastqs_w_metadata/Sample_HBAD-B-1/fastq/HBAD-B-1_CTAGCGAG_HGHVJDSXY_L004_001.R2.fastq.gz"
+    "mates": ["/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/Sample_HBAD-B-1/fastq/HBAD-B-1_AGGCGTCA_HGHVJDSXY_L004_001.R2.fastq.gz",
+        "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/Sample_HBAD-B-1/fastq/HBAD-B-1_CTAGCGAG_HGHVJDSXY_L004_001.R2.fastq.gz"
     ],
-    "transcriptome": "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/refdata_gencode39_cell_ranger/",
+    "transcriptome_tar": "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/refdata-gex-GRCh38-2024-A.tar.gz",
     "create_bam": false,
     "aws_test_instance": true
 }

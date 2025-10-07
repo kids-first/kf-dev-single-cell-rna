@@ -4,7 +4,7 @@ process COLLATE_ANALYSIS{
     input:
         path(input_dirs)
     output:
-        path("data/endpoints/${params.project}/analysis")
+        path("*")
     script:
     // iterate through samples and dirs to create desired centralized folder structure
     def cp_dirs = ""

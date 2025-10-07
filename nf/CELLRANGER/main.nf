@@ -7,29 +7,30 @@ include { UNTAR_REF } from './modules/local/tar/main.nf'
 workflow {
     main:
     // general
-    mode = params.mode
     reads = params.reads ? Channel.fromPath(params.reads.class == String ? params.reads.split(',') as List : params.reads).collect() : Channel.empty()
     mates = params.mates ? Channel.fromPath(params.mates.class == String ? params.mates.split(',') as List : params.mates).collect() : Channel.empty()
-    transcriptome_dir = params.transcriptome_dir ? file(params.transcriptome_dir) : ""
-    transcriptome_tar = params.transcriptome_tar ? file(params.transcriptome_tar) : ""
+    transcriptome_dir = params.transcriptome_dir ? Channel.fromPath(params.transcriptome_dir) : ""
+    transcriptome_tar = params.transcriptome_tar ? Channel.fromPath(params.transcriptome_tar) : ""
     create_bam = String.valueOf(params.create_bam)
     // count specific
-    sample = params.sample
+    sample = Channel.value(params.sample)
     indices = params.indices ? Channel.fromPath(params.indices.class == String ? params.indices.split(',') as List : params.indices).collect() : Channel.value([])
-    indices ? indices.collect() : Channel.value([])
     // multi specific
     sample_sheet = params.sample_csv ? Channel.fromPath(params.sample_csv) : Channel.empty()
     probe_set = params.probe_set ? Channel.fromPath(params.probe_set) : Channel.empty()
-    library_fastq_id = params.library_fastq_id
-    feature_types = params.feature_types
+    library_fastq_id = Channel.value(params.library_fastq_id)
+    feature_types = Channel.value(params.feature_types)
 
-    if (transcriptome_dir == "" && transcriptome_tar != ""){
-        transcriptome_dir = UNTAR_REF(transcriptome_tar)
-    } else if ((transcriptome_dir == "" && transcriptome_tar == "") || (transcriptome_dir != "" && transcriptome_tar != "")){
+    if (!params.transcriptome_tar && !params.transcriptome_dir) {
         error "Must provide one of either a path to a transcriptome directory or a tar file of the reference!"
+    } else if (params.transcriptome_dir) {
+        transcriptome_dir = Channel.fromPath(params.transcriptome_dir)
+    } else {
+        UNTAR_REF(transcriptome_tar)
+        transcriptome_dir = UNTAR_REF.out
     }
 
-    if (mode == "count"){
+    if (params.mode == "count"){
         COUNT(
             sample,
             create_bam,
@@ -40,7 +41,7 @@ workflow {
         )
     }
 
-    if (mode == "multi"){
+    else{
         MULTI(
             library_fastq_id,
             create_bam,

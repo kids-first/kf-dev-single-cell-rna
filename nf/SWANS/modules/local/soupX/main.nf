@@ -4,12 +4,12 @@ process SOUPX {
 
     input:
         val(meta_config)
-        tuple val(sample), path(input_dir)
+        tuple val(src), val(sample), path(input_dir)
     output:
     tuple val(sample), path("${sample}_soupX/")
 
     script:
-    def soupX_output_path = "data/endpoints/$params.project/$sample/soupX/"
+    def soupX_output_path = "${sample}_soupX"
     """
     soupX.R \\
     --sample $sample \\
@@ -17,9 +17,7 @@ process SOUPX {
     --project $meta_config.PROJECT \\
     --soupX_input_path $input_dir \\
     --soupX_output_path $soupX_output_path \\
-    --starter_data $meta_config.STARTING_DATA \\
-    $meta_config.RPATH \\
-    && mkdir ${sample}_soupX \\
-    && mv $soupX_output_path* ${sample}_soupX/
+    --starter_data $src \\
+    $meta_config.RPATH
     """
 }

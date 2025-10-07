@@ -1,14 +1,15 @@
 {
-    "project": "hope_test",
-    "sample_list": ["7316-4842", "7316-4844"],
-    "condition_list": ["HGG", "HGG"],
-    "input_dir_list": ["/home/ubuntu/volume/SWANS/bc984b76-95f4-4cc8-b2ed-3e19db1b1c2c/", "/home/ubuntu/volume/SWANS/5e8f4878-c888-4487-8d5e-d480a3374215/"],
+    "project": "SINGLE",
+    "sample_condition_map_file": "/home/ubuntu/volume/SWANS/NF_TEST/single_map.txt",
+    "input_dir_list": ["/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/7316-3058"],
+    "input_dir_src_list": ["cellranger"],
     "starting_data": "cellranger",
-    "dbl_mem": 30,
+    "dbl_mem": 50,
     "dbl_threads": 2,
-    "data_type": "no_clusters",
+    "soupx_start": "no_clusters",
     "include_tsne" : "y",
     "run_azimuth": "y",
     "azimuth_ref": "humancortexref",
+    "organism": "human",
     "aws_test_instance": true
 }
