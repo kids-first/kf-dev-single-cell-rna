@@ -53,15 +53,9 @@ def validate_inputs(param_obj){
     }
     // Validate optional dependent params
     def dependent_params = [
-        cc_method: ["standard", "alternative"],
         azimuth_ref_human: ["adiposeref", "bonemarrowref", "fetusref", "heartref", "humancortexref","kidneyref", "lungref", "pancreasref", "pbmcref", "tonsilref"],
         azimuth_ref_mouse: ["mousecortexref"]
     ]
-    if (param_obj.cc_regression == "y"){
-        if (!dependent_params.cc_method.contains(param_obj.cc_method)){
-            error("Invalid option for parameter cc_method: ${param_obj.cc_method}. Valid options are: ${dependent_params.cc_method}")
-        }
-    }
     if (param_obj.run_azimuth == "y"){
         if (param_obj.organism == "human" && !dependent_params.azimuth_ref_human.contains(param_obj.azimuth_ref)){
             error("Invalid option for parameter azimuth_ref: ${param_obj.azimuth_ref}. Valid options are: ${dependent_params.azimuth_ref_human}")
@@ -137,7 +131,7 @@ workflow {
         COMPONENTS: params.int_components,
         MITO_REGRESSION: params.mito_regression,
         RIBO_REGRESSION: params.ribo_regression,
-        cc_regression: params.cc_regression,
+        CELL_CYCLE_REGRESSION: params.cc_method ? 'y' : 'n',
         NUM_VARIABLE_FEATURES: params.num_var_features,
         SCALE_DATA_FEATURES: params.scale_data_features,
         SPLIT_LAYERS_BY: params.split_layers_by,
