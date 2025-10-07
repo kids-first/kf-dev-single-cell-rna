@@ -41,7 +41,6 @@ Must have one of, or both a `directories` or `tar balls` input
 - `run_transferdata`: `"n"`. Set to `"y"` to enable TransferData.
 - `mito_regression`: `"n"`. Set to `"y"` to enable mitochondrial regression.
 - `ribo_regression`: `"n"`. Set to `"y"` to enable ribosomal regression.
-- `cc_regression`: `"n"`. Set to `"y"` to enable cell cycle regression.
 - `num_var_features`: `3000`. Number of variable features.
 - `resolution_config`: `"0.1,0.2,0.3"`. Comma-separated clustering resolutions.
 - `include_tsne`: `"n"`. Set to `"y"` to include t-SNE.
