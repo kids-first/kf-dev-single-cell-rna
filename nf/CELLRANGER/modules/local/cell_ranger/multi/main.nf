@@ -1,6 +1,6 @@
 process MULTI {
     label 'CR'
-    container "migbro/cellranger:9.0.1"
+    container "pgc-images.sbgenomics.com/d3b-bixu/cellranger:9.0.1"
 
     input:
         val(library_fastq_id)

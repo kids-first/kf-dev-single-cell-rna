@@ -4,7 +4,7 @@
     ],
     "mates": ["/home/ubuntu/volume/SWANS/TEST_CR/13330-KW-Pool01-GEX_subset_S20_R2_001.fastq.gz"
     ],
-    "sample_csv": "//home/ubuntu/volume/SWANS/TEST_CR/multi_sample_sheet.csv",
+    "sample_csv": "/home/ubuntu/volume/SWANS/TEST_CR/multi_sample_sheet.csv",
     "transcriptome_dir": "/home/ubuntu/volume/SWANS/TEST_CR/refdata-gex-GRCh38-2024-A",
     "probe_set": "/home/ubuntu/volume/SWANS/TEST_CR/Chromium_Human_Transcriptome_Probe_Set_v1.1.0_GRCh38-2024-A.csv",
     "create_bam": false,

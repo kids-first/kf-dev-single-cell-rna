@@ -1,6 +1,6 @@
 process COUNT {
     label 'CR'
-    container "migbro/cellranger:9.0.1"
+    container "pgc-images.sbgenomics.com/d3b-bixu/cellranger:9.0.1"
 
     input:
         val(sample)
@@ -24,7 +24,6 @@ process COUNT {
         }
     }
     """
-    cellranger telemetry disable;
     mkdir -p fastqs && $link_reads
     cellranger telemetry disable;
     cellranger count \\

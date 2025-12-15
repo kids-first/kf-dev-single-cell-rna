@@ -1,163 +1,165 @@
 app_content:
-    code_package: 68cc135f8f27a538de63d311
-    entrypoint: main.nf
+  code_package: 68cc135f8f27a538de63d311
+  entrypoint: main.nf
 class: nextflow
 cwlVersion: None
 executor_version: 23.04.1
 requirements:
-- class: InlineJavascriptRequirement
-- class: ShellCommandRequirement
-- class: InitialWorkDirRequirement
-  listing:
-  - entryname: input_params.json
-    entry: |
-      $(JSON.stringify({
-          reads: inputs.reads ? inputs.reads.map(function(e) {return e.path}) : "",
-          mates: inputs.mates ? inputs.mates.map(function(e) {return e.path}): "",
-          indices: inputs.indices ? inputs.indices.map(function(e) {return e.path}) : "",
-          create_bam: inputs.create_bam,
-          feature_types: inputs.feature_types ? inputs.feature_types : ""
-          }))
-      
+  - class: InlineJavascriptRequirement
+  - class: ShellCommandRequirement
+  - class: InitialWorkDirRequirement
+    listing:
+      - entryname: input_params.json
+        entry: |
+          $(JSON.stringify({
+              reads: inputs.reads ? inputs.reads.map(function(e) {return e.path}) : "",
+              mates: inputs.mates ? inputs.mates.map(function(e) {return e.path}): "",
+              indices: inputs.indices ? inputs.indices.map(function(e) {return e.path}) : "",
+              create_bam: inputs.create_bam,
+              feature_types: inputs.feature_types ? inputs.feature_types : ""
+              }))
+
 arguments:
-- position: 0
-  shellQuote: false
-  valueFrom: '-params-file input_params.json'
+  - position: 0
+    shellQuote: false
+    valueFrom: '-params-file input_params.json'
 
 hints:
-- class: sbg:NextflowExecutionMode
-  value: multi-instance
-- class: sbg:maxNumberOfParallelInstances
-  value: 3
+  - class: sbg:NextflowExecutionMode
+    value: multi-instance
+  - class: sbg:maxNumberOfParallelInstances
+    value: 3
 doc: |
-    # KF Cellranger Count/Multi Workflow
-    This workflow takes 10X FASTQ files and processes them either through `count` or `multi` depending on the `mode` flag.
+  # KF Cellranger Count/Multi Workflow
+  This workflow takes 10X FASTQ files and processes them either through `count` or `multi` depending on the `mode` flag.
 
-    ## Inputs
-    ### General Required
-    - `mode`: `count` or `multi`. In general, `count` is good for single sample, `multi` for more than one sample, required for Flex chemistries.
-    See [Choosing a pipeline](https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis/running-pipelines/cr-choosing-a-pipeline) for more details.
-    - `reads`: R1 FASTQ files
-    - `mates`: R2 FASTQ files
-    - `transcriptome_dir`: Unarchived cell ranger reference if `transriptome_tar` not given
-    - `transcriptome_tar`: Archived cell ranger reference if `transriptome_dir` not given. See [references](https://www.10xgenomics.com/support/software/cell-ranger/downloads#reference-downloads) for more info
-    - `create_bam`: Flag to create alignment bams along side counts files.
-    Default `false` as it's slower, but may be useful as a demultiplexing mechanism.
-    ### Count-specific required
-    - `sample`: Sample name to use
-    ### Count-specific if files exist
-    - `indices`: `I1` FASTQ files
-    ### Multi-specific required
-    - `sample_sheet`: CSV file with columns: sample_id,probe_barcode_ids
-    This is to fill out the [sample] section of the multi config.
+  ## Inputs
+  ### General Required
+  - `mode`: `count` or `multi`. In general, `count` is good for single sample, `multi` for more than one sample, required for Flex chemistries.
+  See [Choosing a pipeline](https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis/running-pipelines/cr-choosing-a-pipeline) for more details.
+  - `reads`: R1 FASTQ files
+  - `mates`: R2 FASTQ files
+  - `transcriptome_dir`: Unarchived cell ranger reference if `transriptome_tar` not given
+  - `transcriptome_tar`: Archived cell ranger reference if `transriptome_dir` not given. See [references](https://www.10xgenomics.com/support/software/cell-ranger/downloads#reference-downloads) for more info
+  - `create_bam`: Flag to create alignment bams along side counts files.
+  Default `false` as it's slower, but may be useful as a demultiplexing mechanism.
+  ### Count-specific required
+  - `sample`: Sample name to use
+  ### Count-specific if files exist
+  - `indices`: `I1` FASTQ files
+  ### Multi-specific required
+  - `sample_sheet`: CSV file with columns: sample_id,probe_barcode_ids
+  This is to fill out the [sample] section of the multi config.
 
-    - `library_fastq_id`: Should be the prefix of the input FASTQ up until the `_S#_L##_R#_001.fastq.gz` part
-    - `feature_types`: Default is `Gene Expression`. See [docs](https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts#feature-types)
-    ### Multi-specific Flex
-    See [Multi Config](https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts) for details
-    - `probe_set`: Probe set file obtainable from `references`
+  - `library_fastq_id`: Should be the prefix of the input FASTQ up until the `_S#_L##_R#_001.fastq.gz` part
+  - `feature_types`: Default is `Gene Expression`. See [docs](https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts#feature-types)
+  ### Multi-specific Flex
+  See [Multi Config](https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts) for details
+  - `probe_set`: Probe set file obtainable from `references`
 
-    ## Outputs
-    - `cellranger_output`: tar ball + config file if multi run
+  ## Outputs
+  - `cellranger_output`: tar ball + config file if multi run
 
 inputs:
--   id: sample
+  - id: sample
     inputBinding:
-        prefix: --sample
-    type: 'string?'
+      prefix: '--sample'
+    type: string?
     doc: Sample name, required for `count`
--   id: reads
-    type: 'File[]'
--   id: mates
-    type: 'File[]'
--   id: transcriptome_dir
+  - id: reads
+    type: File[]
+  - id: mates
+    type: File[]
+  - id: transcriptome_dir
     inputBinding:
-        prefix: --transcriptome_dir
-    type: 'Directory?'
--   id: transcriptome_tar
+      prefix: '--transcriptome_dir'
+    type: Directory?
+  - id: transcriptome_tar
     inputBinding:
-        prefix: --transcriptome_tar
-    type: 'File?'
--   id: indices
-    type: 'File[]?'
--   id: create_bam
-    type: 'boolean?'
--   id: mode
+      prefix: '--transcriptome_tar'
+    type: File?
+  - id: indices
+    type: File[]?
+  - id: create_bam
+    type: boolean?
+    default: false
+  - id: mode
     inputBinding:
-        prefix: --mode
+      prefix: '--mode'
     default: count
     type:
-    - 'null'
-    - name: mode
-      type: enum
-      symbols:
-        - count
-        - multi
--   id: cr_cpus
+      - 'null'
+      - name: mode
+        type: enum
+        symbols:
+          - count
+          - multi
+  - id: cr_cpus
     inputBinding:
-        prefix: --cr_cpus
+      prefix: '--cr_cpus'
     default: 8
-    type: 'int?'
--   id: cr_ram
+    type: int?
+  - id: cr_ram
     inputBinding:
-        prefix: --cr_ram
+      prefix: '--cr_ram'
     default: 60
-    type: 'int?'
--   id: sample_csv
+    type: int?
+  - id: sample_csv
     inputBinding:
-        prefix: --sample_csv
-    type: 'File?'
+      prefix: '--sample_csv'
+    type: File?
     doc: |
-        Required for `multi`. CSV file with columns: sample_id,probe_barcode_ids.
-        This is to fill out the [sample] section of the multi config.
-        See https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts
-        for details
--   id: library_fastq_id
+      Required for `multi`. CSV file with columns: sample_id,probe_barcode_ids.
+      This is to fill out the [sample] section of the multi config.
+      See https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts
+      for details
+  - id: library_fastq_id
     inputBinding:
-        prefix: --library_fastq_id
-    type: 'string?'
-    doc: Required for `multi`. Should be the prefix of the input FASTQ up until the _S#_L##_R#_001.fastq.gz part
--   id: feature_types
+      prefix: '--library_fastq_id'
+    type: string?
+    doc: Required for `multi`. Should be the prefix of the input FASTQ up until the
+      _S#_L##_R#_001.fastq.gz part
+  - id: feature_types
     default: Gene Expression
     type:
-    - 'null'
-    - name: feature_types
-      type: enum
-      symbols:
-        - Gene Expression
-        - Antibody Capture
-        - CRISPR Guide Capture
-        - Multiplexing Capture
-        - VDJ
-        - VDJ-T
-        - VDJ-T-GD
-        - Antigen Capture
-        - Custom
-      doc: For mutli mode. Default is usually best, see https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts#feature-types
--   id: probe_set
+      - 'null'
+      - name: feature_types
+        type: enum
+        symbols:
+          - Gene Expression
+          - Antibody Capture
+          - CRISPR Guide Capture
+          - Multiplexing Capture
+          - VDJ
+          - VDJ-T
+          - VDJ-T-GD
+          - Antigen Capture
+          - Custom
+        doc: For mutli mode. Default is usually best, see
+          https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts#feature-types
+  - id: probe_set
     inputBinding:
-        prefix: --probe_set
-    type: 'File?'
+      prefix: '--probe_set'
+    type: File?
     doc: Required for Flex chemistries
--   id: sbg_run
+  - id: sbg_run
     inputBinding:
-        prefix: --sbg_run
+      prefix: '--sbg_run'
     default: true
-    type: 'boolean?'
+    type: boolean?
 
--   id: outdir
+  - id: outdir
     inputBinding:
-        prefix: --outdir
+      prefix: '--outdir'
     label: Path to the output directory where the results will be saved.
     sbg:category: Input/output options
     sbg:icon: fas fa-folder-open
     sbg:hidden: true
     default: ./results
-    type: 'string?'
+    type: string?
 outputs:
-- id: cellranger_output
-  outputBinding:
-    glob: "*"
-  type: Directory
-  doc: The output results from Cell Ranger.
-
+  - id: cellranger_output
+    outputBinding:
+      glob: '*'
+    type: Directory
+    doc: The output results from Cell Ranger.
