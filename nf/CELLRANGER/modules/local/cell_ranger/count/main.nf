@@ -4,7 +4,6 @@ process COUNT {
 
     input:
         val(sample)
-        val(create_bam)
         path(reads)
         path(mates)
         path(transcriptome)

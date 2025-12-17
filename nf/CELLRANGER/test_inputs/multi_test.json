@@ -8,6 +8,8 @@
     "transcriptome_dir": "/home/ubuntu/volume/SWANS/TEST_CR/refdata-gex-GRCh38-2024-A",
     "probe_set": "/home/ubuntu/volume/SWANS/TEST_CR/Chromium_Human_Transcriptome_Probe_Set_v1.1.0_GRCh38-2024-A.csv",
     "create_bam": false,
+    "include_introns": false,
+    "nosecondary": true,
     "mode": "multi",
     "aws_test_instance": true
 }

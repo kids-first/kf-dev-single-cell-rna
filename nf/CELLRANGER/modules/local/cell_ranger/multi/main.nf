@@ -4,7 +4,6 @@ process MULTI {
 
     input:
         val(library_fastq_id)
-        val(create_bam)
         path(reads, name: "FASTQS/")
         path(mates, name: "FASTQS/")
         path(transcriptome)

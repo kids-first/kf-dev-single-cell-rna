@@ -8,5 +8,7 @@
     ],
     "transcriptome_tar": "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/refdata-gex-GRCh38-2024-A.tar.gz",
     "create_bam": false,
+    "include_introns": true,
+    "nosecondary": true,
     "aws_test_instance": true
 }
