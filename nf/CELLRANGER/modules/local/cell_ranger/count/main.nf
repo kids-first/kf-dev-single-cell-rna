@@ -10,7 +10,11 @@ process COUNT {
         path(index_files) // optional
 
     output:
-    path("${sample}.tar.gz")
+    path("${sample}/outs/filtered_feature_bc_matrix.h5"), emit: filtered_matrix_h5
+    path("${sample}/outs/raw_feature_bc_matrix.h5"), emit: raw_matrix_h5
+    path("${sample}/outs/molecule_info.h5"), emit: molecule_info_h5
+    path("${sample}/outs/analysis"), emit: analysis_dir, optional: true
+    tuple path("${sample}/outs/possorted_genome_bam.bam"), path("${sample}/outs/possorted_genome_bam.bam.bai"), emit: bam_files, optional: true
 
     script:
     def link_reads = ""
@@ -32,8 +36,6 @@ process COUNT {
     --sample $sample \\
     --fastqs fastqs/ \\
     --transcriptome $transcriptome \\
-    $flags; \\
-    echo "Cell Ranger count finished successfully, packaging results";
-    tar czvf ${sample}.tar.gz $sample/outs
+    $flags;
     """
 }
