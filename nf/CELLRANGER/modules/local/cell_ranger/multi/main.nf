@@ -18,13 +18,14 @@ process MULTI {
 
     script:
     def multi_config = "${library_fastq_id}.multi_config.csv"
+    def flags = task.ext.args
 
     """
     cellranger telemetry disable;
     echo -e "[gene-expression]
     reference,\$PWD/$transcriptome
     probe-set,\$PWD/$probe_set_csv
-    create-bam,$create_bam
+    $flags
 
     [libraries]
     fastq_id,fastqs,feature_types

@@ -15,6 +15,7 @@ process COUNT {
 
     script:
     def link_reads = ""
+    def flags = task.ext.args
     reads.eachWithIndex { read, index ->
         def mate = mates[index]
         link_reads += "cp -a $read fastqs/${sample}_S${index + 1}_L001_R1_001.fastq.gz && cp -a $mate fastqs/${sample}_S${index + 1}_L001_R2_001.fastq.gz;"
@@ -30,9 +31,9 @@ process COUNT {
     --disable-ui \\
     --id $sample \\
     --sample $sample \\
-    --create-bam $create_bam \\
     --fastqs fastqs/ \\
-    --transcriptome $transcriptome; \\
+    --transcriptome $transcriptome \\
+    $flags; \\
     echo "Cell Ranger count finished successfully, packaging results";
     tar czvf ${sample}.tar.gz $sample/outs
     """

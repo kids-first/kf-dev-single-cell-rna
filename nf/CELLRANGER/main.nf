@@ -11,7 +11,6 @@ workflow {
     mates = params.mates ? Channel.fromPath(params.mates.class == String ? params.mates.split(',') as List : params.mates).collect() : Channel.empty()
     transcriptome_dir = params.transcriptome_dir ? Channel.fromPath(params.transcriptome_dir) : ""
     transcriptome_tar = params.transcriptome_tar ? Channel.fromPath(params.transcriptome_tar) : ""
-    create_bam = String.valueOf(params.create_bam)
     // count specific
     sample = Channel.value(params.sample)
     indices = params.indices ? Channel.fromPath(params.indices.class == String ? params.indices.split(',') as List : params.indices).collect() : Channel.value([])
@@ -33,7 +32,6 @@ workflow {
     if (params.mode == "count"){
         COUNT(
             sample,
-            create_bam,
             reads,
             mates,
             transcriptome_dir,
@@ -44,7 +42,6 @@ workflow {
     else{
         MULTI(
             library_fastq_id,
-            create_bam,
             reads,
             mates,
             transcriptome_dir,
