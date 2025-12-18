@@ -2,7 +2,8 @@
 
 include { COUNT } from './modules/local/cell_ranger/count/main.nf'
 include { MULTI } from './modules/local/cell_ranger/multi/main.nf'
-include { UNTAR_REF } from './modules/local/tar/main.nf'
+include { UNTAR_REF } from './modules/local/untar_ref/main.nf'
+include { TAR_DIR } from './modules/local/tar_dir/main.nf'
 
 workflow {
     main:
@@ -37,6 +38,8 @@ workflow {
             transcriptome_dir,
             indices
         )
+        sample_analysis_dir = sample.merge(COUNT.out.analysis_dir)
+        TAR_DIR(sample_analysis_dir)
     }
 
     else{
@@ -50,4 +53,10 @@ workflow {
             probe_set
         )
     }
+    pattern: /.*\/per_sample_outs/([^\/]+?)\/count\/analysis/
+    multi_sample_analysis_dir = MULTI.out.multi_analysis.map{
+        dirname ->
+
+    }
+
 }
