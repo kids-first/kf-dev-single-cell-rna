@@ -7,8 +7,8 @@
         "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/Sample_HBAD-B-1/fastq/HBAD-B-1_CTAGCGAG_HGHVJDSXY_L004_001.R2.fastq.gz"
     ],
     "transcriptome_tar": "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/refdata-gex-GRCh38-2024-A.tar.gz",
-    "create_bam": false,
+    "create_bam": true,
     "include_introns": true,
-    "nosecondary": true,
+    "nosecondary": false,
     "aws_test_instance": true
 }
