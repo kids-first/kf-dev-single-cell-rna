@@ -52,11 +52,14 @@ workflow {
             sample_sheet,
             probe_set
         )
-    }
-    pattern: /.*\/per_sample_outs/([^\/]+?)\/count\/analysis/
-    multi_sample_analysis_dir = MULTI.out.multi_analysis.map{
-        dirname ->
-
+        // extract sample_id from path
+        pattern = /.*\/per_sample_outs\/(\S+)\/count\/analysis/
+        multi_sample_analysis_dir = MULTI.out.multi_analysis.flatten().map{
+            dirname ->
+            def sample_id_match = dirname =~ pattern
+            return sample_id_match ? [sample_id_match[0][1], dirname] : error("Could not find sample id in path: ${dirname}")
+        }
+        TAR_DIR(multi_sample_analysis_dir)
     }
 
 }
