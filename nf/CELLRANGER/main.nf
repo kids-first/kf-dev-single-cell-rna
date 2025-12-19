@@ -5,8 +5,25 @@ include { MULTI } from './modules/local/cell_ranger/multi/main.nf'
 include { UNTAR_REF } from './modules/local/untar_ref/main.nf'
 include { TAR_DIR } from './modules/local/tar_dir/main.nf'
 
+def validate_inputs(param_obj){
+    if (!param_obj.transcriptome_tar && !param_obj.transcriptome_dir) {
+        error "Must provide one of either a path to a transcriptome directory or a tar file of the reference!"
+    }
+    def required_params = ["mode", "reads", "mates", "create_bam"]
+    def required_count_params = ["sample"]
+    def required_multi_params = ["library_fastq_id", "sample_csv", "feature_types"]
+    required_params.each{ param -> if (!param_obj[param]) error "Missing required parameter: ${param}" }
+    if (param_obj.mode == "count"){
+        required_count_params.each{ param -> if (!param_obj[param]) error "Missing required parameter: ${param}" }
+    }
+    if (param_obj.mode == "multi"){
+        required_multi_params.each{ param -> if (!param_obj[param]) error "Missing required parameter: ${param}" }
+    }
+}
+
 workflow {
     main:
+    validate_inputs(params)
     // general
     reads = params.reads ? Channel.fromPath(params.reads.class == String ? params.reads.split(',') as List : params.reads).collect() : Channel.empty()
     mates = params.mates ? Channel.fromPath(params.mates.class == String ? params.mates.split(',') as List : params.mates).collect() : Channel.empty()
@@ -21,9 +38,7 @@ workflow {
     library_fastq_id = Channel.value(params.library_fastq_id)
     feature_types = Channel.value(params.feature_types)
 
-    if (!params.transcriptome_tar && !params.transcriptome_dir) {
-        error "Must provide one of either a path to a transcriptome directory or a tar file of the reference!"
-    } else if (params.transcriptome_dir) {
+    if (params.transcriptome_dir) {
         transcriptome_dir = Channel.fromPath(params.transcriptome_dir)
     } else {
         UNTAR_REF(transcriptome_tar)

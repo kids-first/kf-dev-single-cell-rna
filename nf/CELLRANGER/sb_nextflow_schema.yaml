@@ -16,6 +16,8 @@ requirements:
               mates: inputs.mates ? inputs.mates.map(function(e) {return e.path}): "",
               indices: inputs.indices ? inputs.indices.map(function(e) {return e.path}) : "",
               create_bam: inputs.create_bam,
+              nosecondary: inputs.nosecondary,
+              include_introns: inputs.include_introns,
               feature_types: inputs.feature_types ? inputs.feature_types : ""
               }))
 
@@ -53,12 +55,18 @@ doc: |
 
   - `library_fastq_id`: Should be the prefix of the input FASTQ up until the `_S#_L##_R#_001.fastq.gz` part
   - `feature_types`: Default is `Gene Expression`. See [docs](https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts#feature-types)
+  ### Output/additional analysis
+  - `include_introns`: Flag to include introns in counts. Recommended to snRNA assays
+  - `nosecondary`: Flag to skip clustering
   ### Multi-specific Flex
   See [Multi Config](https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts) for details
   - `probe_set`: Probe set file obtainable from `references`
 
   ## Outputs
-  - `cellranger_output`: tar ball + config file if multi run
+  - `cellranger_alignment`: The alignment results from Cell Ranger.
+  - `cellranger_h5`: The h5 counts matrices and molecule info from Cell Ranger.
+  - `cellranger_analysis_tar`: The tar ball of the Cell Ranger analysis results.
+  - `cellranger_multi_config`: The multi config file used for the Cell Ranger multi run.
 
 inputs:
   - id: sample
@@ -83,6 +91,14 @@ inputs:
   - id: create_bam
     type: boolean?
     default: false
+  - id: nosecondary
+    type: boolean?
+    default: true
+    doc: Flag to disable Cell Ranger secondary analysis
+  - id: include_introns
+    type: boolean?
+    default: false
+    doc: Flag to include introns in the alignment. Recommended for snRNA assays
   - id: mode
     inputBinding:
       prefix: '--mode'
@@ -158,8 +174,23 @@ inputs:
     default: ./results
     type: string?
 outputs:
-  - id: cellranger_output
+  - id: cellranger_alignment
     outputBinding:
-      glob: '*'
-    type: Directory
-    doc: The output results from Cell Ranger.
+      glob: 'alignment/*'
+    type: 'File[]?'
+    doc: The alignment results from Cell Ranger.
+  - id: cellranger_h5
+    outputBinding:
+      glob: 'h5/*'
+    type: 'File[]'
+    doc: The h5 counts matrices and molecule info from Cell Ranger.
+  - id: cellranger_analysis_tar
+    outputBinding:
+      glob: 'analysis/*'
+    type: 'File[]?'
+    doc: The tar ball of the Cell Ranger analysis results.
+  - id: cellranger_multi_config
+    outputBinding:
+      glob: 'multi_config/*'
+    type: 'File?'
+    doc: The multi config file used for the Cell Ranger multi run.
