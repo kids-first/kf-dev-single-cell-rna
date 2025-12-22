@@ -30,7 +30,7 @@ workflow {
     transcriptome_dir = params.transcriptome_dir ? Channel.fromPath(params.transcriptome_dir) : ""
     transcriptome_tar = params.transcriptome_tar ? Channel.fromPath(params.transcriptome_tar) : ""
     // count specific
-    sample = Channel.value(params.sample)
+    sample = params.sample
     indices = params.indices ? Channel.fromPath(params.indices.class == String ? params.indices.split(',') as List : params.indices).collect() : Channel.value([])
     // multi specific
     sample_sheet = params.sample_csv ? Channel.fromPath(params.sample_csv) : Channel.empty()
@@ -53,7 +53,7 @@ workflow {
             transcriptome_dir,
             indices
         )
-        sample_analysis_dir = sample.map{id -> [id + "_cellranger_analysis", COUNT.out.analysis_dir]}
+        sample_analysis_dir = COUNT.out.analysis_dir.map { dirname -> [sample + "_cellranger_analysis", dirname] }
         TAR_DIR(sample_analysis_dir)
     }
 
@@ -72,7 +72,7 @@ workflow {
         multi_sample_analysis_dir = MULTI.out.multi_analysis.flatten().map{
             dirname ->
             def sample_id_match = dirname =~ pattern
-            return sample_id_match ? [sample_id_match[0][1], dirname] : error("Could not find sample id in path: ${dirname}")
+            return sample_id_match ? [sample_id_match[0][1] + "_cellranger_analysis", dirname] : error("Could not find sample id in path: ${dirname}")
         }
         TAR_DIR(multi_sample_analysis_dir)
     }
