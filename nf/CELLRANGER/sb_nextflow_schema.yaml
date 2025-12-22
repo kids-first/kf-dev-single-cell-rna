@@ -164,33 +164,24 @@ inputs:
     default: true
     type: boolean?
 
-  - id: outdir
-    inputBinding:
-      prefix: '--outdir'
-    label: Path to the output directory where the results will be saved.
-    sbg:category: Input/output options
-    sbg:icon: fas fa-folder-open
-    sbg:hidden: true
-    default: ./results
-    type: string?
 outputs:
   - id: cellranger_alignment
     outputBinding:
-      glob: 'alignment/*'
+      glob: 'results/alignment/*'
     type: 'File[]?'
     doc: The alignment results from Cell Ranger.
   - id: cellranger_h5
     outputBinding:
-      glob: 'h5/*'
+      glob: 'results/h5/*'
     type: 'File[]'
     doc: The h5 counts matrices and molecule info from Cell Ranger.
   - id: cellranger_analysis_tar
     outputBinding:
-      glob: 'analysis/*'
+      glob: 'results/analysis/*'
     type: 'File[]?'
     doc: The tar ball of the Cell Ranger analysis results.
   - id: cellranger_multi_config
     outputBinding:
-      glob: 'multi_config/*'
+      glob: 'results/multi_config/*'
     type: 'File?'
     doc: The multi config file used for the Cell Ranger multi run.

@@ -53,7 +53,7 @@ workflow {
             transcriptome_dir,
             indices
         )
-        sample_analysis_dir = sample.merge(COUNT.out.analysis_dir)
+        sample_analysis_dir = sample.map{id -> [id + "_cellranger_analysis", COUNT.out.analysis_dir]}
         TAR_DIR(sample_analysis_dir)
     }
 

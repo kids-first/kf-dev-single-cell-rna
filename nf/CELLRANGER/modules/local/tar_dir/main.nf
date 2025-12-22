@@ -3,13 +3,13 @@ process TAR_DIR {
     container 'ubuntu:latest'
 
     input:
-    tuple val(sample), path(input_dir)
+    tuple val(prefix), path(input_dir)
 
     output:
     path("*tar.gz")
 
     script:
     """
-    tar czvhf ${sample}.tar.gz ${input_dir}
+    tar czvhf ${prefix}.tar.gz ${input_dir}
     """
 }
