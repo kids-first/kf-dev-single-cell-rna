@@ -53,7 +53,7 @@ workflow {
             transcriptome_dir,
             indices
         )
-        sample_analysis_dir = COUNT.out.analysis_dir.map { dirname -> [sample + "_cellranger_analysis", dirname] }
+        sample_analysis_dir = COUNT.out.analysis_dir.map { dirname -> [sample + ".cellranger_analysis", dirname] }
         TAR_DIR(sample_analysis_dir)
     }
 
@@ -72,7 +72,7 @@ workflow {
         multi_sample_analysis_dir = MULTI.out.multi_analysis.flatten().map{
             dirname ->
             def sample_id_match = dirname =~ pattern
-            return sample_id_match ? [sample_id_match[0][1] + "_cellranger_analysis", dirname] : error("Could not find sample id in path: ${dirname}")
+            return sample_id_match ? [sample_id_match[0][1] + ".cellranger_analysis", dirname] : error("Could not find sample id in path: ${dirname}")
         }
         TAR_DIR(multi_sample_analysis_dir)
     }
