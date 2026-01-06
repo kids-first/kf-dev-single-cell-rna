@@ -57,7 +57,7 @@ workflow {
             transcriptome_dir,
             indices
         )
-        sample_analysis_dir = COUNT.out.analysis_dir.map { dirname -> [sample + ".cellranger_analysis", dirname] }
+        sample_analysis_dir = COUNT.out.analysis_dir.map { dirname -> [params.sample + ".cellranger_analysis", dirname] }
         TAR_DIR(sample_analysis_dir)
     }
 
