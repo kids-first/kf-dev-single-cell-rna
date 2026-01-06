@@ -12,12 +12,16 @@ def validate_inputs(param_obj){
     def required_params = ["mode", "reads", "mates", "create_bam"]
     def required_count_params = ["sample"]
     def required_multi_params = ["library_fastq_id", "sample_csv", "feature_types"]
-    required_params.each{ param -> if (!param_obj[param]) error "Missing required parameter: ${param}" }
+    def missing_params = []
+    required_params.each{ param -> if (!param_obj[param]) missing_params << param }
     if (param_obj.mode == "count"){
-        required_count_params.each{ param -> if (!param_obj[param]) error "Missing required parameter: ${param}" }
+        required_count_params.each{ param -> if (!param_obj[param]) missing_params << param }
     }
     if (param_obj.mode == "multi"){
-        required_multi_params.each{ param -> if (!param_obj[param]) error "Missing required parameter: ${param}" }
+        required_multi_params.each{ param -> if (!param_obj[param]) missing_params << param }
+    }
+    if (missing_params.size() > 0) {
+        error "Missing required parameters for mode ${param_obj.mode}: ${missing_params.join(', ')}"
     }
 }
 
@@ -25,21 +29,21 @@ workflow {
     main:
     validate_inputs(params)
     // general
-    reads = params.reads ? Channel.fromPath(params.reads.class == String ? params.reads.split(',') as List : params.reads).collect() : Channel.empty()
-    mates = params.mates ? Channel.fromPath(params.mates.class == String ? params.mates.split(',') as List : params.mates).collect() : Channel.empty()
-    transcriptome_dir = params.transcriptome_dir ? Channel.fromPath(params.transcriptome_dir) : ""
-    transcriptome_tar = params.transcriptome_tar ? Channel.fromPath(params.transcriptome_tar) : ""
+    reads = params.reads ? channel.fromPath(params.reads.class == String ? params.reads.split(',') as List : params.reads).collect() : channel.empty()
+    mates = params.mates ? channel.fromPath(params.mates.class == String ? params.mates.split(',') as List : params.mates).collect() : channel.empty()
+    transcriptome_dir = params.transcriptome_dir ? channel.fromPath(params.transcriptome_dir) : ""
+    transcriptome_tar = params.transcriptome_tar ? channel.fromPath(params.transcriptome_tar) : ""
     // count specific
-    sample = params.sample
-    indices = params.indices ? Channel.fromPath(params.indices.class == String ? params.indices.split(',') as List : params.indices).collect() : Channel.value([])
+    sample = channel.value(params.sample)
+    indices = params.indices ? channel.fromPath(params.indices.class == String ? params.indices.split(',') as List : params.indices).collect() : channel.value([])
     // multi specific
-    sample_sheet = params.sample_csv ? Channel.fromPath(params.sample_csv) : Channel.empty()
-    probe_set = params.probe_set ? Channel.fromPath(params.probe_set) : Channel.empty()
-    library_fastq_id = Channel.value(params.library_fastq_id)
-    feature_types = Channel.value(params.feature_types)
+    sample_sheet = params.sample_csv ? channel.fromPath(params.sample_csv) : channel.empty()
+    probe_set = params.probe_set ? channel.fromPath(params.probe_set) : channel.empty()
+    library_fastq_id = channel.value(params.library_fastq_id)
+    feature_types = channel.value(params.feature_types)
 
     if (params.transcriptome_dir) {
-        transcriptome_dir = Channel.fromPath(params.transcriptome_dir)
+        transcriptome_dir = channel.fromPath(params.transcriptome_dir)
     } else {
         UNTAR_REF(transcriptome_tar)
         transcriptome_dir = UNTAR_REF.out
