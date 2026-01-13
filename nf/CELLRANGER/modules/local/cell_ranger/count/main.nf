@@ -1,20 +1,22 @@
 process COUNT {
     label 'CR'
-    container "migbro/cellranger:9.0.1"
+    container "pgc-images.sbgenomics.com/d3b-bixu/cellranger:9.0.1"
 
     input:
         val(sample)
-        val(create_bam)
         path(reads)
         path(mates)
         path(transcriptome)
         path(index_files) // optional
 
     output:
-    path("${sample}.tar.gz")
+    path("${sample}/outs/*.h5"), emit: h5
+    path("${sample}/outs/analysis"), emit: analysis_dir, optional: true
+    tuple path("${sample}/outs/possorted_genome_bam.bam"), path("${sample}/outs/possorted_genome_bam.bam.bai"), emit: bam_files, optional: true
 
     script:
     def link_reads = ""
+    def flags = task.ext.args
     reads.eachWithIndex { read, index ->
         def mate = mates[index]
         link_reads += "cp -a $read fastqs/${sample}_S${index + 1}_L001_R1_001.fastq.gz && cp -a $mate fastqs/${sample}_S${index + 1}_L001_R2_001.fastq.gz;"
@@ -24,17 +26,14 @@ process COUNT {
         }
     }
     """
-    cellranger telemetry disable;
     mkdir -p fastqs && $link_reads
     cellranger telemetry disable;
     cellranger count \\
     --disable-ui \\
     --id $sample \\
     --sample $sample \\
-    --create-bam $create_bam \\
     --fastqs fastqs/ \\
-    --transcriptome $transcriptome; \\
-    echo "Cell Ranger count finished successfully, packaging results";
-    tar czvf ${sample}.tar.gz $sample/outs
+    --transcriptome $transcriptome \\
+    $flags;
     """
 }

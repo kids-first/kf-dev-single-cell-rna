@@ -109,10 +109,10 @@ workflow {
     main:
     validate_inputs(params)
     sample_condition_map_file = file(params.sample_condition_map_file)
-    input_dir_list = params.input_dir_list ? Channel.fromPath(params.input_dir_list.class == String ? params.input_dir_list.split(',') as List : params.input_dir_list) : Channel.empty()
-    input_dir_src_list = params.input_dir_src_list ? Channel.fromList(params.input_dir_src_list) : Channel.value([])
-    input_tar_list = params.input_tar_list ? Channel.fromPath(params.input_tar_list.class == String ? params.input_tar_list.split(',') as List : params.input_tar_list) : Channel.empty()
-    input_tar_src_list = params.input_tar_src_list ? Channel.fromList(params.input_tar_src_list) : Channel.value([])
+    input_dir_list = params.input_dir_list ? channel.fromPath(params.input_dir_list.class == String ? params.input_dir_list.split(',') as List : params.input_dir_list) : channel.empty()
+    input_dir_src_list = params.input_dir_src_list ? channel.fromList(params.input_dir_src_list) : channel.value([])
+    input_tar_list = params.input_tar_list ? channel.fromPath(params.input_tar_list.class == String ? params.input_tar_list.split(',') as List : params.input_tar_list) : channel.empty()
+    input_tar_src_list = params.input_tar_src_list ? channel.fromList(params.input_tar_src_list) : channel.value([])
     // Create meta dict of common inputs to reduce param passing and to mimic snakemake yaml
     meta = [
         PROJECT: params.project,
