@@ -3,6 +3,7 @@ app_content:
   entrypoint: main.nf
 class: nextflow
 cwlVersion: None
+label: KF Cellranger Count/Multi Workflow
 executor_version: 23.04.1
 requirements:
   - class: InlineJavascriptRequirement
@@ -165,6 +166,11 @@ inputs:
     type: boolean?
 
 outputs:
+  - id: cellranger_metrics
+    outputBinding:
+      glob: 'results/metrics/*'
+    type: 'File'
+    doc: The alignment results from Cell Ranger.
   - id: cellranger_alignment
     outputBinding:
       glob: 'results/alignment/*'

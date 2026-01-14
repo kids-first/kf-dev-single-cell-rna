@@ -14,6 +14,7 @@ process MULTI {
     output:
     path("${library_fastq_id}/outs/per_sample_outs/*/count/analysis"), emit: multi_analysis, optional: true
     path("${library_fastq_id}/outs/per_sample_outs/*/count/*.h5"), emit: multi_h5
+    path("${library_fastq_id}/outs/per_sample_outs/*/metrics_summary.csv"), emit: multi_metrics
     tuple path("${library_fastq_id}/outs/per_sample_outs/*/count/*.bam"), path("${library_fastq_id}/outs/per_sample_outs/*/count/*.bai"), emit: multi_bam, optional: true
     path("*multi_config.csv"), emit: config
 
