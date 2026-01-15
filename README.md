@@ -14,11 +14,12 @@ These workflows are considered acceptable for Single Cell Analysis
 ### [10X STAR Solo 2.7.10b Alignment Workflow](docs/10X_STAR_Solo_alignment.md)
 Aligns and quantifies 10X single cell data using STAR Solo
 
+### [KF Cellranger Count/Multi Workflow](docs/CELLRANGER_COUNT_MULTI.md)
+Nextflow workflow to generate gene expression (gex) counts files using `count` or `multi` modes.
+Can also generate alignments as well as cell ranger cluster output.
+
 ## Alpha Phase Workflows
 These workflows are currently in alpha phase
-
-### [CELLRANGER Count/Multi](docs/CELLRANGER_COUNT_MULTI.md)
-Nextflow workflow to generate counts files for SWANS
 
 ### [SWANS 2.0: Single-entity Workflow ANalysiS Pipeline](docs/SWANS_PRELIMINARY_ANALYSIS.md)
 Complete QC and analysis pipeline. https://doi.org/10.1101/2025.05.14.654073.
