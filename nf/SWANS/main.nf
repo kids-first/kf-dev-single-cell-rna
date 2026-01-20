@@ -1,5 +1,6 @@
 #!/usr/bin/env nextflow
 
+include { format_inputs } from './subworkflows/local/format_inputs/main.nf'
 include { UNTAR_CR } from './modules/local/untar/main.nf'
 include { TAR_OUTPUTS } from './modules/local/tar/main.nf'
 include { TAR_OUTPUTS as TAR_OUTPUTS_DBL } from './modules/local/tar/main.nf'
@@ -13,15 +14,6 @@ include { CREATE_IMAGES_DGE } from './modules/local/create_images_dge/main.nf'
 include { COLLATE_ANALYSIS } from './modules/local/collate_anaylsis/main.nf'
 
 
-def parse_map_file(file_text){
-    def sample_map = [:]
-    def lines = file_text.split("\n")
-    lines.drop(1).each { line ->
-        def (sample, condition, remap) = line.tokenize("\t")
-        sample_map[sample] = [condition, remap ?: sample]
-    }
-    return sample_map
-}
 def validate_inputs(param_obj){
     // single value possibilities
     def required_options = [
@@ -66,47 +58,9 @@ def validate_inputs(param_obj){
     }
 }
 
-def parse_input_dir_src(dir_channel, src_channel, sample_map, pattern_map){
-    // collate src and dir, parse out sample name from dir, and assign to desired name (could be same as original)
-    return src_channel.merge(dir_channel).map { src, dir -> 
-        if (pattern_map[src.toLowerCase()]) {
-            def sname_matcher = dir =~ pattern_map[src.toLowerCase()]
-            def preceding_str = sname_matcher ? sname_matcher[0][1] : error("Could not parse sample name from input_dir_list entry $dir. Ensure directory name contains $src.")
-            return [src, sample_map[preceding_str][1], sample_map[preceding_str][0], dir]
-        }
-        else {
-            return [src, sample_map[dir.name][1], sample_map[dir.name][0], dir]
-        }
-    }
-}
-
-def process_untar_outputs(untar_output, sample_map, pattern_map){
-    return untar_output.flatMap { data_src, sample_str, dir_list ->
-        def sample_list = sample_str.tokenize("\n")
-        def remap = []
-        def cond = []
-        sample_list.each { sname ->
-            // extract sample name if coming from doubletfinder or soupx
-            if (pattern_map[data_src.toLowerCase()]){
-                def sname_matcher = sname =~ pattern_map[data_src.toLowerCase()]
-                sname = sname_matcher ? sname_matcher[0][1] : error("Could not parse sample name from untar_outputs entry $sname. Ensure directory name contains $data_src.")
-            }
-            if (sample_map.containsKey(sname)){
-                remap << sample_map[sname][1] ?: sname
-                cond << sample_map[sname][0]
-            } else {
-                error("Sample name ${sname} not found in sample_condition_map_file. Please ensure all samples are mapped.")
-            }
-        }
-        if (dir_list instanceof List) {
-            return [[data_src] * dir_list.size(), remap, cond, dir_list].transpose()
-        } else {
-            return [[data_src], remap, cond, [dir_list]].transpose()
-        }
-    }
-}
 workflow {
     main:
+    // FORMAT INPUTS
     validate_inputs(params)
     sample_condition_map_file = file(params.sample_condition_map_file)
     input_dir_list = params.input_dir_list ? channel.fromPath(params.input_dir_list.class == String ? params.input_dir_list.split(',') as List : params.input_dir_list) : channel.empty()
@@ -144,26 +98,18 @@ workflow {
     ]
     // dir names typically drive sample names, but not always desired. use sample map to enforce desired names
     input_meta_tar = input_tar_src_list.merge(input_tar_list).map { src, tar -> [src, tar] }
-    UNTAR_CR(
-        input_meta_tar
+    format_inputs(
+        input_meta_tar,
+        sample_condition_map_file,
+        input_dir_list,
+        input_dir_src_list
     )
-    // parse sample map file
-    sample_condition_map =  parse_map_file(sample_condition_map_file.text)
-    print(sample_condition_map)
-    // initialize dir, tar, and src data as one channel with src, sample_name, condition, dir
-    dirname_pattern = [
-        doubletfinder: /([^\/]+)[_\/]doubletFinder/,
-        matrix: /([^\/]+)[_\/]soupX/
-    ]
-    parse_input_dir_src(input_dir_list, input_dir_src_list, sample_condition_map, dirname_pattern).concat(process_untar_outputs(UNTAR_CR.out, sample_condition_map, dirname_pattern)).branch{ parsed_input -> 
+    src_sample_dir = format_inputs.out.branch{ parsed_input -> 
         doubletfinder: parsed_input[0].toLowerCase() == "doubletfinder"
         matrix: parsed_input[0].toLowerCase() == "matrix"
         cellranger: parsed_input[0].toLowerCase() == "cellranger"
     }.set{src_sample_dir}
-    // debug stuff
-    src_sample_dir.doubletfinder.view { "doubletfinder: $it" }
-    src_sample_dir.matrix.view { "matrix: $it" }
-    src_sample_dir.cellranger.view { "cellranger: $it" }
+    // CLEAN UP DATA
     // if you've given matched doublet finder and soupX data, then you probably don't need to run doubletFinder again on that data
     if (!params.disable_doubletfinder){
         def doubletfinder_samples = src_sample_dir.doubletfinder.map { it[1] }.collect()
@@ -190,7 +136,7 @@ workflow {
             soupx_tar_input
         )
     }
-    // // collate results and any existing results so that next step can use them all together
+    // COLLATE RESULTS
     samples = SOUPX.out.map { it[0] }
         .concat(DOUBLETFINDER.out.map { it[0] })
         .concat(src_sample_dir.doubletfinder.map { it[1] })
@@ -207,6 +153,7 @@ workflow {
         samples,
         input_dirs
     )
+    // CREATE SEURAT OBJ/QC
     seurat_filename = "data/endpoints/$params.project/analysis/RDS/${params.project}_initial_seurat_object.qs"
     // use metadata from matrix and cellranger from src_sample_dir to help collate create the initial sample list file
     def (sample_list_flat, condition_list, input_dir_list_flat) = [ [],  [], [] ]
@@ -225,17 +172,5 @@ workflow {
     ANALYZE_SEURAT_OBJECT(
         CREATE_INITIAL_SEURAT.out.seurat_file,
         params.aso_memory
-    )
-    CREATE_IMAGES_DGE(
-        params.storage,
-        ANALYZE_SEURAT_OBJECT.out.analyzed_seurat_object_file
-    )
-    analysis_dirs = CREATE_INITIAL_SEURAT.out.analysis_dir.combine(ANALYZE_SEURAT_OBJECT.out.analysis_path).combine(CREATE_IMAGES_DGE.out)
-    COLLATE_ANALYSIS(
-        analysis_dirs
-    )
-    tar_output_input = COLLATE_ANALYSIS.out.map { it }.map { ["data/endpoints/$params.project", it] }
-    TAR_OUTPUTS(
-        tar_output_input
     )
 }
