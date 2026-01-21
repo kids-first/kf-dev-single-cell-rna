@@ -54,11 +54,14 @@ def parse_input_dir_src(dir_channel, src_channel, sample_map, pattern_map){
 
 workflow format_inputs {
     take:
-        input_meta_tar
+        input_tar_src_list
+        input_tar_list
         sample_condition_map_file
         input_dir_list
         input_dir_src_list
     main:
+    // dir names typically drive sample names, but not always desired. use sample map to enforce desired names
+    input_meta_tar = input_tar_src_list.merge(input_tar_list).map { src, tar -> [src, tar] }
     UNTAR_CR(
         input_meta_tar
     )
@@ -75,7 +78,6 @@ workflow format_inputs {
             matrix: parsed_input[0].toLowerCase() == "matrix"
             cellranger: parsed_input[0].toLowerCase() == "cellranger"
         }.set{src_sample_dir}
-    //src_sample_dir.view()
     emit:
         doubletfinder = src_sample_dir.doubletfinder
         matrix = src_sample_dir.matrix 

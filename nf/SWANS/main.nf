@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 include { format_inputs } from './subworkflows/local/format_inputs/main.nf'
-include { UNTAR_CR } from './modules/local/untar/main.nf'
+include { data_cleanup } from './subworkflows/local/data_cleanup/main.nf'
 include { TAR_OUTPUTS } from './modules/local/tar/main.nf'
 include { TAR_OUTPUTS as TAR_OUTPUTS_DBL } from './modules/local/tar/main.nf'
 include { TAR_OUTPUTS as TAR_OUTPUTS_SOUP } from './modules/local/tar/main.nf'
@@ -60,7 +60,6 @@ def validate_inputs(param_obj){
 
 workflow {
     main:
-    // FORMAT INPUTS
     validate_inputs(params)
     sample_condition_map_file = file(params.sample_condition_map_file)
     input_dir_list = params.input_dir_list ? channel.fromPath(params.input_dir_list.class == String ? params.input_dir_list.split(',') as List : params.input_dir_list) : channel.empty()
@@ -96,59 +95,22 @@ workflow {
         CONSERVED_GENES: params.conserved_genes,
         VISUALIZATION: params.visualization
     ]
-    // dir names typically drive sample names, but not always desired. use sample map to enforce desired names
-    input_meta_tar = input_tar_src_list.merge(input_tar_list).map { src, tar -> [src, tar] }
+
+    // FORMAT INPUTS
     src_sample_dir = format_inputs(
-        input_meta_tar,
-        sample_condition_map_file,
-        input_dir_list,
-        input_dir_src_list
+    input_tar_src_list,
+    input_tar_list,
+    sample_condition_map_file,
+    input_dir_list,
+    input_dir_src_list
     )
 
     // CLEAN UP DATA
-    // if you've given matched doublet finder and soupX data, then you probably don't need to run doubletFinder again on that data
-    if (!params.disable_doubletfinder){
-        def doubletfinder_samples = src_sample_dir.doubletfinder.map { it[1] }.collect()
-        dbl_input = src_sample_dir.cellranger
-            .concat(src_sample_dir.matrix.filter {  !(doubletfinder_samples.contains(it[1])) })
-            .map { src, sample, _condition, dir -> [src, sample, dir] }
-        DOUBLETFINDER(
-            meta,
-            dbl_input
-        )
-        def dbl_tar_input = DOUBLETFINDER.out.map {_sample, dir -> ["", dir] }
-        TAR_OUTPUTS_DBL(
-            dbl_tar_input
-        )
-    }
-    if (!params.disable_soupx){
-        soupx_input = src_sample_dir.cellranger.map { src, sample, _condition, dir -> [src, sample, dir] }
-        SOUPX(
-            meta,
-            soupx_input
-        )
-        def soupx_tar_input = SOUPX.out.map { _sample, dir -> ["", dir] }
-        TAR_OUTPUTS_SOUP(
-            soupx_tar_input
-        )
-    }
-    // COLLATE RESULTS
-    samples = SOUPX.out.map { it[0] }
-        .concat(DOUBLETFINDER.out.map { it[0] })
-        .concat(src_sample_dir.doubletfinder.map { it[1] })
-        .concat(src_sample_dir.matrix.map { it[1] })
-        .collect()
-    input_dirs = SOUPX.out.map { it[1] }
-        .concat(DOUBLETFINDER.out.map { it[1] })
-        .concat(src_sample_dir.doubletfinder.map { it[3] })
-        .concat(src_sample_dir.matrix.map { it[3] })
-        .collect()
-    input_dirs.view()
-    COLLATE_OUTPUTS(
+    data_cleanup(
         meta,
-        samples,
-        input_dirs
+        src_sample_dir
     )
+
     // CREATE SEURAT OBJ/QC
     seurat_filename = "data/endpoints/$params.project/analysis/RDS/${params.project}_initial_seurat_object.qs"
     // use metadata from matrix and cellranger from src_sample_dir to help collate create the initial sample list file
