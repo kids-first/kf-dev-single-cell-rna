@@ -70,8 +70,14 @@ workflow format_inputs {
         doubletfinder: /([^\/]+)[_\/]doubletFinder/,
         matrix: /([^\/]+)[_\/]soupX/
     ]
-    parsed_input = parse_input_dir_src(input_dir_list, input_dir_src_list, sample_condition_map, dirname_pattern).concat(process_untar_outputs(UNTAR_CR.out, sample_condition_map, dirname_pattern))
-
+    parse_input_dir_src(input_dir_list, input_dir_src_list, sample_condition_map, dirname_pattern).concat(process_untar_outputs(UNTAR_CR.out, sample_condition_map, dirname_pattern)).branch{ parsed_input -> 
+            doubletfinder: parsed_input[0].toLowerCase() == "doubletfinder"
+            matrix: parsed_input[0].toLowerCase() == "matrix"
+            cellranger: parsed_input[0].toLowerCase() == "cellranger"
+        }.set{src_sample_dir}
+    //src_sample_dir.view()
     emit:
-        parsed_input
+        doubletfinder = src_sample_dir.doubletfinder
+        matrix = src_sample_dir.matrix 
+        cellranger = src_sample_dir.cellranger
 }

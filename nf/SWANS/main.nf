@@ -98,17 +98,13 @@ workflow {
     ]
     // dir names typically drive sample names, but not always desired. use sample map to enforce desired names
     input_meta_tar = input_tar_src_list.merge(input_tar_list).map { src, tar -> [src, tar] }
-    format_inputs(
+    src_sample_dir = format_inputs(
         input_meta_tar,
         sample_condition_map_file,
         input_dir_list,
         input_dir_src_list
     )
-    src_sample_dir = format_inputs.out.branch{ parsed_input -> 
-        doubletfinder: parsed_input[0].toLowerCase() == "doubletfinder"
-        matrix: parsed_input[0].toLowerCase() == "matrix"
-        cellranger: parsed_input[0].toLowerCase() == "cellranger"
-    }.set{src_sample_dir}
+
     // CLEAN UP DATA
     // if you've given matched doublet finder and soupX data, then you probably don't need to run doubletFinder again on that data
     if (!params.disable_doubletfinder){
@@ -173,4 +169,5 @@ workflow {
         CREATE_INITIAL_SEURAT.out.seurat_file,
         params.aso_memory
     )
+
 }
