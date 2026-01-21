@@ -60,6 +60,35 @@ workflow format_inputs {
         input_dir_list
         input_dir_src_list
     main:
+    // Create meta dict of common inputs to reduce param passing and to mimic snakemake yaml
+    meta = [
+        PROJECT: params.project,
+        ORGANISM: params.organism,
+        RPATH: params.r_lib_path,
+        RUN_SOUPX: String.valueOf(!params.disable_soupx),
+        SOUPX_START: params.soupx_start,
+        RUN_DOUBLETFINDER: String.valueOf(!params.disable_doubletfinder),
+        MITO: params.mito_cutoff,
+        RIBO: params.ribo_cutoff,
+        MIN_FEATURE_THRESHOLD: params.min_feature_threshold,
+        MAX_FEATURE_THRESHOLD: params.max_feature_threshold,
+        SEURAT_NORMALIZATION_METHOD: params.normalization_config,
+        SEURAT_INTEGRATION_METHOD: params.integration_config,
+        RESOLUTION: params.resolution_config,
+        COMPONENTS: params.int_components,
+        MITO_REGRESSION: params.mito_regression,
+        RIBO_REGRESSION: params.ribo_regression,
+        CELL_CYCLE_REGRESSION: params.cc_method ? 'y' : 'n',
+        NUM_VARIABLE_FEATURES: params.num_var_features,
+        SCALE_DATA_FEATURES: params.scale_data_features,
+        SPLIT_LAYERS_BY: params.split_layers_by,
+        REFERENCE_BASED_INTEGRATION: params.ref_based_integration,
+        RUN_AZIMUTH: params.run_azimuth,
+        RUN_TRANSFERDATA: params.run_transferdata,
+        TSNE: params.include_tsne,
+        CONSERVED_GENES: params.conserved_genes,
+        VISUALIZATION: params.visualization
+    ]
     // dir names typically drive sample names, but not always desired. use sample map to enforce desired names
     input_meta_tar = input_tar_src_list.merge(input_tar_list).map { src, tar -> [src, tar] }
     UNTAR_CR(
@@ -79,6 +108,7 @@ workflow format_inputs {
             cellranger: parsed_input[0].toLowerCase() == "cellranger"
         }.set{src_sample_dir}
     emit:
+        meta
         doubletfinder = src_sample_dir.doubletfinder
         matrix = src_sample_dir.matrix 
         cellranger = src_sample_dir.cellranger

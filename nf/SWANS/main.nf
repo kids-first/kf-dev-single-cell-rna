@@ -3,11 +3,6 @@
 include { format_inputs } from './subworkflows/local/format_inputs/main.nf'
 include { data_cleanup } from './subworkflows/local/data_cleanup/main.nf'
 include { TAR_OUTPUTS } from './modules/local/tar/main.nf'
-include { TAR_OUTPUTS as TAR_OUTPUTS_DBL } from './modules/local/tar/main.nf'
-include { TAR_OUTPUTS as TAR_OUTPUTS_SOUP } from './modules/local/tar/main.nf'
-include { DOUBLETFINDER } from './modules/local/doubletFinder/main.nf'
-include { SOUPX } from './modules/local/soupX/main.nf'
-include { COLLATE_OUTPUTS } from './modules/local/collate_outputs/main.nf'
 include { CREATE_INITIAL_SEURAT } from './modules/local/create_initial_seurat/main.nf'
 include { ANALYZE_SEURAT_OBJECT } from './modules/local/analyze_seurat_object/main.nf'
 include { CREATE_IMAGES_DGE } from './modules/local/create_images_dge/main.nf'
@@ -66,70 +61,44 @@ workflow {
     input_dir_src_list = params.input_dir_src_list ? channel.fromList(params.input_dir_src_list) : channel.value([])
     input_tar_list = params.input_tar_list ? channel.fromPath(params.input_tar_list.class == String ? params.input_tar_list.split(',') as List : params.input_tar_list) : channel.empty()
     input_tar_src_list = params.input_tar_src_list ? channel.fromList(params.input_tar_src_list) : channel.value([])
-    // Create meta dict of common inputs to reduce param passing and to mimic snakemake yaml
-    meta = [
-        PROJECT: params.project,
-        ORGANISM: params.organism,
-        RPATH: params.r_lib_path,
-        RUN_SOUPX: String.valueOf(!params.disable_soupx),
-        SOUPX_START: params.soupx_start,
-        RUN_DOUBLETFINDER: String.valueOf(!params.disable_doubletfinder),
-        MITO: params.mito_cutoff,
-        RIBO: params.ribo_cutoff,
-        MIN_FEATURE_THRESHOLD: params.min_feature_threshold,
-        MAX_FEATURE_THRESHOLD: params.max_feature_threshold,
-        SEURAT_NORMALIZATION_METHOD: params.normalization_config,
-        SEURAT_INTEGRATION_METHOD: params.integration_config,
-        RESOLUTION: params.resolution_config,
-        COMPONENTS: params.int_components,
-        MITO_REGRESSION: params.mito_regression,
-        RIBO_REGRESSION: params.ribo_regression,
-        CELL_CYCLE_REGRESSION: params.cc_method ? 'y' : 'n',
-        NUM_VARIABLE_FEATURES: params.num_var_features,
-        SCALE_DATA_FEATURES: params.scale_data_features,
-        SPLIT_LAYERS_BY: params.split_layers_by,
-        REFERENCE_BASED_INTEGRATION: params.ref_based_integration,
-        RUN_AZIMUTH: params.run_azimuth,
-        RUN_TRANSFERDATA: params.run_transferdata,
-        TSNE: params.include_tsne,
-        CONSERVED_GENES: params.conserved_genes,
-        VISUALIZATION: params.visualization
-    ]
 
     // FORMAT INPUTS
-    src_sample_dir = format_inputs(
-    input_tar_src_list,
-    input_tar_list,
-    sample_condition_map_file,
-    input_dir_list,
-    input_dir_src_list
+    (meta, doublet_data_dir, matrix_data_dir, cellranger_data_dir) = format_inputs(
+        input_tar_src_list,
+        input_tar_list,
+        sample_condition_map_file,
+        input_dir_list,
+        input_dir_src_list
     )
 
     // CLEAN UP DATA
-    data_cleanup(
+    cleanup_dir = data_cleanup(
         meta,
-        src_sample_dir
+        doublet_data_dir,
+        matrix_data_dir,
+        cellranger_data_dir
     )
 
     // CREATE SEURAT OBJ/QC
     seurat_filename = "data/endpoints/$params.project/analysis/RDS/${params.project}_initial_seurat_object.qs"
     // use metadata from matrix and cellranger from src_sample_dir to help collate create the initial sample list file
     def (sample_list_flat, condition_list, input_dir_list_flat) = [ [],  [], [] ]
-    src_sample_dir.cellranger.concat(src_sample_dir.matrix).map { _src, sample, condition, dir ->
+    cellranger_data_dir.concat(matrix_data_dir).map { _src, sample, condition, dir ->
         sample_list_flat << sample
         condition_list << condition
         input_dir_list_flat << dir
     }
     CREATE_INITIAL_SEURAT(
-        COLLATE_OUTPUTS.out,
+        cleanup_dir,
         sample_list_flat,
         condition_list,
         input_dir_list_flat,
         seurat_filename
     )
-    ANALYZE_SEURAT_OBJECT(
-        CREATE_INITIAL_SEURAT.out.seurat_file,
-        params.aso_memory
-    )
-
+    CREATE_INITIAL_SEURAT.out.seurat_file.view()
+    CREATE_INITIAL_SEURAT.out.qc_report.view()
+    tar_output_input = CREATE_INITIAL_SEURAT.out.analysis_dir.map { dir -> ["", dir] }
+    TAR_OUTPUTS(
+            tar_output_input
+        )
 }

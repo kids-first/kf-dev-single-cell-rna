@@ -10,14 +10,16 @@ include { TAR_OUTPUTS as TAR_OUTPUTS_SOUP } from '../../../modules/local/tar/mai
 workflow data_cleanup {
     take:
         meta
-        src_sample_dir
+        doublet_data_dir
+        matrix_data_dir
+        cellranger_data_dir
     main:
 
     // if you've given matched doublet finder and soupX data, then you probably don't need to run doubletFinder again on that data
     if (!params.disable_doubletfinder){
-        def doubletfinder_samples = src_sample_dir.doubletfinder.map { it[1] }.collect()
-        dbl_input = src_sample_dir.cellranger
-            .concat(src_sample_dir.matrix.filter {  !(doubletfinder_samples.contains(it[1])) })
+        def doubletfinder_samples = doublet_data_dir.map { _src, sample, _condition, _dir -> sample }.collect()
+        dbl_input = cellranger_data_dir
+            .concat(matrix_data_dir.filter { _src, sample, _condition, _dir -> !(doubletfinder_samples.contains(sample)) })
             .map { src, sample, _condition, dir -> [src, sample, dir] }
         DOUBLETFINDER(
             meta,
@@ -29,7 +31,7 @@ workflow data_cleanup {
         )
     }
     if (!params.disable_soupx){
-        soupx_input = src_sample_dir.cellranger.map { src, sample, _condition, dir -> [src, sample, dir] }
+        soupx_input = cellranger_data_dir.map { src, sample, _condition, dir -> [src, sample, dir] }
         SOUPX(
             meta,
             soupx_input
@@ -42,13 +44,13 @@ workflow data_cleanup {
     // COLLATE RESULTS
     samples = SOUPX.out.map { sample, _dir -> sample }
         .concat(DOUBLETFINDER.out.map { sample, _dir -> sample })
-        .concat(src_sample_dir.doubletfinder.map { _src, sample, _condition, _dir -> sample })
-        .concat(src_sample_dir.matrix.map { _src, sample, _condition, _dir -> sample })
+        .concat(doublet_data_dir.map { _src, sample, _condition, _dir -> sample })
+        .concat(matrix_data_dir.map { _src, sample, _condition, _dir -> sample })
         .collect()
     input_dirs = SOUPX.out.map { _sample, dir -> dir }
         .concat(DOUBLETFINDER.out.map { _sample, dir -> dir })
-        .concat(src_sample_dir.doubletfinder.map {  _src, _sample, _condition, dir -> dir })
-        .concat(src_sample_dir.matrix.map { _src, _sample, _condition, dir -> dir })
+        .concat(doublet_data_dir.map {  _src, _sample, _condition, dir -> dir })
+        .concat(matrix_data_dir.map { _src, _sample, _condition, dir -> dir })
         .collect()
     input_dirs.view()
     COLLATE_OUTPUTS(
@@ -56,4 +58,7 @@ workflow data_cleanup {
         samples,
         input_dirs
     )
+
+    emit:
+    COLLATE_OUTPUTS.out
 }
