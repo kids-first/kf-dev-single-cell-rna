@@ -11,6 +11,7 @@ process COUNT {
 
     output:
     path("${sample}/outs/*.h5"), emit: h5
+    path("${sample}/outs/metrics_summary.csv"), emit: metrics
     path("${sample}/outs/analysis"), emit: analysis_dir, optional: true
     tuple path("${sample}/outs/possorted_genome_bam.bam"), path("${sample}/outs/possorted_genome_bam.bam.bai"), emit: bam_files, optional: true
 

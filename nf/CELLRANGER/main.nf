@@ -13,12 +13,12 @@ def validate_inputs(param_obj){
     def required_count_params = ["sample"]
     def required_multi_params = ["library_fastq_id", "sample_csv", "feature_types"]
     def missing_params = []
-    required_params.each{ param -> if (!param_obj[param]) missing_params << param }
+    required_params.each{ param -> param_obj[param] != "" ?: missing_params << param }
     if (param_obj.mode == "count"){
-        required_count_params.each{ param -> if (!param_obj[param]) missing_params << param }
+        required_count_params.each{ param -> param_obj[param] != "" ?: missing_params << param }
     }
     if (param_obj.mode == "multi"){
-        required_multi_params.each{ param -> if (!param_obj[param]) missing_params << param }
+        required_multi_params.each{ param -> param_obj[param] != "" ?: missing_params << param }
     }
     if (missing_params.size() > 0) {
         error "Missing required parameters for mode ${param_obj.mode}: ${missing_params.join(', ')}"

@@ -196,10 +196,12 @@ workflow {
         .concat(src_sample_dir.doubletfinder.map { it[1] })
         .concat(src_sample_dir.matrix.map { it[1] })
         .collect()
-    input_dirs = SOUPX.out.map { it[1] }.collect()
-    .combine(DOUBLETFINDER.out.map { it[1] }.collect())
-    .combine(src_sample_dir.doubletfinder.map { it[3] }.collect())
-    .combine(src_sample_dir.matrix.map { it[3] }.collect())
+    input_dirs = SOUPX.out.map { it[1] }
+        .concat(DOUBLETFINDER.out.map { it[1] })
+        .concat(src_sample_dir.doubletfinder.map { it[3] })
+        .concat(src_sample_dir.matrix.map { it[3] })
+        .collect()
+    input_dirs.view()
     COLLATE_OUTPUTS(
         meta,
         samples,

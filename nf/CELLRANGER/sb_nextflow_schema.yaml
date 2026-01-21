@@ -3,6 +3,7 @@ app_content:
   entrypoint: main.nf
 class: nextflow
 cwlVersion: None
+label: KF Cellranger Count/Multi Workflow
 executor_version: 23.04.1
 requirements:
   - class: InlineJavascriptRequirement
@@ -52,7 +53,8 @@ doc: |
   ### Multi-specific required
   - `sample_sheet`: CSV file with columns: sample_id,probe_barcode_ids
   This is to fill out the [sample] section of the multi config.
-
+  - `cr_cpus`: Recommend boosting `16` for `multi` mode
+  - `cr_ram`: Recommend boosting to `120` for `multi` mode
   - `library_fastq_id`: Should be the prefix of the input FASTQ up until the `_S#_L##_R#_001.fastq.gz` part
   - `feature_types`: Default is `Gene Expression`. See [docs](https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts#feature-types)
   ### Output/additional analysis
@@ -85,6 +87,7 @@ inputs:
   - id: transcriptome_tar
     inputBinding:
       prefix: '--transcriptome_tar'
+    sbg:suggestedValue: { class: File, path: 69693df4e0dee132ae57c3e6, name: refdata-gex-GRCh38-2024-A.tar.gz }
     type: File?
   - id: indices
     type: File[]?
@@ -162,9 +165,15 @@ inputs:
     inputBinding:
       prefix: '--sbg_run'
     default: true
+    sbg:hidden: true
     type: boolean?
 
 outputs:
+  - id: cellranger_metrics
+    outputBinding:
+      glob: 'results/metrics/*'
+    type: 'File'
+    doc: The alignment results from Cell Ranger.
   - id: cellranger_alignment
     outputBinding:
       glob: 'results/alignment/*'
@@ -185,3 +194,12 @@ outputs:
       glob: 'results/multi_config/*'
     type: 'File?'
     doc: The multi config file used for the Cell Ranger multi run.
+
+$namespaces:
+  sbg: https://sevenbridges.com
+
+"sbg:license": Apache License 2.0
+"sbg:publisher": KFDRC
+"sbg:links":
+- id: 'https://github.com/kids-first/kf-dev-single-cell-rna/releases/tag/v2.0.0'
+  label: github-release

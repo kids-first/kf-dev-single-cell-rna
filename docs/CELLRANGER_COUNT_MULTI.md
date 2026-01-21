@@ -18,7 +18,8 @@ Default `false` as it's slower, but may be useful as a demultiplexing mechanism.
 ### Multi-specific required
 - `sample_sheet`: CSV file with columns: sample_id,probe_barcode_ids
 This is to fill out the [sample] section of the multi config.
-
+- `cr_cpus`: Recommend boosting `16` for `multi` mode
+- `cr_ram`: Recommend boosting to `120` for `multi` mode
 - `library_fastq_id`: Should be the prefix of the input FASTQ up until the `_S#_L##_R#_001.fastq.gz` part
 - `feature_types`: Default is `Gene Expression`. See [docs](https://www.10xgenomics.com/support/software/cell-ranger/latest/advanced/cr-multi-config-csv-opts#feature-types)
 ### Output/additional analysis
