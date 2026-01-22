@@ -95,8 +95,6 @@ workflow {
         input_dir_list_flat,
         seurat_filename
     )
-    CREATE_INITIAL_SEURAT.out.seurat_file.view()
-    CREATE_INITIAL_SEURAT.out.qc_report.view()
     tar_output_input = CREATE_INITIAL_SEURAT.out.analysis_dir.map { dir -> ["", dir] }
     TAR_OUTPUTS(
             tar_output_input

@@ -10,8 +10,8 @@ process CREATE_INITIAL_SEURAT {
         val(seurat_file_name)
     output:
         path("${meta_config.PROJECT}_initial_seurat_qc"),  emit: analysis_dir
-        tuple val(meta_config), path("${meta_config.PROJECT}_initial_seurat_qc/RDS/*.qs"), emit: seurat_file
-        tuple val(meta_config), path("${meta_config.PROJECT}_initial_seurat_qc/report/qc_report/*.html"), emit: qc_report
+        tuple val(meta_config), path("${meta_config.PROJECT}_initial_seurat_object.qs"), emit: seurat_file
+        tuple val(meta_config), path("${meta_config.PROJECT}_qc_report.html"), emit: qc_report
     script:
     // Create input file table
     def sample_list_str = "samples\tcondition\tpath_to_starting_data\n"
@@ -53,6 +53,9 @@ process CREATE_INITIAL_SEURAT {
 
     cp samples.sample_list data/endpoints/$meta_config.PROJECT/analysis/report/${meta_config.PROJECT}_samples.sample_list
 
+    # Organize files for module output
     cp -r data/endpoints/${meta_config.PROJECT}/analysis ./${meta_config.PROJECT}_initial_seurat_qc
+    ln ./${meta_config.PROJECT}_initial_seurat_qc/RDS/${meta_config.PROJECT}_initial_seurat_object.qs ./
+    ln ./${meta_config.PROJECT}_initial_seurat_qc/report/qc_report/${meta_config.PROJECT}_qc_report.html ./
     """
 }
