@@ -3,6 +3,8 @@ app_content:
     entrypoint: main.nf
 class: nextflow
 executor_version: 23.04.1
+id: kf-swans-data-cleanup-qc
+label: SWANS Data Cleanup and QC
 cwlVersion: None
 doc: | 
     # SWANS 2.0: Single-entity Workflow ANalysiS Pipeline
@@ -410,64 +412,31 @@ inputs:
     - 'null'
     - boolean
     default: true
--   id: outdir
-    inputBinding:
-        prefix: --outdir
-    label: Path to the output directory where the results will be saved.
-    sbg:category: Input/output options
-    sbg:icon: fas fa-folder-open
-    default: ./results
-    type: 'string?'
--   doc: Use to set an upper-limit for the CPU requirement for each process. Should
-        be an integer e.g. `--max_cpus 1`
-    id: max_cpus
-    inputBinding:
-        prefix: --max_cpus
-    label: Maximum number of CPUs that can be requested for any single job.
-    sbg:category: Max job request options
-    sbg:hidden: true
-    sbg:icon: fas fa-microchip
-    default: 16
-    type:
-    - 'null'
-    - int
--   doc: Use to set an upper-limit for the memory requirement for each process. Should
-        be a string in the format integer-unit e.g. `--max_memory '8.GB'`
-    id: max_memory
-    inputBinding:
-        prefix: --max_memory
-    label: Maximum amount of memory that can be requested for any single job.
-    sbg:category: Max job request options
-    sbg:hidden: true
-    sbg:icon: fas fa-memory
-    sbg:pattern: ^\d+(\.\d+)?\.?\s*(K|M|G|T)?B$
-    default: 128.GB
-    type:
-    - 'null'
-    - string
--   doc: Use to set an upper-limit for the time requirement for each process. Should
-        be a string in the format integer-unit e.g. `--max_time '2.h'`
-    id: max_time
-    inputBinding:
-        prefix: --max_time
-    label: Maximum amount of time that can be requested for any single job.
-    sbg:category: Max job request options
-    sbg:hidden: true
-    sbg:icon: far fa-clock
-    sbg:pattern: ^(\d+\.?\s*(s|m|h|day)\s*)+$
-    default: 240.h
-    type:
-    - 'null'
-    - string
-label: SWANS Preliminary Analysis
-outputs:
--   doc: This is a template output. You can modify the glob pattern to make outputs
-        more specific.
-    id: nf_publishdir
-    label: Publish Directory
-    outputBinding:
-        glob: '*'
-    type:
-    - Directory
 
+outputs:
+-   id: doubletfinder
+    doc: doubletFinder results if any input was from cellranger or soupX and enabled
+    type: 'File?'
+    outputBinding:
+        glob: './results/doubletfinder/*'
+-   id: soupx
+    doc: soupX results if any input was from cellranger and enabled
+    type: 'File?'
+    outputBinding:
+        glob: './results/soupx/*'
+-   id: initial_seurat_qc
+    doc: Initial Seurat QC tar ball. Needed to create downstream interactive report
+    type: File
+    outputBinding:
+        glob: './results/initial_seurat_qc/*'
+-   id: seurat_qs
+    doc: Seurat qs object. Needed to create downstream interactive report
+    type: File
+    outputBinding:
+        glob: './results/seurat_qs/*'
+-   id: seurat_qc_report
+    doc: Seurat QC report html. Review in a browser to determine if adjustments needed to re-run workflow before interactive report generation
+    type: File
+    outputBinding:
+        glob: './results/seurat_qc_report/*'
 sbg:revisionNotes: Uploaded using sbpack v2024.12.17

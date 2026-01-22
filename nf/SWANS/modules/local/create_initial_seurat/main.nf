@@ -10,7 +10,7 @@ process CREATE_INITIAL_SEURAT {
         val(seurat_file_name)
     output:
         path("${meta_config.PROJECT}_initial_seurat_qc"),  emit: analysis_dir
-        tuple val(meta_config), path("${meta_config.PROJECT}_initial_seurat_object.qs"), emit: seurat_file
+        tuple val(meta_config), path("${meta_config.PROJECT}_initial_seurat_object.qs"), emit: seurat_qs
         tuple val(meta_config), path("${meta_config.PROJECT}_qc_report.html"), emit: qc_report
     script:
     // Create input file table

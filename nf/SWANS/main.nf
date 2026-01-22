@@ -2,12 +2,7 @@
 
 include { format_inputs } from './subworkflows/local/format_inputs/main.nf'
 include { data_cleanup } from './subworkflows/local/data_cleanup/main.nf'
-include { TAR_OUTPUTS } from './modules/local/tar/main.nf'
-include { CREATE_INITIAL_SEURAT } from './modules/local/create_initial_seurat/main.nf'
-include { ANALYZE_SEURAT_OBJECT } from './modules/local/analyze_seurat_object/main.nf'
-include { CREATE_IMAGES_DGE } from './modules/local/create_images_dge/main.nf'
-include { COLLATE_ANALYSIS } from './modules/local/collate_anaylsis/main.nf'
-
+include { run_qc } from './subworkflows/local/run_qc/main.nf'
 
 def validate_inputs(param_obj){
     // single value possibilities
@@ -80,23 +75,9 @@ workflow {
     )
 
     // CREATE SEURAT OBJ/QC
-    seurat_filename = "data/endpoints/$params.project/analysis/RDS/${params.project}_initial_seurat_object.qs"
-    // use metadata from matrix and cellranger from src_sample_dir to help collate create the initial sample list file
-    def (sample_list_flat, condition_list, input_dir_list_flat) = [ [],  [], [] ]
-    cellranger_data_dir.concat(matrix_data_dir).map { _src, sample, condition, dir ->
-        sample_list_flat << sample
-        condition_list << condition
-        input_dir_list_flat << dir
-    }
-    CREATE_INITIAL_SEURAT(
-        cleanup_dir,
-        sample_list_flat,
-        condition_list,
-        input_dir_list_flat,
-        seurat_filename
+    run_qc(
+        cellranger_data_dir,
+        matrix_data_dir,
+        cleanup_dir
     )
-    tar_output_input = CREATE_INITIAL_SEURAT.out.analysis_dir.map { dir -> ["", dir] }
-    TAR_OUTPUTS(
-            tar_output_input
-        )
 }
