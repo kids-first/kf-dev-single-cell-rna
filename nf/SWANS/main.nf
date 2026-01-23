@@ -8,43 +8,16 @@ def validate_inputs(param_obj){
     // single value possibilities
     def required_options = [
         organism: ["mouse", "human"],
-        soupx_start: ["outs", "no_clusters", "h5"],
-        split_layers_by: ["Sample", "Experiment"],
-        scale_data_features: ["all", "variable"]
+        soupx_start: ["outs", "no_clusters", "h5"]
     ]
-    // multi value possibilities
-    def required_multi_options = [
-        normalization_config: ["sct", "standard"],
-        integration_config: ["cca", "harmony", "rpca"],
-        visualization: ["feature", "violin", "ridge", "dot"]
-    ]
+
     param_obj.each { k, v ->
         if (required_options.containsKey(k)){
             if (!required_options[k].contains(v)){
                 error("Invalid option for parameter ${k}: ${v}. Valid options are: ${required_options[k]}")
             }
         }
-        else if (required_multi_options.containsKey(k)){
-            def vals = v.split(",")
-            vals.each { val ->
-                if (!required_multi_options[k].contains(val)){
-                    error("Invalid option for parameter ${k}: ${val}. Valid options are: ${required_multi_options[k]}")
-                }
-            }
-        }
-    }
-    // Validate optional dependent params
-    def dependent_params = [
-        azimuth_ref_human: ["adiposeref", "bonemarrowref", "fetusref", "heartref", "humancortexref","kidneyref", "lungref", "pancreasref", "pbmcref", "tonsilref"],
-        azimuth_ref_mouse: ["mousecortexref"]
-    ]
-    if (param_obj.run_azimuth == "y"){
-        if (param_obj.organism == "human" && !dependent_params.azimuth_ref_human.contains(param_obj.azimuth_ref)){
-            error("Invalid option for parameter azimuth_ref: ${param_obj.azimuth_ref}. Valid options are: ${dependent_params.azimuth_ref_human}")
-        }
-        else if (param_obj.organism == "mouse" && !dependent_params.azimuth_ref_mouse.contains(param_obj.azimuth_ref)){
-            error("Invalid option for parameter azimuth_ref: ${param_obj.azimuth_ref}. Valid options are: ${dependent_params.azimuth_ref_mouse}")
-        }
+
     }
 }
 
