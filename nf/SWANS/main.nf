@@ -31,7 +31,7 @@ workflow {
     input_tar_src_list = params.input_tar_src_list ? channel.fromList(params.input_tar_src_list) : channel.value([])
 
     // FORMAT INPUTS
-    (meta, doublet_data_dir, matrix_data_dir, cellranger_data_dir) = format_inputs(
+    (doublet_data_dir, matrix_data_dir, cellranger_data_dir) = format_inputs(
         input_tar_src_list,
         input_tar_list,
         sample_condition_map_file,
@@ -41,7 +41,6 @@ workflow {
 
     // CLEAN UP DATA
     cleanup_dir = data_cleanup(
-        meta,
         doublet_data_dir,
         matrix_data_dir,
         cellranger_data_dir

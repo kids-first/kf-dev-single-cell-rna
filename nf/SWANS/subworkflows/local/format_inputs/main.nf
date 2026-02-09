@@ -39,7 +39,11 @@ def process_untar_outputs(untar_output, sample_map, pattern_map){
 }
 
 def parse_input_dir_src(dir_channel, src_channel, sample_map, pattern_map){
-    // collate src and dir, parse out sample name from dir, and assign to desired name (could be same as original)
+    // takes list of dir paths list of dir generations sources (like cellranger, matrix (soupX), doubletFinder), sample-condition map, and parses them to create a
+    // unified channel of src, sample, condition, dir. pattern map used to parse sample name from dir name if coming from doubletFinder or soupX, otherwise assumed to be cell ranger output and parsed as-is. sample map used to assign desired sample name and condition based on parsed sample name. If sample name not found in sample map, throws error.
+    // previous runs of doubletFinder and soupX have <sample_name>_<doubletfinder/soupx> in the dir name, pattern map used for these cases, then attempt to parse sample name
+    // if unable to, throw error
+    // If pattern_map not matched at all, assumed cell ranger output, which stays as-is
     return src_channel.merge(dir_channel).map { src, dir -> 
         if (pattern_map[src.toLowerCase()]) {
             def sname_matcher = dir =~ pattern_map[src.toLowerCase()]
@@ -60,20 +64,6 @@ workflow format_inputs {
         input_dir_list
         input_dir_src_list
     main:
-    // Create meta dict of common inputs to reduce param passing and to mimic snakemake yaml
-    meta = [
-        PROJECT: params.project,
-        ORGANISM: params.organism,
-        RPATH: params.r_lib_path,
-        RUN_SOUPX: String.valueOf(!params.disable_soupx),
-        SOUPX_START: params.soupx_start,
-        RUN_DOUBLETFINDER: String.valueOf(!params.disable_doubletfinder),
-        MITO: params.mito_cutoff,
-        RIBO: params.ribo_cutoff,
-        MIN_FEATURE_THRESHOLD: params.min_feature_threshold,
-        MAX_FEATURE_THRESHOLD: params.max_feature_threshold,
-        COMPONENTS: params.int_components
-    ]
     // dir names typically drive sample names, but not always desired. use sample map to enforce desired names
     input_meta_tar = input_tar_src_list.merge(input_tar_list) { src, tar -> [src, tar] }
     UNTAR_CR(
@@ -81,7 +71,6 @@ workflow format_inputs {
     )
     // parse sample map file
     sample_condition_map =  parse_map_file(sample_condition_map_file.text)
-    print(sample_condition_map)
     // initialize dir, tar, and src data as one channel with src, sample_name, condition, dir
     dirname_pattern = [
         doubletfinder: /([^\/]+)[_\/]doubletFinder/,
@@ -93,7 +82,6 @@ workflow format_inputs {
             cellranger: parsed_input[0].toLowerCase() == "cellranger"
         }.set{src_sample_dir}
     emit:
-        meta
         doubletfinder = src_sample_dir.doubletfinder
         matrix = src_sample_dir.matrix 
         cellranger = src_sample_dir.cellranger
