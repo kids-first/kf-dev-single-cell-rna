@@ -75,7 +75,7 @@ workflow format_inputs {
         COMPONENTS: params.int_components
     ]
     // dir names typically drive sample names, but not always desired. use sample map to enforce desired names
-    input_meta_tar = input_tar_src_list.merge(input_tar_list).map { src, tar -> [src, tar] }
+    input_meta_tar = input_tar_src_list.merge(input_tar_list) { src, tar -> [src, tar] }
     UNTAR_CR(
         input_meta_tar
     )
