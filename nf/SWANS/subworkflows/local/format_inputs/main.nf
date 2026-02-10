@@ -13,6 +13,9 @@ def parse_map_file(file_text){
 }
 
 def process_untar_outputs(untar_output, sample_map, pattern_map){
+    // takes output of UNTAR_CR, sample map, and pattern map, and parses to create a unified channel of src, sample, condition, dir.
+    // pattern map used to parse sample name from dir name if coming from doubletFinder or soupX /(<sample_name>_<doubletfinder/soupx> in the dir name), otherwise assumed to be cell ranger output and parsed as-is
+    // sample map used to assign desired sample name and condition based on parsed sample name. If sample name not found in sample map, throws error.
     return untar_output.flatMap { data_src, sample_str, dir_list ->
         def sample_list = sample_str.tokenize("\n")
         def remap = []
