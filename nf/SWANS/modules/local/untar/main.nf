@@ -18,7 +18,7 @@ process UNTAR_CR {
     "--show-transformed-names"
     def tar_args = source == "cellranger" ? cr_tar_args : ""
     """
-    tar xvf $tar_file \
+    tar xvf $tar_file \\
     $tar_args \\
     | cut -f 1 -d "/" | uniq
     """

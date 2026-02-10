@@ -3,15 +3,17 @@ app_content:
     entrypoint: main.nf
 class: nextflow
 executor_version: 23.04.1
+id: kf-swans-data-cleanup-qc
+label: SWANS Data Cleanup and QC
 cwlVersion: None
 doc: | 
-    # SWANS 2.0: Single-entity Workflow ANalysiS Pipeline
+    # Kids First Single-entity Workflow ANalysiS Pipeline (SWANS) Data Cleanup and QC 2.1.0:
     Citation: https://doi.org/10.1101/2025.05.14.654073.
-    This is a NextFlow implementation of the [SWANS (Single-entity Workflow ANalysiS Pipeline)](https://github.com/FrancoResearchLab/SWANS) for Single Cell RNAseq Analysis.
-    It is in alpha phase, but testing on two samples using a 8 core, 64GB EC2 was successful, as well as on CAVATICA. The [test json](nf/test_inputs/test.json) has a bare bones example starting with cell ranger matrices using all defaults in the nextflow.config.
+    This is a NextFlow implementation of the [SWANS](https://github.com/FrancoResearchLab/SWANS) for Single Cell RNAseq Analysis.
+    When reviewing the original [flow diagram] (https://github.com/FrancoResearchLab/SWANS/blob/v2.1.0/markdown_images/swans.drawio.png) from the authors, this covers steps A-F.
+    The intent is fo the researcher to choose a set of scRNA data to set initial cutoffs, run the workflow, and review QC for any needed adjustments or simply bad data.
     It can handle a mix of doubleFinder, SoupX, and CellRanger inputs, passing the inputs to the appropriate steps, and merging before initial seurat object step.
-    However, mixed mode has not been tested yet, and FLEX input support is still forthcoming. 
-    After running the workflow, refer to https://github.com/FrancoResearchLab/SWANS/tree/main?tab=readme-ov-file#html--shiny-report on how to use the interactive report.
+    Proper FLEX input support is still forthcoming. 
 
     ## INPUTS
     ### Required:
@@ -42,63 +44,36 @@ doc: |
     - `outs`: Cell ranger outputs thave have clustering information
     - `no_clusters`: Have clusters calculated
     - `h5`: Input matrix is in h5 format
-    - `aso_processes`: `4`. Number of processes for Seurat analysis.
-    - `aso_memory`: `30000000000` (30 GB). Memory allocation for Seurat analysis in bytes.
-    - `run_azimuth`: `"n"`. Set to `"y"` to enable Azimuth reference mapping.
-    - `run_transferdata`: `"n"`. Set to `"y"` to enable TransferData.
-    - `mito_regression`: `"n"`. Set to `"y"` to enable mitochondrial regression.
-    - `ribo_regression`: `"n"`. Set to `"y"` to enable ribosomal regression.
-    - `num_var_features`: `3000`. Number of variable features.
-    - `resolution_config`: `"0.1,0.2,0.3"`. Comma-separated clustering resolutions.
-    - `include_tsne`: `"n"`. Set to `"y"` to include t-SNE.
-    - `scale_data_features`: `"variable"`. Options:
-    - `all`
-    - `variable`
-    - `split_layers_by`: `"Sample"`. Metadata column to split layers. Options:
-    - `Sample`
-    - `Experiment`
-    - `normalization_config`: `"standard,sct"`. Comma-separated normalization methods. One or more of:
-    - `sct`
-    - `standard`
-    - `integration_config`: `"cca,rpca,harmony"`. Comma-separated integration methods. On or more of:
-    - `cca`
-    - `rpca`
-    - `harmony`
-    - `ref_based_integration`: `"n"`. Set to `"y"` for reference-based integration.
-    - `storage`: `rds`. Output format.
-    - `conserved_genes`: `"n"`. Set to `"y"` to include conserved genes.
-    - `visualization`: `dot`. Visualization type. One or more of:
-    - `feature`
-    - `violin`
-    - `ridge`
-    - `dot`
-    ### Optional when "parent" params is `y`
-    - `run_transferdata`
-    - `transferdata_ref_file`: path to reference Seurat object for TransferData
-    - `transferdata_reduction`: which dimensional reduction in the TRANSFERDATA REF FILE to use for TransferData
-    - `transferdata_annocol`: which Seurat meta.data column to use for TransferData annotation
-    - `run_azimuth`
-    - `azimuth_ref`: Reference preset for Azimuth Choices: 
-        - `adiposeref`
-        - `bonemarrowref`
-        - `fetusref`
-        - `heartref`
-        - `humancortexref`
-        - `kidneyref`
-        - `lungref`
-        - `pancreasref`
-        - `pbmcref`
-        - `tonsilref`
-    - `cc_method`: `standard`, `alternative`
-    - `ref_based_integration`
-    - `ref_samples`: Reference samples for integration.
-    - `regression_file`: Path to regression file.
+
 
     Refer to the [Nextflow documentation](https://www.nextflow.io/docs/latest/) for advanced usage and profiles.
 
     ## OUTPUTS
-    - Analysis results tar ball. See https://github.com/FrancoResearchLab/SWANS?tab=readme-ov-file#output-structure
-    - Tar ball outputs of doubleFinder and SoupX if flag enabled
+    ### Required
+    - `seurat_qc_report`: HTML QC Report. Check [here](https://github.com/FrancoResearchLab/SWANS/blob/v2.1.0/README.md#qc_report) for report guide
+    - `seurat_qs`: Initial seurat filtered obect required for downstream anaylsis
+    - `initial_seurat_qc`: Tar ball of outputs from step `F`.  This is required for downstream steps of SWANS. Structured as follows:
+    ```
+    `project`_initial_seurat_qc
+    ├── RDS
+    │   └── `project`_initial_seurat_object.qs
+    ├── figures
+    │   ├── `project`_qc_1_scatter1.png
+    │   ├── `project`_qc_1_scatter2.png
+    │   ├── `project`_qc_1_vln.png
+    │   ├── `project`_qc_2_scatter1.png
+    │   ├── `project`_qc_2_scatter2.png
+    │   └── `project`_qc_2_vln.png
+    ├── report
+    │   ├── `project`_samples.sample_list
+    │   ├── prelim_configs.yaml
+    │   └── qc_report
+    │       └── `project`_qc_report.html
+    └── tables
+    ```
+    ### If starting from scratch and flags enabled
+    - `doubletfinder`: DoubletFinder tar ball results. Can be reused downstream if needed
+    - `soupX`: soupX tar ball results. Can be used downstream and if this workflow is repeated with new params.
 
 requirements:
 -   class: InlineJavascriptRequirement
@@ -235,174 +210,6 @@ inputs:
     type:
     - 'null'
     - string
--   id: aso_processes
-    inputBinding:
-        prefix: --aso_processes
-    default: 4
-    type:
-    - 'null'
-    - int
--   id: aso_memory
-    inputBinding:
-        prefix: --aso_memory
-    default: 30000000000
-    type:
-    - 'null'
-    - int
--   id: run_azimuth
-    inputBinding:
-        prefix: --run_azimuth
-    default: n
-    type:
-    - 'null'
-    - string
--   id: azimuth_ref
-    inputBinding:
-        prefix: --azimuth_ref
-    type:
-    - 'null'
-    - string
--   id: run_transferdata
-    inputBinding:
-        prefix: --run_transferdata
-    default: n
-    type:
-    - 'null'
-    - string
--   id: transferdata_ref_file
-    inputBinding:
-        prefix: --transferdata_ref_file
-    type:
-    - 'null'
-    - File
--   id: transferdata_reduction
-    inputBinding:
-        prefix: --transferdata_reduction
-    type:
-    - 'null'
-    - string
--   id: transferdata_annocol
-    inputBinding:
-        prefix: --transferdata_annocol
-    type:
-    - 'null'
-    - string
--   id: mito_regression
-    inputBinding:
-        prefix: --mito_regression
-    default: n
-    type:
-    - 'null'
-    - string
--   id: ribo_regression
-    inputBinding:
-        prefix: --ribo_regression
-    default: n
-    type:
-    - 'null'
-    - string
--   id: cc_method
-    inputBinding:
-        prefix: --cc_method
-    default: standard
-    type:
-    - 'null'
-    - string
--   id: num_var_features
-    inputBinding:
-        prefix: --num_var_features
-    default: 3000
-    type:
-    - 'null'
-    - int
--   id: resolution_config
-    inputBinding:
-        prefix: --resolution_config
-    default: 0.1,0.2,0.3
-    type:
-    - 'null'
-    - string
--   id: include_tsne
-    inputBinding:
-        prefix: --include_tsne
-    default: n
-    type:
-    - 'null'
-    - string
--   id: scale_data_features
-    inputBinding:
-        prefix: --scale_data_features
-    default: variable
-    type:
-    - 'null'
-    - string
--   id: split_layers_by
-    inputBinding:
-        prefix: --split_layers_by
-    default: Sample
-    type:
-    - 'null'
-    - string
--   id: normalization_config
-    inputBinding:
-        prefix: --normalization_config
-    default: standard,sct
-    type:
-    - 'null'
-    - string
--   id: integration_config
-    inputBinding:
-        prefix: --integration_config
-    default: cca,rpca,harmony
-    type:
-    - 'null'
-    - string
--   id: ref_based_integration
-    inputBinding:
-        prefix: --ref_based_integration
-    default: n
-    type:
-    - 'null'
-    - string
--   id: ref_samples
-    inputBinding:
-        prefix: --ref_samples
-    type:
-    - 'null'
-    - string
--   id: regression_file
-    inputBinding:
-        prefix: --regression_file
-    type:
-    - 'null'
-    - File
--   id: storage
-    inputBinding:
-        prefix: --storage
-    default: rds
-    type:
-    - 'null'
-    - string
--   id: conserved_genes
-    inputBinding:
-        prefix: --conserved_genes
-    default: n
-    type:
-    - 'null'
-    - string
--   id: visualization
-    inputBinding:
-        prefix: --visualization
-    default: dot
-    type:
-    - 'null'
-    - string
--   id: user_gene_file
-    inputBinding:
-        prefix: --user_gene_file
-    type:
-    - 'null'
-    - File
 -   id: sbg_run
     inputBinding:
         prefix: --sbg_run
@@ -410,64 +217,32 @@ inputs:
     - 'null'
     - boolean
     default: true
--   id: outdir
-    inputBinding:
-        prefix: --outdir
-    label: Path to the output directory where the results will be saved.
-    sbg:category: Input/output options
-    sbg:icon: fas fa-folder-open
-    default: ./results
-    type: 'string?'
--   doc: Use to set an upper-limit for the CPU requirement for each process. Should
-        be an integer e.g. `--max_cpus 1`
-    id: max_cpus
-    inputBinding:
-        prefix: --max_cpus
-    label: Maximum number of CPUs that can be requested for any single job.
-    sbg:category: Max job request options
     sbg:hidden: true
-    sbg:icon: fas fa-microchip
-    default: 16
-    type:
-    - 'null'
-    - int
--   doc: Use to set an upper-limit for the memory requirement for each process. Should
-        be a string in the format integer-unit e.g. `--max_memory '8.GB'`
-    id: max_memory
-    inputBinding:
-        prefix: --max_memory
-    label: Maximum amount of memory that can be requested for any single job.
-    sbg:category: Max job request options
-    sbg:hidden: true
-    sbg:icon: fas fa-memory
-    sbg:pattern: ^\d+(\.\d+)?\.?\s*(K|M|G|T)?B$
-    default: 128.GB
-    type:
-    - 'null'
-    - string
--   doc: Use to set an upper-limit for the time requirement for each process. Should
-        be a string in the format integer-unit e.g. `--max_time '2.h'`
-    id: max_time
-    inputBinding:
-        prefix: --max_time
-    label: Maximum amount of time that can be requested for any single job.
-    sbg:category: Max job request options
-    sbg:hidden: true
-    sbg:icon: far fa-clock
-    sbg:pattern: ^(\d+\.?\s*(s|m|h|day)\s*)+$
-    default: 240.h
-    type:
-    - 'null'
-    - string
-label: SWANS Preliminary Analysis
-outputs:
--   doc: This is a template output. You can modify the glob pattern to make outputs
-        more specific.
-    id: nf_publishdir
-    label: Publish Directory
-    outputBinding:
-        glob: '*'
-    type:
-    - Directory
 
+outputs:
+-   id: doubletfinder
+    doc: doubletFinder results if any input was from cellranger or soupX and enabled
+    type: 'File?'
+    outputBinding:
+        glob: 'results/doubletfinder/*'
+-   id: soupx
+    doc: soupX results if any input was from cellranger and enabled
+    type: 'File?'
+    outputBinding:
+        glob: 'results/soupx/*'
+-   id: initial_seurat_qc
+    doc: Initial Seurat QC tar ball. Needed to create downstream interactive report
+    type: File
+    outputBinding:
+        glob: 'results/initial_seurat_qc/*'
+-   id: seurat_qs
+    doc: Seurat qs object. Needed to create downstream interactive report
+    type: File
+    outputBinding:
+        glob: 'results/seurat_qs/*'
+-   id: seurat_qc_report
+    doc: Seurat QC report html. Review in a browser to determine if adjustments needed to re-run workflow before interactive report generation
+    type: File
+    outputBinding:
+        glob: 'results/seurat_qc_report/*'
 sbg:revisionNotes: Uploaded using sbpack v2024.12.17
