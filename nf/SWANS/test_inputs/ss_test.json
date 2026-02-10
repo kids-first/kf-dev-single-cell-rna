@@ -1,10 +1,10 @@
 {
     "project": "HOPE_SS_TEST",
     "sample_condition_map_file": "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/hope_test_sample_condition_map_ss.txt",
-    "input_tar_list": [
+    "input_file_list": [
         "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/7316-3058.tar.gz"
     ],
-    "input_tar_src_list": ["cellranger"],
+    "input_file_src_list": ["cellranger"],
     "dbl_mem": 30,
     "dbl_threads": 2,
     "soupx_start": "no_clusters",

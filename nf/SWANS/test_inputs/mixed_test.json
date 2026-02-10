@@ -1,12 +1,12 @@
 {
     "project": "HOPE_TEST",
     "sample_condition_map_file": "/home/ubuntu/volume/SWANS/NF_TEST/hope_test_sample_condition_map2.txt",
-    "input_tar_list": [
+    "input_file_list": [
         "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/7316-3058.tar.gz",
         "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/BS_93AQV3F7_doubletFinder.tar.gz",
         "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/BS_93AQV3F7_soupX.tar.gz"
     ],
-    "input_tar_src_list": ["cellranger", "doubletfinder", "matrix"],
+    "input_file_src_list": ["cellranger", "doubletfinder", "matrix"],
     "dbl_mem": 30,
     "dbl_threads": 2,
     "soupx_start": "no_clusters",

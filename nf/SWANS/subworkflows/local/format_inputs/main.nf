@@ -41,6 +41,18 @@ def process_untar_outputs(untar_output, sample_map, pattern_map){
     }
 }
 
+
+def parse_h5_inputs(input_file_src_list, input_file_list, sample_map){
+    // takes list of input files and corresponding sources, parses sample name from file name, and creates channel of src, sample, condition, file. Assumes h5 files named with sample name as <sample_name>.h5. If sample name not found in sample map, throws error.
+    return input_file_src_list.merge(input_file_list) { src, file -> [src, file] }.filter { _src, file -> file.name.endsWith(".h5") }.map { src, file ->
+        def sname = file.name.replaceFirst(/\.cellranger\.\w+_feature_bc_matrix\.h5$/, "")
+        if (sample_map.containsKey(sname)){
+            return [src, sample_map[sname][1] ?: sname, sample_map[sname][0], file]
+        } else {
+            error("Sample name ${sname} parsed from input file name ${file.name} not found in sample_condition_map_file. Please ensure all samples are mapped.")
+        }
+    }
+
 def parse_input_dir_src(dir_channel, src_channel, sample_map, pattern_map){
     // takes list of dir paths list of dir generations sources (like cellranger, matrix (soupX), doubletFinder), sample-condition map, and parses them to create a
     // unified channel of src, sample, condition, dir. pattern map used to parse sample name from dir name if coming from doubletFinder or soupX, otherwise assumed to be cell ranger output and parsed as-is. sample map used to assign desired sample name and condition based on parsed sample name. If sample name not found in sample map, throws error.
@@ -61,14 +73,16 @@ def parse_input_dir_src(dir_channel, src_channel, sample_map, pattern_map){
 
 workflow format_inputs {
     take:
-        input_tar_src_list
-        input_tar_list
+        input_file_src_list
+        input_file_list
         sample_condition_map_file
         input_dir_list
         input_dir_src_list
     main:
     // dir names typically drive sample names, but not always desired. use sample map to enforce desired names
-    input_meta_tar = input_tar_src_list.merge(input_tar_list) { src, tar -> [src, tar] }
+    // filter out h5 files
+    input_meta_tar = input_file_src_list.merge(input_file_list) { src, tar -> [src, tar] }.filter { _src, tar -> !tar.name.endsWith(".h5") }
+    input_meta_tar.view()
     UNTAR_CR(
         input_meta_tar
     )

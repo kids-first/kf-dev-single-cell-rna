@@ -17,8 +17,8 @@ Parameters in which one or both must be provided, but both cannot be blank.
 - `input_dir_list`: Input data from one or more of doubletFinder, matrix, cell ranger in directories
 - `input_dir_src_list`: Source of input dirs, options: doubletFinder, matrix, cellranger
 #### Input data from _tar balls_, if applicable
-- `input_tar_list`: Input data from one or more of doubletFinder, matrix, cell ranger in tar balls
-- `input_tar_src_list`: Source of input tar balls, options: doubletFinder, matrix, cellranger
+- `input_file_list`: Input data from one or more of doubletFinder, matrix, cell ranger in tar balls
+- `input_file_src_list`: Source of input tar balls, options: doubletFinder, matrix, cellranger
 Must have one of, or both a `directories` or `tar balls` input
 ### Required with defaults:
 - `organism`: `human`. Other optinon is `mouse`

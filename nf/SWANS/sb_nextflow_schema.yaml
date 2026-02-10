@@ -26,8 +26,8 @@ doc: |
     - `input_dir_list`: Input data from one or more of doubletFinder, matrix, cell ranger in directories
     - `input_dir_src_list`: Source of input dirs, options: doubletFinder, matrix, cellranger
     #### Input data from _tar balls_, if applicable
-    - `input_tar_list`: Input data from one or more of doubletFinder, matrix, cell ranger in tar balls
-    - `input_tar_src_list`: Source of input tar balls, options: doubletFinder, matrix, cellranger
+    - `input_file_list`: Input data from one or more of doubletFinder, matrix, cell ranger in tar balls
+    - `input_file_src_list`: Source of input tar balls, options: doubletFinder, matrix, cellranger
     Must have one of, or both a `directories` or `tar balls` input
     ### Required with defaults:
     - `organism`: `human`. Other optinon is `mouse`
@@ -85,7 +85,7 @@ requirements:
           $(JSON.stringify(
           {
           input_dir_src_list: inputs.input_dir_src_list ? inputs.input_dir_src_list : "",
-          input_tar_src_list: inputs.input_tar_src_list ? inputs.input_tar_src_list : ""
+          input_file_src_list: inputs.input_file_src_list ? inputs.input_file_src_list : ""
           }
           ))
 -   class: LoadListingRequirement
@@ -117,13 +117,13 @@ inputs:
         prefix: --input_dir_list
 -   id: input_dir_src_list
     type: 'string[]?'
--   id: input_tar_list
+-   id: input_file_list
     type: 'File[]?'
     inputBinding:
         shellQuote: false
         itemSeparator: ','
-        prefix: --input_tar_list
--   id: input_tar_src_list
+        prefix: --input_file_list
+-   id: input_file_src_list
     type: 'string[]?'
 -   id: sample_condition_map_file
     inputBinding:
