@@ -1,0 +1,16 @@
+{
+    "project": "HOPE_CR_ONLY_TEST",
+    "sample_condition_map_file": "/home/ubuntu/volume/SWANS/NF_TEST/cr_only_test_map.txt",
+    "input_file_list": [
+        "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/7316-3058.tar.gz",
+        "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/7316UP-2058.tar.gz"
+    ],
+    "input_file_src_list": ["cellranger", "cellranger"],
+    "dbl_mem": 30,
+    "disable_doubletfinder": true,
+    "disable_soupx": true,
+    "dbl_threads": 2,
+    "soupx_start": "no_clusters",
+    "organism": "human",
+    "aws_test_instance": true
+}

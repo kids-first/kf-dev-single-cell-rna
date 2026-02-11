@@ -50,19 +50,27 @@ workflow data_cleanup {
             soupx_input
         )
         def soupx_tar_input = SOUPX.out.map { _sample, dir -> ["", dir] }
+        samples = SOUPX.out.map { sample, _dir -> sample }
+        input_dirs = SOUPX.out.map { _sample, dir -> dir }
+
         TAR_OUTPUTS_SOUP(
             soupx_tar_input
         )
     }
     // COLLATE RESULTS
-    samples = SOUPX.out.map { sample, _dir -> sample }
-        .concat(DOUBLETFINDER.out.map { sample, _dir -> sample })
-        .concat(doublet_data_dir.map { _src, sample, _condition, _dir -> sample })
+    // initialize with cellranger results if soupX disabled
+    if (params.disable_soupx){
+        samples = cellranger_data_dir.map { _src, sample, _condition, _dir -> sample }
+        input_dirs = cellranger_data_dir.map { _src, _sample, _condition, dir -> dir }
+    }
+    if (!params.disable_doubletfinder){} {
+        samples = samples.concat(DOUBLETFINDER.out.map { sample, _dir -> sample })
+        input_dirs = input_dirs.concat(DOUBLETFINDER.out.map { _sample, dir -> dir })
+    }
+    samples = samples.concat(doublet_data_dir.map { _src, sample, _condition, _dir -> sample })
         .concat(matrix_data_dir.map { _src, sample, _condition, _dir -> sample })
         .collect()
-    input_dirs = SOUPX.out.map { _sample, dir -> dir }
-        .concat(DOUBLETFINDER.out.map { _sample, dir -> dir })
-        .concat(doublet_data_dir.map {  _src, _sample, _condition, dir -> dir })
+    input_dirs = input_dirs.concat(doublet_data_dir.map {  _src, _sample, _condition, dir -> dir })
         .concat(matrix_data_dir.map { _src, _sample, _condition, dir -> dir })
         .collect()
     COLLATE_OUTPUTS(

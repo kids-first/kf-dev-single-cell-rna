@@ -42,18 +42,6 @@ def process_untar_outputs(untar_output, sample_map, pattern_map){
 }
 
 
-def parse_h5_inputs(input_file_list, sample_map){
-    // takes list of input files and corresponding sources, parses sample name from file name, and creates channel of src, sample, condition, file. Assumes h5 files named with sample name as <sample_name>.h5. If sample name not found in sample map, throws error.
-    return input_file_list.map { file ->
-        def sname = file.name.replaceFirst(/\.cellranger\.\w+_feature_bc_matrix\.h5$/, "")
-        if (sample_map.containsKey(sname)){
-            return ["h5", sample_map[sname][1] ?: sname, sample_map[sname][0], file]
-        } else {
-            error("Sample name ${sname} parsed from input file name ${file.name} not found in sample_condition_map_file. Please ensure all samples are mapped.")
-        }
-    }
-}
-
 def parse_input_dir_src(dir_channel, src_channel, sample_map, pattern_map){
     // takes list of dir paths list of dir generations sources (like cellranger, matrix (soupX), doubletFinder), sample-condition map, and parses them to create a
     // unified channel of src, sample, condition, dir. pattern map used to parse sample name from dir name if coming from doubletFinder or soupX, otherwise assumed to be cell ranger output and parsed as-is. sample map used to assign desired sample name and condition based on parsed sample name. If sample name not found in sample map, throws error.
@@ -97,7 +85,6 @@ workflow format_inputs {
     input_h5_list = input_file_list.filter { file -> file.name.endsWith(".h5") }
     parse_input_dir_src(input_dir_list, input_dir_src_list, sample_condition_map, dirname_pattern)
     .concat(process_untar_outputs(UNTAR_CR.out, sample_condition_map, dirname_pattern))
-    .concat(parse_h5_inputs(input_h5_list, sample_condition_map))
     .branch{ parsed_input -> 
             doubletfinder: parsed_input[0].toLowerCase() == "doubletfinder"
             matrix: parsed_input[0].toLowerCase() == "matrix"

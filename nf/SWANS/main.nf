@@ -43,8 +43,7 @@ workflow {
     cleanup_dir = data_cleanup(
         doublet_data_dir,
         matrix_data_dir,
-        cellranger_data_dir,
-        h5_cellranger_files
+        cellranger_data_dir
     )
 
     // CREATE SEURAT OBJ/QC
