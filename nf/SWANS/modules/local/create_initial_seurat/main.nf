@@ -1,6 +1,6 @@
 process CREATE_INITIAL_SEURAT {
     label 'C4'
-    container "swans:alpha"
+    container "pgc-images.sbgenomics.com/d3b-bixu/swans:v2.1.0"
 
     input:
         tuple val(meta_config), path(collated_data)

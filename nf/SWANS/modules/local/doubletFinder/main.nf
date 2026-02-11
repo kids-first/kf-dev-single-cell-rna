@@ -1,6 +1,6 @@
 process DOUBLETFINDER {
     label 'M6'
-    container "swans:alpha"
+    container "pgc-images.sbgenomics.com/d3b-bixu/swans:v2.1.0"
 
     input:
         val(meta_config)

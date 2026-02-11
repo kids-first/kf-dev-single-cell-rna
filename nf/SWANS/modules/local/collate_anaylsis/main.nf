@@ -1,6 +1,6 @@
 process COLLATE_ANALYSIS{
     label 'C4'
-    container "swans:alpha"
+    container "pgc-images.sbgenomics.com/d3b-bixu/swans:v2.1.0"
     input:
         path(input_dirs)
     output:

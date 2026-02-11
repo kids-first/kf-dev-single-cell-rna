@@ -1,6 +1,6 @@
 process CREATE_IMAGES_DGE {
     label 'M4'
-    container "swans:alpha"
+    container "pgc-images.sbgenomics.com/d3b-bixu/swans:v2.1.0"
 
     input:
         val(storage)

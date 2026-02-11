@@ -40,7 +40,27 @@ def process_untar_outputs(untar_output, sample_map, pattern_map){
         }
     }
 }
-
+def prep_h5_conversion(input_file_src_list, input_file_list, sample_map){
+    // takes list of input file sources and list of input files, filters for h5 files, and creates channel of src, sample, condition, file for h5 inputs to be converted to count matrices. Sample and condition parsed from sample map based on file name. If file name not found in sample map, throws error.
+    return input_file_src_list.merge(input_file_list) { src, file -> [src, file] }
+    .filter { src, file -> src.toLowerCase() == "h5" && file.name.endsWith(".h5") }
+    .map { src, file ->
+        def sname = file.name.replaceAll(/\.cellranger.*\.h5$/, "")
+        if (sample_map.containsKey(sname)){
+            def sample_name = sample_map[sname][1] ?: sname
+            def condition = sample_map[sname][0]
+            return [
+                [src, sample_name, condition, file],
+                [src, sample_name, condition, file.parent.resolve("${sname}.cellranger.raw_feature_bc_matrix.h5")],
+                [src, sample_name, condition, file.parent.resolve("${sname}.cellranger.filtered_feature_bc_matrix.h5")]
+            ]
+        } else {
+            error("Sample name ${sname} not found in sample_condition_map_file. Please ensure all samples are mapped.")
+        }
+    }
+    .flatten()
+    .collate(4)
+}
 
 def parse_input_dir_src(dir_channel, src_channel, sample_map, pattern_map){
     // takes list of dir paths list of dir generations sources (like cellranger, matrix (soupX), doubletFinder), sample-condition map, and parses them to create a
@@ -82,7 +102,8 @@ workflow format_inputs {
         doubletfinder: /([^\/]+)[_\/]doubletFinder/,
         matrix: /([^\/]+)[_\/]soupX/
     ]
-    input_h5_list = input_file_list.filter { file -> file.name.endsWith(".h5") }
+    h5_to_convert = prep_h5_conversion(input_file_src_list, input_file_list, sample_condition_map)
+    h5_to_convert.view()
     parse_input_dir_src(input_dir_list, input_dir_src_list, sample_condition_map, dirname_pattern)
     .concat(process_untar_outputs(UNTAR_CR.out, sample_condition_map, dirname_pattern))
     .branch{ parsed_input -> 
