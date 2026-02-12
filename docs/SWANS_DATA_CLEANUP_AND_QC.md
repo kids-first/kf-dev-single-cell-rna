@@ -37,7 +37,7 @@ Must have one of, or both a `directories` or `tar balls/h5` input
 - `dbl_threads`: `2`. default threads for doubletFinder jobs
 - `disable_soupx`: `false`. Set to `true` to skip SoupX.
 - `soupx_start`: `outs`
-  - `outs`: Cell ranger outputs thave have clustering information
+  - `outs`: Cell ranger outputs have clustering information
   - `no_clusters`: Have clusters calculated
   - `h5`: Input matrix is in h5 format
 

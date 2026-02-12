@@ -1,0 +1,273 @@
+app_content:
+    entrypoint: main.nf
+class: nextflow
+executor_version: 23.04.1
+id: kf-swans-data-cleanup-qc
+label: SWANS Data Cleanup and QC
+cwlVersion: None
+doc: "# Kids First Single-entity Workflow ANalysiS Pipeline (SWANS) Data Cleanup and\
+    \ QC 2.1.0:\nCitation: https://doi.org/10.1101/2025.05.14.654073.\nThis is a NextFlow\
+    \ implementation of the [SWANS](https://github.com/FrancoResearchLab/SWANS) for\
+    \ Single Cell RNAseq Analysis.\nWhen reviewing the original [flow diagram] (https://github.com/FrancoResearchLab/SWANS/blob/v2.1.0/markdown_images/swans.drawio.png)\
+    \ from the authors, this covers steps A-F.\nThe intent is fo the researcher to\
+    \ choose a set of scRNA data to set initial cutoffs, run the workflow, and review\
+    \ QC for any needed adjustments or simply bad data.\nIt can handle a mix of doubleFinder,\
+    \ SoupX, and CellRanger inputs, passing the inputs to the appropriate steps, and\
+    \ merging before initial seurat object step.\nProper FLEX input support is still\
+    \ forthcoming. \n\n## INPUTS\n### Required:\n- `sample_condition_map_file`: tsv\
+    \ with input sample, condition, remap. Last column value can be blank if original\
+    \ sample name to be used. Original sample name should match what is part of the\
+    \ directory path name\n- `project`: string for project name\n### Required, mutually\
+    \ exclusive\nParameters in which one or both must be provided, but both cannot\
+    \ be blank.\n**Note**: `matrix` typically manes `soupX`\n#### Input data from\
+    \ _directories_, if applicable\nFor doubletFinder and soupX, dir naming typically\
+    \ `<sample_id>_<tool_name>`.\nFor cellranger, dir naming simply `<sample_id>`\
+    \ with an `outs` subdir\n- `input_dir_list`: Input data from one or more of doubletFinder,\
+    \ matrix, cell ranger in directories\n- `input_dir_src_list`: Source of input\
+    \ dirs, options: doubletFinder, matrix, cellranger\n#### Input data from _tar\
+    \ balls_ or cellranger h5, if applicable\nFor doubletFinder and soupX, tar file\
+    \ naming typically `<sample_id>_<tool_name>.tar.gz`.\nFor cellranger, tar naming\
+    \ simply `<sample_id>.tar.gz`.\nFor cellranger h5 input naming, `<sample_id>.cellranger.<raw_feature_bc_matrix|filtered_feature_bc_matrix>.h5`.\n\
+    - `input_file_list`: Input data from one or more of doubletFinder, matrix, cell\
+    \ ranger in tar balls, or h5 cellranger raw + filtered\n- `input_file_src_list`:\
+    \ Source of input tar balls, options: doubletFinder, matrix, cellranger, h5_raw,\
+    \ h5_filtered\nMust have one of, or both a `directories` or `tar balls/h5` input\n\
+    ### Required with defaults:\n- `organism`: `human`. Other optinon is `mouse`\n\
+    - `disable_doubletfinder`: `false`. Flag to skip running doubletFinder\n- `mito_cutoff`:\
+    \  `15`. mitchondrial cutoff threshold, percent as int\n- `ribo_cutoff`: `100`.\
+    \ ribosomal cutoff threshold, percent as int\n- `min_feature_threshold`: `200`\n\
+    - `max_feature_threshold`: `3000`\n- `int_components`: `30`. number of Principal\
+    \ Components to use in Seurat\n- `dbl_mem`: `30`. default ram in GB for doubletFinder\
+    \ jobs\n- `dbl_threads`: `2`. default threads for doubletFinder jobs\n- `disable_soupx`:\
+    \ `false`. Set to `true` to skip SoupX.\n- `soupx_start`: `outs`\n  - `outs`:\
+    \ Cell ranger outputs have clustering information\n  - `no_clusters`: Have clusters\
+    \ calculated\n  - `h5`: Input matrix is in h5 format\n\n\nRefer to the [Nextflow\
+    \ documentation](https://www.nextflow.io/docs/latest/) for advanced usage and\
+    \ profiles.\n\n## OUTPUTS\n### Required\n- `seurat_qc_report`: HTML QC Report.\
+    \ Check [here](https://github.com/FrancoResearchLab/SWANS/blob/v2.1.0/README.md#qc_report)\
+    \ for report guide\n- `seurat_qs`: Initial seurat filtered obect required for\
+    \ downstream anaylsis\n- `initial_seurat_qc`: Tar ball of outputs from step `F`.\
+    \  This is required for downstream steps of SWANS. Structured as follows:\n  ```\n\
+    \  `project`_initial_seurat_qc\n  \u251C\u2500\u2500 RDS\n  \u2502\_\_ \u2514\u2500\
+    \u2500 `project`_initial_seurat_object.qs\n  \u251C\u2500\u2500 figures\n  \u2502\
+    \_\_ \u251C\u2500\u2500 `project`_qc_1_scatter1.png\n  \u2502\_\_ \u251C\u2500\
+    \u2500 `project`_qc_1_scatter2.png\n  \u2502\_\_ \u251C\u2500\u2500 `project`_qc_1_vln.png\n\
+    \  \u2502\_\_ \u251C\u2500\u2500 `project`_qc_2_scatter1.png\n  \u2502\_\_ \u251C\
+    \u2500\u2500 `project`_qc_2_scatter2.png\n  \u2502\_\_ \u2514\u2500\u2500 `project`_qc_2_vln.png\n\
+    \  \u251C\u2500\u2500 report\n  \u2502\_\_ \u251C\u2500\u2500 `project`_samples.sample_list\n\
+    \  \u2502\_\_ \u251C\u2500\u2500 prelim_configs.yaml\n  \u2502\_\_ \u2514\u2500\
+    \u2500 qc_report\n  \u2502\_\_     \u2514\u2500\u2500 `project`_qc_report.html\n\
+    \  \u2514\u2500\u2500 tables\n  ```\n### If starting from scratch and flags enabled\n\
+    - `doubletfinder`: DoubletFinder tar ball results. Can be reused downstream if\
+    \ needed\n- `soupX`: soupX tar ball results. Can be used downstream and if this\
+    \ workflow is repeated with new params.\n"
+
+requirements:
+-   class: InlineJavascriptRequirement
+-   class: ShellCommandRequirement
+-   class: InitialWorkDirRequirement
+    listing:
+    - entryname: input_params.json
+      entry: |
+          $(JSON.stringify(
+          {
+          input_dir_src_list: inputs.input_dir_src_list ? inputs.input_dir_src_list : "",
+          input_tar_src_list: inputs.input_tar_src_list ? inputs.input_tar_src_list : ""
+          }
+          ))
+-   class: LoadListingRequirement
+    loadListing: deep_listing
+
+hints:
+-   class: sbg:NextflowExecutionMode
+    value: multi-instance
+-   class: "sbg:maxNumberOfParallelInstances"
+    value: 10
+arguments:
+-   position: 0
+    shellQuote: false
+    valueFrom: >
+        -params-file input_params.json --outdir results --sbg_run True --max_cpus 48 --max_memory 128.GB --max_time 12.h --r_lib_path /usr/local/lib/R/site-library/
+
+inputs:
+-   id: input_dir_list
+    inputBinding:
+        shellQuote: false
+        itemSeparator: ','
+        prefix: --input_dir_list
+    description: Input data from one or more of doubletFinder, matrix, cell ranger in directories
+    type:
+    - 'null'
+    -   items: Directory
+        type: array
+-   id: input_dir_src_list
+    inputBinding:
+        prefix: --input_dir_src_list
+    description: 'Source of input dirs, options: doubletFinder, matrix, cellranger'
+    type:
+    - 'null'
+    -   items:
+            name: input_dir_src_list
+            symbols:
+            - doubletFinder
+            - matrix
+            - cellranger
+            type: enum
+        type: array
+-   id: input_file_list
+    inputBinding:
+        shellQuote: false
+        itemSeparator: ','
+        prefix: --input_file_list
+    description: Input data from one or more of doubletFinder, matrix, cell ranger in tar
+        balls, or h5 cellranger raw + filtered
+    type:
+    - 'null'
+    -   items: File
+        type: array
+-   id: input_file_src_list
+    inputBinding:
+        prefix: --input_file_src_list
+    description: 'Source of input tar balls, options: doubletFinder, matrix, cellranger,
+        h5_raw, h5_filtered'
+    type:
+    - 'null'
+    -   items:
+            name: input_file_src_list
+            symbols:
+            - doubletFinder
+            - matrix
+            - cellranger
+            - h5_raw
+            - h5_filtered
+            type: enum
+        type: array
+-   id: project
+    inputBinding:
+        prefix: --project
+    description: Project name to be used in output file names and logs.
+    type:
+    - string
+-   id: sample_condition_map_file
+    inputBinding:
+        prefix: --sample_condition_map_file
+    description: tsv with input sample, condition, remap. Last column value can be blank
+        if original sample name to be used. Original sample name should match what
+        is part of the directory path name
+    type:
+    - File
+-   id: organism
+    inputBinding:
+        prefix: --organism
+    default: human
+    type:
+    - 'null'
+    -   name: organism
+        symbols:
+        - human
+        - mouse
+        type: enum
+-   id: disable_doubletfinder
+    inputBinding:
+        prefix: --disable_doubletfinder
+    description: Flag to skip running doubletFinder
+    default: false
+    type:
+    - 'null'
+    - boolean
+-   id: mito_cutoff
+    inputBinding:
+        prefix: --mito_cutoff
+    default: 15
+    type:
+    - 'null'
+    - int
+-   id: ribo_cutoff
+    inputBinding:
+        prefix: --ribo_cutoff
+    default: 100
+    type:
+    - 'null'
+    - int
+-   id: min_feature_threshold
+    inputBinding:
+        prefix: --min_feature_threshold
+    default: 200
+    type:
+    - 'null'
+    - int
+-   id: max_feature_threshold
+    inputBinding:
+        prefix: --max_feature_threshold
+    default: 3000
+    type:
+    - 'null'
+    - int
+-   id: int_components
+    inputBinding:
+        prefix: --int_components
+    default: 30
+    type:
+    - 'null'
+    - int
+-   id: dbl_mem
+    inputBinding:
+        prefix: --dbl_mem
+    default: 30
+    type:
+    - 'null'
+    - int
+-   id: dbl_threads
+    inputBinding:
+        prefix: --dbl_threads
+    default: 2
+    type:
+    - 'null'
+    - int
+-   id: disable_soupx
+    inputBinding:
+        prefix: --disable_soupx
+    description: Flag to skip running soupX
+    default: false
+    type:
+    - 'null'
+    - boolean
+-   id: soupx_start
+    inputBinding:
+        prefix: --soupx_start
+    description: If cellranger input with clusters, choose outs, otherwise choose no_clusters
+    type:
+    - 'null'
+    -   name: soupx_start
+        symbols:
+        - outs
+        - no_clusters
+        type: enum
+
+outputs:
+-   id: doubletfinder
+    doc: doubletFinder results if any input was from cellranger or soupX and enabled
+    type: 'File?'
+    outputBinding:
+        glob: 'results/doubletfinder/*'
+-   id: soupx
+    doc: soupX results if any input was from cellranger and enabled
+    type: 'File?'
+    outputBinding:
+        glob: 'results/soupx/*'
+-   id: initial_seurat_qc
+    doc: Initial Seurat QC tar ball. Needed to create downstream interactive report
+    type: File
+    outputBinding:
+        glob: 'results/initial_seurat_qc/*'
+-   id: seurat_qs
+    doc: Seurat qs object. Needed to create downstream interactive report
+    type: File
+    outputBinding:
+        glob: 'results/seurat_qs/*'
+-   id: seurat_qc_report
+    doc: Seurat QC report html. Review in a browser to determine if adjustments needed to re-run workflow before interactive report generation
+    type: File
+    outputBinding:
+        glob: 'results/seurat_qc_report/*'
+
