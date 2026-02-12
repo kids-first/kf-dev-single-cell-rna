@@ -63,7 +63,7 @@ workflow data_cleanup {
         samples = cellranger_data_dir.map { _src, sample, _condition, _dir -> sample }
         input_dirs = cellranger_data_dir.map { _src, _sample, _condition, dir -> dir }
     }
-    if (!params.disable_doubletfinder){} {
+    if (!params.disable_doubletfinder) {
         samples = samples.concat(DOUBLETFINDER.out.map { sample, _dir -> sample })
         input_dirs = input_dirs.concat(DOUBLETFINDER.out.map { _sample, dir -> dir })
     }
