@@ -3,16 +3,19 @@ process CONVERT_H5 {
     container 'pgc-images.sbgenomics.com/d3b-bixu/swans:v2.1.0'
 
     input:
-    tuple val(sample), path(raw_h5_file), path(filtered_h5_file)
+    tuple val(sample), val(src), path(h5_files)
 
     output:
     path(sample)
 
     script:
+    
+    def raw_h5_file = src[0] == "h5_raw" ? h5_files[0] : h5_files[1]
+    def filtered_h5_file = src[0] == "h5_filtered" ? h5_files[0] : h5_files[1]
     """
     cellranger_h5_to_count_dir.R \\
     --sample $sample \\
-    --raw_h5 $raw_h5_file \\
-    --filtered_h5 $filtered_h5_file
+    --raw $raw_h5_file \\
+    --filtered $filtered_h5_file
     """
 }

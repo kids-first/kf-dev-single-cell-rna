@@ -1,6 +1,7 @@
 #!/usr/bin/env nextflow
 
 include { UNTAR_CR } from '../../../modules/local/untar/main.nf'
+include { CONVERT_H5 } from '../../../modules/local/convert_h5/main.nf'
 
 def parse_map_file(file_text){
     def sample_map = [:]
@@ -43,23 +44,16 @@ def process_untar_outputs(untar_output, sample_map, pattern_map){
 def prep_h5_conversion(input_file_src_list, input_file_list, sample_map){
     // takes list of input file sources and list of input files, filters for h5 files, and creates channel of src, sample, condition, file for h5 inputs to be converted to count matrices. Sample and condition parsed from sample map based on file name. If file name not found in sample map, throws error.
     return input_file_src_list.merge(input_file_list) { src, file -> [src, file] }
-    .filter { src, file -> src.toLowerCase() == "h5" && file.name.endsWith(".h5") }
+    .filter { src, _file -> src.startsWith("h5") }
     .map { src, file ->
         def sname = file.name.replaceAll(/\.cellranger.*\.h5$/, "")
         if (sample_map.containsKey(sname)){
             def sample_name = sample_map[sname][1] ?: sname
-            def condition = sample_map[sname][0]
-            return [
-                [src, sample_name, condition, file],
-                [src, sample_name, condition, file.parent.resolve("${sname}.cellranger.raw_feature_bc_matrix.h5")],
-                [src, sample_name, condition, file.parent.resolve("${sname}.cellranger.filtered_feature_bc_matrix.h5")]
-            ]
+            return [sample_name, src, file]
         } else {
             error("Sample name ${sname} not found in sample_condition_map_file. Please ensure all samples are mapped.")
         }
     }
-    .flatten()
-    .collate(4)
 }
 
 def parse_input_dir_src(dir_channel, src_channel, sample_map, pattern_map){
@@ -90,7 +84,7 @@ workflow format_inputs {
     main:
     // dir names typically drive sample names, but not always desired. use sample map to enforce desired names
     // filter out h5 files
-    input_meta_tar = input_file_src_list.merge(input_file_list) { src, tar -> [src, tar] }.filter { src, _tar -> src != "h5" }
+    input_meta_tar = input_file_src_list.merge(input_file_list) { src, tar -> [src, tar] }.filter { src, _tar -> !src.startsWith("h5") }
     input_meta_tar.view()
     UNTAR_CR(
         input_meta_tar
@@ -102,19 +96,23 @@ workflow format_inputs {
         doubletfinder: /([^\/]+)[_\/]doubletFinder/,
         matrix: /([^\/]+)[_\/]soupX/
     ]
-    h5_to_convert = prep_h5_conversion(input_file_src_list, input_file_list, sample_condition_map)
-    h5_to_convert.view()
+    // If there are h5 inputs, convert to CR style matrix dirs, then add to cellranger dirs
+    h5_to_convert = prep_h5_conversion(input_file_src_list, input_file_list, sample_condition_map).groupTuple(by: 0)
+    h5_as_cr_dir = CONVERT_H5(h5_to_convert)
+    // add converted h5 files to input_dir_list, and set corresponding src as cellranger for parsing purposes downstream since they've converted to cellranger style output
+    input_dir_list = input_dir_list.concat(h5_as_cr_dir).collect()
+    input_dir_list.view()
+    input_dir_src_list = input_dir_src_list.concat(h5_as_cr_dir.map{ _dir -> "cellranger" }).collect()
+    input_dir_src_list.view()
     parse_input_dir_src(input_dir_list, input_dir_src_list, sample_condition_map, dirname_pattern)
     .concat(process_untar_outputs(UNTAR_CR.out, sample_condition_map, dirname_pattern))
     .branch{ parsed_input -> 
             doubletfinder: parsed_input[0].toLowerCase() == "doubletfinder"
             matrix: parsed_input[0].toLowerCase() == "matrix"
             cellranger: parsed_input[0].toLowerCase() == "cellranger"
-            h5_cellranger: parsed_input[0].toLowerCase() == "h5"
         }.set{src_sample_dir}
     emit:
         doubletfinder = src_sample_dir.doubletfinder
         matrix = src_sample_dir.matrix 
         cellranger = src_sample_dir.cellranger
-        h5_cellranger = src_sample_dir.h5_cellranger
 }

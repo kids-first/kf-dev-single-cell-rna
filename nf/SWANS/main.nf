@@ -31,7 +31,7 @@ workflow {
     input_file_src_list = params.input_file_src_list ? channel.fromList(params.input_file_src_list) : channel.value([]) // list of sources corresponding to input_file_list, like cellranger, doubletFinder, soupX. Required if no dir inputs.
 
     // FORMAT INPUTS
-    (doublet_data_dir, matrix_data_dir, cellranger_data_dir, h5_cellranger_files) = format_inputs(
+    (doublet_data_dir, matrix_data_dir, cellranger_data_dir) = format_inputs(
         input_file_src_list,
         input_file_list,
         sample_condition_map_file,
