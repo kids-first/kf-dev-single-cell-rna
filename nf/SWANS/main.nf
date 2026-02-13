@@ -8,9 +8,12 @@ def validate_inputs(param_obj){
     // single value possibilities
     def valid_options = [
         organism: ["mouse", "human"],
-        soupx_start: ["outs", "no_clusters", "h5"],
-        input_file_src_list: ["doubletFinder", "matrix", "cellranger", "h5_raw", "h5_filtered"],
-        input_dir_src_list: ["doubletFinder", "matrix", "cellranger"]
+        soupx_start: ["outs", "no_clusters", "h5"]
+    ]
+    // multi value possibilities (lists)
+    def valid_multi_options = [
+        input_dir_src_list: ["cellranger", "doubletFinder", "soupX"],
+        input_file_src_list: ["h5_raw", "h5_filtered", "cellranger", "doubletFinder", "soupX"]
     ]
 
     param_obj.each { k, v ->
@@ -19,7 +22,14 @@ def validate_inputs(param_obj){
                 error("Invalid option for parameter ${k}: ${v}. Valid options are: ${valid_options[k]}")
             }
         }
-
+        else if (valid_multi_options.containsKey(k) && !(v == null || v.isEmpty())){
+            def vals = v instanceof String ? v.split(",") : v
+            vals.each { val ->
+                if (!valid_multi_options[k].contains(val)){
+                    error("Invalid option for parameter ${k}: ${val}. Valid options are: ${valid_multi_options[k]}")
+                }
+            }
+        }
     }
 }
 
