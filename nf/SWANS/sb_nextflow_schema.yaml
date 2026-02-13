@@ -72,7 +72,7 @@ requirements:
           $(JSON.stringify(
           {
           input_dir_src_list: inputs.input_dir_src_list ? inputs.input_dir_src_list : "",
-          input_tar_src_list: inputs.input_tar_src_list ? inputs.input_tar_src_list : ""
+          input_file_src_list: inputs.input_file_src_list ? inputs.input_file_src_list : ""
           }
           ))
 -   class: LoadListingRequirement
