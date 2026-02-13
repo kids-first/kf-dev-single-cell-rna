@@ -6,15 +6,17 @@ include { run_qc } from './subworkflows/local/run_qc/main.nf'
 
 def validate_inputs(param_obj){
     // single value possibilities
-    def required_options = [
+    def valid_options = [
         organism: ["mouse", "human"],
-        soupx_start: ["outs", "no_clusters", "h5"]
+        soupx_start: ["outs", "no_clusters", "h5"],
+        input_file_src_list: ["doubletFinder", "matrix", "cellranger", "h5_raw", "h5_filtered"],
+        input_dir_src_list: ["doubletFinder", "matrix", "cellranger"]
     ]
 
     param_obj.each { k, v ->
-        if (required_options.containsKey(k)){
-            if (!required_options[k].contains(v)){
-                error("Invalid option for parameter ${k}: ${v}. Valid options are: ${required_options[k]}")
+        if (valid_options.containsKey(k) && !(v == null || v.isEmpty())){
+            if (!valid_options[k].contains(v)){
+                error("Invalid option for parameter ${k}: ${v}. Valid options are: ${valid_options[k]}")
             }
         }
 

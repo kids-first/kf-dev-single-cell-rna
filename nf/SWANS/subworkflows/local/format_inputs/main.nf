@@ -84,7 +84,9 @@ workflow format_inputs {
     main:
     // dir names typically drive sample names, but not always desired. use sample map to enforce desired names
     // filter out h5 files
-    input_meta_tar = input_file_src_list.merge(input_file_list) { src, tar -> [src, tar] }.filter { src, _tar -> !src.startsWith("h5") }
+    input_meta_tar = input_file_src_list.merge(input_file_list) { src, tar -> [src, tar] }
+        .filter { src, _tar -> !src.startsWith("h5") }
+    input_meta_tar = input_file_src_list.merge(input_file_list) { src, tar -> [src, tar] }.filter { src, _tar -> !(src =~ /^h5.*/) }
     UNTAR_CR(
         input_meta_tar
     )

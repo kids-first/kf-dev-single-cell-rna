@@ -101,8 +101,6 @@ inputs:
     -   items: Directory
         type: array
 -   id: input_dir_src_list
-    inputBinding:
-        prefix: --input_dir_src_list
     description: 'Source of input dirs, options: doubletFinder, matrix, cellranger'
     type:
     - 'null'
@@ -126,8 +124,6 @@ inputs:
     -   items: File
         type: array
 -   id: input_file_src_list
-    inputBinding:
-        prefix: --input_file_src_list
     description: 'Source of input tar balls, options: doubletFinder, matrix, cellranger,
         h5_raw, h5_filtered'
     type:
