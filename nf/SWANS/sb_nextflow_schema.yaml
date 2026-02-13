@@ -1,12 +1,11 @@
 app_content:
-    code_package: 68adec0613c54b4dd0aba1db
     entrypoint: main.nf
 class: nextflow
 executor_version: 23.04.1
 id: kf-swans-data-cleanup-qc
 label: SWANS Data Cleanup and QC
 cwlVersion: None
-doc: | 
+doc: |
     # Kids First Single-entity Workflow ANalysiS Pipeline (SWANS) Data Cleanup and QC 2.1.0:
     Citation: https://doi.org/10.1101/2025.05.14.654073.
     This is a NextFlow implementation of the [SWANS](https://github.com/FrancoResearchLab/SWANS) for Single Cell RNAseq Analysis.
@@ -23,12 +22,17 @@ doc: |
     Parameters in which one or both must be provided, but both cannot be blank.
     **Note**: `matrix` typically manes `soupX`
     #### Input data from _directories_, if applicable
+    For doubletFinder and soupX, dir naming typically `<sample_id>_<tool_name>`.
+    For cellranger, dir naming simply `<sample_id>` with an `outs` subdir
     - `input_dir_list`: Input data from one or more of doubletFinder, matrix, cell ranger in directories
     - `input_dir_src_list`: Source of input dirs, options: doubletFinder, matrix, cellranger
-    #### Input data from _tar balls_, if applicable
-    - `input_tar_list`: Input data from one or more of doubletFinder, matrix, cell ranger in tar balls
-    - `input_tar_src_list`: Source of input tar balls, options: doubletFinder, matrix, cellranger
-    Must have one of, or both a `directories` or `tar balls` input
+    #### Input data from _tar balls_ or cellranger h5, if applicable
+    For doubletFinder and soupX, tar file naming typically `<sample_id>_<tool_name>.tar.gz`.
+    For cellranger, tar naming simply `<sample_id>.tar.gz`.
+    For cellranger h5 input naming, `<sample_id>.cellranger.<raw_feature_bc_matrix|filtered_feature_bc_matrix>.h5`.
+    - `input_file_list`: Input data from one or more of doubletFinder, matrix, cell ranger in tar balls, or h5 cellranger raw + filtered
+    - `input_file_src_list`: Source of input tar balls, options: doubletFinder, matrix, cellranger, h5_raw, h5_filtered
+    Must have one of, or both a `directories` or `tar balls/h5` input
     ### Required with defaults:
     - `organism`: `human`. Other optinon is `mouse`
     - `disable_doubletfinder`: `false`. Flag to skip running doubletFinder
@@ -41,7 +45,7 @@ doc: |
     - `dbl_threads`: `2`. default threads for doubletFinder jobs
     - `disable_soupx`: `false`. Set to `true` to skip SoupX.
     - `soupx_start`: `outs`
-    - `outs`: Cell ranger outputs thave have clustering information
+    - `outs`: Cell ranger outputs have clustering information
     - `no_clusters`: Have clusters calculated
     - `h5`: Input matrix is in h5 format
 
@@ -75,6 +79,7 @@ doc: |
     - `doubletfinder`: DoubletFinder tar ball results. Can be reused downstream if needed
     - `soupX`: soupX tar ball results. Can be used downstream and if this workflow is repeated with new params.
 
+
 requirements:
 -   class: InlineJavascriptRequirement
 -   class: ShellCommandRequirement
@@ -85,7 +90,7 @@ requirements:
           $(JSON.stringify(
           {
           input_dir_src_list: inputs.input_dir_src_list ? inputs.input_dir_src_list : "",
-          input_tar_src_list: inputs.input_tar_src_list ? inputs.input_tar_src_list : ""
+          input_file_src_list: inputs.input_file_src_list ? inputs.input_file_src_list : ""
           }
           ))
 -   class: LoadListingRequirement
@@ -100,54 +105,90 @@ arguments:
 -   position: 0
     shellQuote: false
     valueFrom: >
-        -params-file input_params.json
+        -params-file input_params.json --outdir results --sbg_run True --max_cpus 48 --max_memory 128.GB --max_time 12.h --r_lib_path /usr/local/lib/R/site-library/
+
 inputs:
--   id: r_lib_path
-    inputBinding:
-        prefix: --r_lib_path
-    default: /usr/local/lib/R/site-library/
-    type:
-    - 'null'
-    - string
 -   id: input_dir_list
-    type: 'Directory[]?'
     inputBinding:
         shellQuote: false
         itemSeparator: ','
         prefix: --input_dir_list
+    description: Input data from one or more of doubletFinder, matrix, cell ranger in directories
+    type:
+    - 'null'
+    -   items: Directory
+        type: array
 -   id: input_dir_src_list
-    type: 'string[]?'
--   id: input_tar_list
-    type: 'File[]?'
+    description: 'Source of input dirs, options: doubletFinder, matrix, cellranger'
+    type:
+    - 'null'
+    -   items:
+            name: input_dir_src_list
+            symbols:
+            - doubletFinder
+            - matrix
+            - cellranger
+            type: enum
+        type: array
+-   id: input_file_list
     inputBinding:
         shellQuote: false
         itemSeparator: ','
-        prefix: --input_tar_list
--   id: input_tar_src_list
-    type: 'string[]?'
--   id: sample_condition_map_file
-    inputBinding:
-        prefix: --sample_condition_map_file
-    type: File
+        prefix: --input_file_list
+    description: Input data from one or more of doubletFinder, matrix, cell ranger in tar
+        balls, or h5 cellranger raw + filtered
+    type:
+    - 'null'
+    -   items: File
+        type: array
+-   id: input_file_src_list
+    description: 'Source of input tar balls, options: doubletFinder, matrix, cellranger,
+        h5_raw, h5_filtered'
+    type:
+    - 'null'
+    -   items:
+            name: input_file_src_list
+            symbols:
+            - doubletFinder
+            - matrix
+            - cellranger
+            - h5_raw
+            - h5_filtered
+            type: enum
+        type: array
 -   id: project
     inputBinding:
         prefix: --project
+    description: Project name to be used in output file names and logs.
     type:
     - string
+-   id: sample_condition_map_file
+    inputBinding:
+        prefix: --sample_condition_map_file
+    description: tsv with input sample, condition, remap. Last column value can be blank
+        if original sample name to be used. Original sample name should match what
+        is part of the directory path name
+    type:
+    - File
 -   id: organism
     inputBinding:
         prefix: --organism
     default: human
     type:
     - 'null'
-    - string
+    -   name: organism
+        symbols:
+        - human
+        - mouse
+        type: enum
 -   id: disable_doubletfinder
     inputBinding:
         prefix: --disable_doubletfinder
+    description: Flag to skip running doubletFinder
+    default: false
     type:
     - 'null'
     - boolean
-    default: false
 -   id: mito_cutoff
     inputBinding:
         prefix: --mito_cutoff
@@ -200,24 +241,22 @@ inputs:
 -   id: disable_soupx
     inputBinding:
         prefix: --disable_soupx
+    description: Flag to skip running soupX
+    default: false
     type:
     - 'null'
     - boolean
-    default: false
 -   id: soupx_start
     inputBinding:
         prefix: --soupx_start
+    description: If cellranger input with clusters, choose outs, otherwise choose no_clusters
     type:
     - 'null'
-    - string
--   id: sbg_run
-    inputBinding:
-        prefix: --sbg_run
-    type:
-    - 'null'
-    - boolean
-    default: true
-    sbg:hidden: true
+    -   name: soupx_start
+        symbols:
+        - outs
+        - no_clusters
+        type: enum
 
 outputs:
 -   id: doubletfinder
@@ -245,4 +284,4 @@ outputs:
     type: File
     outputBinding:
         glob: 'results/seurat_qc_report/*'
-sbg:revisionNotes: Uploaded using sbpack v2024.12.17
+

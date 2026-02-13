@@ -2,7 +2,7 @@
   <img src="docs/kids_first_logo.svg" alt="Kids First repository logo" width="660px" />
 </p>
 <p align="center">
-  <a href="https://github.com/kids-first/kf-template-repo/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kids-first/kf-template-repo.svg?style=for-the-badge"></a>
+  <a href="https://github.com/kids-first/kf-dev-single-cell-rna/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kids-first/kf-dev-single-cell-rna.svg?style=for-the-badge"></a>
 </p>
 
 # Kids First single cell RNA Pipelines

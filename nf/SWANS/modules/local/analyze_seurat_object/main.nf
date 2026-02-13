@@ -1,6 +1,6 @@
 process ANALYZE_SEURAT_OBJECT {
     label 'ASO'
-    container "swans:alpha"
+    container "pgc-images.sbgenomics.com/d3b-bixu/swans:v2.1.0"
 
     input:
         tuple val(meta_config), path(initial_seurat_object)

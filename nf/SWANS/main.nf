@@ -6,34 +6,46 @@ include { run_qc } from './subworkflows/local/run_qc/main.nf'
 
 def validate_inputs(param_obj){
     // single value possibilities
-    def required_options = [
+    def valid_options = [
         organism: ["mouse", "human"],
         soupx_start: ["outs", "no_clusters", "h5"]
     ]
+    // multi value possibilities (lists)
+    def valid_multi_options = [
+        input_dir_src_list: ["cellranger", "doubletFinder", "soupX"],
+        input_file_src_list: ["h5_raw", "h5_filtered", "cellranger", "doubletFinder", "soupX"]
+    ]
 
     param_obj.each { k, v ->
-        if (required_options.containsKey(k)){
-            if (!required_options[k].contains(v)){
-                error("Invalid option for parameter ${k}: ${v}. Valid options are: ${required_options[k]}")
+        if (valid_options.containsKey(k) && !(v == null || v.isEmpty())){
+            if (!valid_options[k].contains(v)){
+                error("Invalid option for parameter ${k}: ${v}. Valid options are: ${valid_options[k]}")
             }
         }
-
+        else if (valid_multi_options.containsKey(k) && !(v == null || v.isEmpty())){
+            def vals = v instanceof String ? v.split(",") : v
+            vals.each { val ->
+                if (!valid_multi_options[k].contains(val)){
+                    error("Invalid option for parameter ${k}: ${val}. Valid options are: ${valid_multi_options[k]}")
+                }
+            }
+        }
     }
 }
 
 workflow {
     main:
     validate_inputs(params)
-    sample_condition_map_file = file(params.sample_condition_map_file)
-    input_dir_list = params.input_dir_list ? channel.fromPath(params.input_dir_list.class == String ? params.input_dir_list.split(',') as List : params.input_dir_list) : channel.empty()
-    input_dir_src_list = params.input_dir_src_list ? channel.fromList(params.input_dir_src_list) : channel.value([])
-    input_tar_list = params.input_tar_list ? channel.fromPath(params.input_tar_list.class == String ? params.input_tar_list.split(',') as List : params.input_tar_list) : channel.empty()
-    input_tar_src_list = params.input_tar_src_list ? channel.fromList(params.input_tar_src_list) : channel.value([])
+    sample_condition_map_file = file(params.sample_condition_map_file) // TSV file with header and three columns: sample, condition, remap. remap is optional and if not provided, sample name will be used as-is.
+    input_dir_list = params.input_dir_list ? channel.fromPath(params.input_dir_list.class == String ? params.input_dir_list.split(',') as List : params.input_dir_list) : channel.empty() // input dirs from any of cell ranger or previous runs of doubletFinder or soupX. Required if no tar inputs
+    input_dir_src_list = params.input_dir_src_list ? channel.fromList(params.input_dir_src_list) : channel.value([]) // list of sources corresponding to input_dir_list, like cellranger, doubletFinder, soupX. Required if no tar inputs. 
+    input_file_list = params.input_file_list ? channel.fromPath(params.input_file_list.class == String ? params.input_file_list.split(',') as List : params.input_file_list) : channel.empty() // input files from cell ranger or previous runs of doubletFinder or soupX as tar balls or h5 raw + filtered. Required if no dir inputs
+    input_file_src_list = params.input_file_src_list ? channel.fromList(params.input_file_src_list) : channel.value([]) // list of sources corresponding to input_file_list, like cellranger, doubletFinder, soupX. h5_raw, h5_filtered. Required if no dir inputs.
 
     // FORMAT INPUTS
     (doublet_data_dir, matrix_data_dir, cellranger_data_dir) = format_inputs(
-        input_tar_src_list,
-        input_tar_list,
+        input_file_src_list,
+        input_file_list,
         sample_condition_map_file,
         input_dir_list,
         input_dir_src_list

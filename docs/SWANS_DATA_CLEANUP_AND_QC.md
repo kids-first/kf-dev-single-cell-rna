@@ -14,12 +14,17 @@ Proper FLEX input support is still forthcoming.
 Parameters in which one or both must be provided, but both cannot be blank.
 **Note**: `matrix` typically manes `soupX`
 #### Input data from _directories_, if applicable
+For doubletFinder and soupX, dir naming typically `<sample_id>_<tool_name>`.
+For cellranger, dir naming simply `<sample_id>` with an `outs` subdir
 - `input_dir_list`: Input data from one or more of doubletFinder, matrix, cell ranger in directories
 - `input_dir_src_list`: Source of input dirs, options: doubletFinder, matrix, cellranger
-#### Input data from _tar balls_, if applicable
-- `input_tar_list`: Input data from one or more of doubletFinder, matrix, cell ranger in tar balls
-- `input_tar_src_list`: Source of input tar balls, options: doubletFinder, matrix, cellranger
-Must have one of, or both a `directories` or `tar balls` input
+#### Input data from _tar balls_ or cellranger h5, if applicable
+For doubletFinder and soupX, tar file naming typically `<sample_id>_<tool_name>.tar.gz`.
+For cellranger, tar naming simply `<sample_id>.tar.gz`.
+For cellranger h5 input naming, `<sample_id>.cellranger.<raw_feature_bc_matrix|filtered_feature_bc_matrix>.h5`.
+- `input_file_list`: Input data from one or more of doubletFinder, matrix, cell ranger in tar balls, or h5 cellranger raw + filtered
+- `input_file_src_list`: Source of input tar balls, options: doubletFinder, matrix, cellranger, h5_raw, h5_filtered
+Must have one of, or both a `directories` or `tar balls/h5` input
 ### Required with defaults:
 - `organism`: `human`. Other optinon is `mouse`
 - `disable_doubletfinder`: `false`. Flag to skip running doubletFinder
@@ -32,7 +37,7 @@ Must have one of, or both a `directories` or `tar balls` input
 - `dbl_threads`: `2`. default threads for doubletFinder jobs
 - `disable_soupx`: `false`. Set to `true` to skip SoupX.
 - `soupx_start`: `outs`
-  - `outs`: Cell ranger outputs thave have clustering information
+  - `outs`: Cell ranger outputs have clustering information
   - `no_clusters`: Have clusters calculated
   - `h5`: Input matrix is in h5 format
 
