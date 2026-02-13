@@ -5,62 +5,80 @@ executor_version: 23.04.1
 id: kf-swans-data-cleanup-qc
 label: SWANS Data Cleanup and QC
 cwlVersion: None
-doc: "# Kids First Single-entity Workflow ANalysiS Pipeline (SWANS) Data Cleanup and\
-    \ QC 2.1.0:\nCitation: https://doi.org/10.1101/2025.05.14.654073.\nThis is a NextFlow\
-    \ implementation of the [SWANS](https://github.com/FrancoResearchLab/SWANS) for\
-    \ Single Cell RNAseq Analysis.\nWhen reviewing the original [flow diagram] (https://github.com/FrancoResearchLab/SWANS/blob/v2.1.0/markdown_images/swans.drawio.png)\
-    \ from the authors, this covers steps A-F.\nThe intent is fo the researcher to\
-    \ choose a set of scRNA data to set initial cutoffs, run the workflow, and review\
-    \ QC for any needed adjustments or simply bad data.\nIt can handle a mix of doubleFinder,\
-    \ SoupX, and CellRanger inputs, passing the inputs to the appropriate steps, and\
-    \ merging before initial seurat object step.\nProper FLEX input support is still\
-    \ forthcoming. \n\n## INPUTS\n### Required:\n- `sample_condition_map_file`: tsv\
-    \ with input sample, condition, remap. Last column value can be blank if original\
-    \ sample name to be used. Original sample name should match what is part of the\
-    \ directory path name\n- `project`: string for project name\n### Required, mutually\
-    \ exclusive\nParameters in which one or both must be provided, but both cannot\
-    \ be blank.\n**Note**: `matrix` typically manes `soupX`\n#### Input data from\
-    \ _directories_, if applicable\nFor doubletFinder and soupX, dir naming typically\
-    \ `<sample_id>_<tool_name>`.\nFor cellranger, dir naming simply `<sample_id>`\
-    \ with an `outs` subdir\n- `input_dir_list`: Input data from one or more of doubletFinder,\
-    \ matrix, cell ranger in directories\n- `input_dir_src_list`: Source of input\
-    \ dirs, options: doubletFinder, matrix, cellranger\n#### Input data from _tar\
-    \ balls_ or cellranger h5, if applicable\nFor doubletFinder and soupX, tar file\
-    \ naming typically `<sample_id>_<tool_name>.tar.gz`.\nFor cellranger, tar naming\
-    \ simply `<sample_id>.tar.gz`.\nFor cellranger h5 input naming, `<sample_id>.cellranger.<raw_feature_bc_matrix|filtered_feature_bc_matrix>.h5`.\n\
-    - `input_file_list`: Input data from one or more of doubletFinder, matrix, cell\
-    \ ranger in tar balls, or h5 cellranger raw + filtered\n- `input_file_src_list`:\
-    \ Source of input tar balls, options: doubletFinder, matrix, cellranger, h5_raw,\
-    \ h5_filtered\nMust have one of, or both a `directories` or `tar balls/h5` input\n\
-    ### Required with defaults:\n- `organism`: `human`. Other optinon is `mouse`\n\
-    - `disable_doubletfinder`: `false`. Flag to skip running doubletFinder\n- `mito_cutoff`:\
-    \  `15`. mitchondrial cutoff threshold, percent as int\n- `ribo_cutoff`: `100`.\
-    \ ribosomal cutoff threshold, percent as int\n- `min_feature_threshold`: `200`\n\
-    - `max_feature_threshold`: `3000`\n- `int_components`: `30`. number of Principal\
-    \ Components to use in Seurat\n- `dbl_mem`: `30`. default ram in GB for doubletFinder\
-    \ jobs\n- `dbl_threads`: `2`. default threads for doubletFinder jobs\n- `disable_soupx`:\
-    \ `false`. Set to `true` to skip SoupX.\n- `soupx_start`: `outs`\n  - `outs`:\
-    \ Cell ranger outputs have clustering information\n  - `no_clusters`: Have clusters\
-    \ calculated\n  - `h5`: Input matrix is in h5 format\n\n\nRefer to the [Nextflow\
-    \ documentation](https://www.nextflow.io/docs/latest/) for advanced usage and\
-    \ profiles.\n\n## OUTPUTS\n### Required\n- `seurat_qc_report`: HTML QC Report.\
-    \ Check [here](https://github.com/FrancoResearchLab/SWANS/blob/v2.1.0/README.md#qc_report)\
-    \ for report guide\n- `seurat_qs`: Initial seurat filtered obect required for\
-    \ downstream anaylsis\n- `initial_seurat_qc`: Tar ball of outputs from step `F`.\
-    \  This is required for downstream steps of SWANS. Structured as follows:\n  ```\n\
-    \  `project`_initial_seurat_qc\n  \u251C\u2500\u2500 RDS\n  \u2502\_\_ \u2514\u2500\
-    \u2500 `project`_initial_seurat_object.qs\n  \u251C\u2500\u2500 figures\n  \u2502\
-    \_\_ \u251C\u2500\u2500 `project`_qc_1_scatter1.png\n  \u2502\_\_ \u251C\u2500\
-    \u2500 `project`_qc_1_scatter2.png\n  \u2502\_\_ \u251C\u2500\u2500 `project`_qc_1_vln.png\n\
-    \  \u2502\_\_ \u251C\u2500\u2500 `project`_qc_2_scatter1.png\n  \u2502\_\_ \u251C\
-    \u2500\u2500 `project`_qc_2_scatter2.png\n  \u2502\_\_ \u2514\u2500\u2500 `project`_qc_2_vln.png\n\
-    \  \u251C\u2500\u2500 report\n  \u2502\_\_ \u251C\u2500\u2500 `project`_samples.sample_list\n\
-    \  \u2502\_\_ \u251C\u2500\u2500 prelim_configs.yaml\n  \u2502\_\_ \u2514\u2500\
-    \u2500 qc_report\n  \u2502\_\_     \u2514\u2500\u2500 `project`_qc_report.html\n\
-    \  \u2514\u2500\u2500 tables\n  ```\n### If starting from scratch and flags enabled\n\
-    - `doubletfinder`: DoubletFinder tar ball results. Can be reused downstream if\
-    \ needed\n- `soupX`: soupX tar ball results. Can be used downstream and if this\
-    \ workflow is repeated with new params.\n"
+doc: |
+    # Kids First Single-entity Workflow ANalysiS Pipeline (SWANS) Data Cleanup and QC 2.1.0:
+    Citation: https://doi.org/10.1101/2025.05.14.654073.
+    This is a NextFlow implementation of the [SWANS](https://github.com/FrancoResearchLab/SWANS) for Single Cell RNAseq Analysis.
+    When reviewing the original [flow diagram] (https://github.com/FrancoResearchLab/SWANS/blob/v2.1.0/markdown_images/swans.drawio.png) from the authors, this covers steps A-F.
+    The intent is fo the researcher to choose a set of scRNA data to set initial cutoffs, run the workflow, and review QC for any needed adjustments or simply bad data.
+    It can handle a mix of doubleFinder, SoupX, and CellRanger inputs, passing the inputs to the appropriate steps, and merging before initial seurat object step.
+    Proper FLEX input support is still forthcoming. 
+
+    ## INPUTS
+    ### Required:
+    - `sample_condition_map_file`: tsv with input sample, condition, remap. Last column value can be blank if original sample name to be used. Original sample name should match what is part of the directory path name
+    - `project`: string for project name
+    ### Required, mutually exclusive
+    Parameters in which one or both must be provided, but both cannot be blank.
+    **Note**: `matrix` typically manes `soupX`
+    #### Input data from _directories_, if applicable
+    For doubletFinder and soupX, dir naming typically `<sample_id>_<tool_name>`.
+    For cellranger, dir naming simply `<sample_id>` with an `outs` subdir
+    - `input_dir_list`: Input data from one or more of doubletFinder, matrix, cell ranger in directories
+    - `input_dir_src_list`: Source of input dirs, options: doubletFinder, matrix, cellranger
+    #### Input data from _tar balls_ or cellranger h5, if applicable
+    For doubletFinder and soupX, tar file naming typically `<sample_id>_<tool_name>.tar.gz`.
+    For cellranger, tar naming simply `<sample_id>.tar.gz`.
+    For cellranger h5 input naming, `<sample_id>.cellranger.<raw_feature_bc_matrix|filtered_feature_bc_matrix>.h5`.
+    - `input_file_list`: Input data from one or more of doubletFinder, matrix, cell ranger in tar balls, or h5 cellranger raw + filtered
+    - `input_file_src_list`: Source of input tar balls, options: doubletFinder, matrix, cellranger, h5_raw, h5_filtered
+    Must have one of, or both a `directories` or `tar balls/h5` input
+    ### Required with defaults:
+    - `organism`: `human`. Other optinon is `mouse`
+    - `disable_doubletfinder`: `false`. Flag to skip running doubletFinder
+    - `mito_cutoff`:  `15`. mitchondrial cutoff threshold, percent as int
+    - `ribo_cutoff`: `100`. ribosomal cutoff threshold, percent as int
+    - `min_feature_threshold`: `200`
+    - `max_feature_threshold`: `3000`
+    - `int_components`: `30`. number of Principal Components to use in Seurat
+    - `dbl_mem`: `30`. default ram in GB for doubletFinder jobs
+    - `dbl_threads`: `2`. default threads for doubletFinder jobs
+    - `disable_soupx`: `false`. Set to `true` to skip SoupX.
+    - `soupx_start`: `outs`
+    - `outs`: Cell ranger outputs have clustering information
+    - `no_clusters`: Have clusters calculated
+    - `h5`: Input matrix is in h5 format
+
+
+    Refer to the [Nextflow documentation](https://www.nextflow.io/docs/latest/) for advanced usage and profiles.
+
+    ## OUTPUTS
+    ### Required
+    - `seurat_qc_report`: HTML QC Report. Check [here](https://github.com/FrancoResearchLab/SWANS/blob/v2.1.0/README.md#qc_report) for report guide
+    - `seurat_qs`: Initial seurat filtered obect required for downstream anaylsis
+    - `initial_seurat_qc`: Tar ball of outputs from step `F`.  This is required for downstream steps of SWANS. Structured as follows:
+    ```
+    `project`_initial_seurat_qc
+    ├── RDS
+    │   └── `project`_initial_seurat_object.qs
+    ├── figures
+    │   ├── `project`_qc_1_scatter1.png
+    │   ├── `project`_qc_1_scatter2.png
+    │   ├── `project`_qc_1_vln.png
+    │   ├── `project`_qc_2_scatter1.png
+    │   ├── `project`_qc_2_scatter2.png
+    │   └── `project`_qc_2_vln.png
+    ├── report
+    │   ├── `project`_samples.sample_list
+    │   ├── prelim_configs.yaml
+    │   └── qc_report
+    │       └── `project`_qc_report.html
+    └── tables
+    ```
+    ### If starting from scratch and flags enabled
+    - `doubletfinder`: DoubletFinder tar ball results. Can be reused downstream if needed
+    - `soupX`: soupX tar ball results. Can be used downstream and if this workflow is repeated with new params.
+
 
 requirements:
 -   class: InlineJavascriptRequirement
