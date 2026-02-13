@@ -8,12 +8,12 @@ suppressMessages(library(DropletUtils))
 suppressMessages(library(Seurat))
 
 read_h5_output_cr_matrix <- function(h5_file, sample, cr_type) {
-  # read in h5 files and write to 10x format
-  h5_obj <- Read10X_h5(h5_file, use.names = TRUE)
+  # mkdir manually as write10xCounts has limit on mkdir depth
   cr_matrix_out_path <- file.path(sample, "outs", paste0(cr_type, "_feature_bc_matrix"))
-  # Must at least create this path as write10xCounts seems to have a depth limit creating output path
   dir.create(cr_matrix_out_path, recursive = TRUE, showWarnings = FALSE)
+  # read in h5 files and write to 10x format
   message("Write ", cr_type, " output to ", cr_matrix_out_path)
+  h5_obj <- Read10X_h5(h5_file, use.names = TRUE)
   write10xCounts(path=cr_matrix_out_path, x=h5_obj, type='auto', version='3', overwrite = TRUE)
 }
 
