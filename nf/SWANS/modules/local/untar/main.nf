@@ -3,10 +3,10 @@ process UNTAR_CR {
     container 'ubuntu:latest'
 
     input:
-    tuple val(source), path(tar_file)
+    tuple val(meta), path(tar_file)
 
     output:
-    tuple val(source), stdout, path("*")
+    tuple val(meta), stdout, path("*")
 
     script:
     def cr_tar_args = "--ignore-failed-read " +
@@ -16,7 +16,7 @@ process UNTAR_CR {
     "--transform 's%sample_\\([filtered|raw]\\)%\\1%g' " +
     "--exclude '*outs/multi*' " +
     "--show-transformed-names"
-    def tar_args = source == "cellranger" ? cr_tar_args : ""
+    def tar_args = meta.input_type.contains("cellranger") ? cr_tar_args : ""
     """
     tar xvf $tar_file \\
     $tar_args \\
