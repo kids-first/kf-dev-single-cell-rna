@@ -41,18 +41,6 @@ def process_untar_outputs(untar_output, sample_map, pattern_map){
         }
     }
 }
-def prep_h5_conversion(h5_meta){
-    // parse metadata for h5 files with matching sample name, an returns tuple of meta, h5_raw path, h5_filtered path by sample id
-    def h5_data = [:]
-    h5_meta.each { meta -> 
-        h5_data[meta.sample][meta.input_type] =  meta.name
-    }
-    def h5_to_convert = []
-    h5_data.each { sample, input_type ->
-        h5_to_convert << [h5_meta, sample, input_type.h5_raw, input_type.h5_filtered]
-    }
-    return h5_to_convert
-}
 
 def parse_input_dir_src(dir_channel, src_channel, sample_map, pattern_map){
     // returns src, sample, condition, dir
@@ -78,14 +66,20 @@ workflow format_inputs {
         input_sample_sheet
     main:
     // group by sample, type, also strip keys with empty data
-    input_by_type = input_sample_sheet.splitCsv(header: true, sep: "\t").map { metadata -> tuple (metadata.input_type, metadata.findAll{keys -> keys.value})}.view()
+    input_by_type = input_sample_sheet.splitCsv(header: true, sep: "\t").map { metadata -> tuple (metadata.input_type, metadata.findAll{keys -> keys.value})}
     input_meta_tar = input_by_type.filter { input_type, _meta -> input_type.startsWith("tar") }.map {_input_type, meta -> [meta, meta.name] }
     UNTAR_CR(
         input_meta_tar
     )
     // If there are h5 inputs, convert to CR style matrix dirs, then add to cellranger dirs
-    h5_to_convert = prep_h5_conversion(input_by_type.filter { input_type, _meta -> input_type.startsWith("h5") }.map {_input_type, meta -> meta }).view()
-    // h5_as_cr_dir = CONVERT_H5(h5_to_convert)
+    h5_to_convert = input_by_type.filter { input_type, _meta -> input_type.startsWith("h5") }
+        .map {_input_type, meta -> [meta.sample_id, meta] }
+        .groupTuple(by: 0)
+        .map { _sample_id, meta_list -> tuple(
+            meta_list[0], meta_list.find{ sub_meta -> sub_meta.input_type == "h5_raw" }.name, meta_list.find{ sub_meta -> sub_meta.input_type == "h5_filtered" }.name
+            )
+        }
+    h5_as_cr_dir = CONVERT_H5(h5_to_convert)
     // // add converted h5 files to input_dir_list, and set corresponding src as cellranger for parsing purposes downstream since they've converted to cellranger style output
     // input_dir_list = input_dir_list.concat(h5_as_cr_dir).collect()
     // input_dir_src_list = input_dir_src_list.concat(h5_as_cr_dir.map{ _dir -> "cellranger" }).collect()

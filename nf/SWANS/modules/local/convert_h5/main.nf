@@ -6,13 +6,14 @@ process CONVERT_H5 {
     tuple val(meta), path(h5_raw), path(h5_filtered)
 
     output:
-    tuple val(meta), path(meta.sample_id)
+    tuple val(meta), path(sample_id)
 
     script:
     meta.input_type = "cellranger"
+    sample_id = meta.sample_id
     """
     cellranger_h5_to_count_dir.R \\
-    --sample $meta.sample_id \\
+    --sample $sample_id \\
     --raw $h5_raw \\
     --filtered $h5_filtered
     """
