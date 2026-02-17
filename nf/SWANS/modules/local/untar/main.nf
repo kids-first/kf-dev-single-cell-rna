@@ -17,6 +17,8 @@ process UNTAR_CR {
     "--exclude '*outs/multi*' " +
     "--show-transformed-names"
     def tar_args = meta.input_type.contains("cellranger") ? cr_tar_args : ""
+    // replace output type with dir prefix in metadata
+    meta.input_type = meta.input_type.replace("tar_", "dir_")
     """
     tar xvf $tar_file \\
     $tar_args \\
