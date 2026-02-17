@@ -16,7 +16,28 @@ workflow format_inputs {
     UNTAR_CR(
         input_meta_tar
     )
-    UNTAR_CR.out.view()
+    // Correct the metadata for the sample IDs matching tar_flex, if any
+    tar_flex_meta = input_by_type.filter { input_type, _meta -> input_type.startsWith("tar_flex") }
+        .map {_input_type, meta -> tuple(meta.sample_id, meta) }
+    // if parsed_id len > 1, then it's a flex, so replace with meta from tar flex, update meta.name
+    UNTAR_CR.out.branch { meta, parsed_id, dir_path ->
+        def parse_ids = parsed_id.split("\n")
+        flex: parse_ids.size() > 1
+            return [parsed_id.split("\n"), dir_path].transpose()
+        cr: parse_ids.size() == 1
+            return [meta, dir_path]
+        }.set {per_sample_flex_cr} 
+    if (tar_flex_meta) {
+        tar_flex_meta
+            .join(per_sample_flex_cr.flex.flatMap())
+            .map{_sample_id, meta, untar_path -> 
+                meta.name = untar_path
+                meta.input_type = "dir_cellranger"
+                tuple(meta, untar_path)
+            }.view()
+    }
+    per_sample_flex_cr.cr.view()
+    // tar_flex_meta.join(per_sample_flex_cr.flatMap()).view()
 //     // If there are h5 inputs, convert to CR style matrix dirs, then add to cellranger dirs
 //     h5_to_convert = input_by_type.filter { input_type, _meta -> input_type.startsWith("h5") }
 //         .map {_input_type, meta -> [meta.sample_id, meta] }

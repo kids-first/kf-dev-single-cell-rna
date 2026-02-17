@@ -16,7 +16,7 @@ process UNTAR_CR {
     "--transform 's%sample_\\([filtered|raw]\\)%\\1%g' " +
     "--exclude '*outs/multi*' " +
     "--show-transformed-names"
-    def tar_args = meta.input_type.contains("cellranger") ? cr_tar_args : ""
+    def tar_args = meta.input_type.contains("cellranger") || meta.input_type.contains("flex") ? cr_tar_args : ""
     // replace output type with dir prefix in metadata
     meta.input_type = meta.input_type.replace("tar_", "dir_")
     """
