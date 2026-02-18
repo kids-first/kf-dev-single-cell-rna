@@ -10,6 +10,7 @@ process SOUPX {
 
     script:
     def soupX_output_path = "${meta.sample_id}_soupX"
+    meta.input_type = "soupX"
     """
     soupX.R \\
     --sample $meta.sample_id \\

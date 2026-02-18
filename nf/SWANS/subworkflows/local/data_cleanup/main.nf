@@ -54,6 +54,7 @@ workflow data_cleanup {
         )
         to_collate = SOUPX.out
     }
+    to_collate
     // COLLATE RESULTS
     // initialize with cellranger results if soupX disabled
     if (params.disable_soupx){

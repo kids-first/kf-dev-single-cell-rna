@@ -11,6 +11,7 @@ process DOUBLETFINDER {
     script:
     def src = meta.input_type.contains("cellranger") ? "cellranger" : "matrix"
     def doubletFinder_output_path = "${meta.sample_id}_doubletFinder/"
+    meta.input_type = "doubletFinder"
     """
     doubletFinder.R \\
     --sample $meta.sample_id \\
