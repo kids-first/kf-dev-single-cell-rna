@@ -48,33 +48,29 @@ workflow data_cleanup {
             cellranger_data_dir
         )
         def soupx_tar_input = SOUPX.out.map { _metadata, dir -> ["", dir] }
-        samples = SOUPX.out.map { meta_data, _dir -> meta_data.sample_id }
-        input_dirs = SOUPX.out.map { _metadata, dir -> dir }
 
         TAR_OUTPUTS_SOUP(
             soupx_tar_input
         )
+        to_collate = SOUPX.out
     }
     // COLLATE RESULTS
     // initialize with cellranger results if soupX disabled
     if (params.disable_soupx){
-        samples = cellranger_data_dir.map { meta_data, _dir -> meta_data.sample_id }
-        input_dirs = cellranger_data_dir.map { _metadata, dir -> dir }
+        to_collate = cellranger_data_dir
     }
     if (!params.disable_doubletfinder) {
-        samples = samples.concat(DOUBLETFINDER.out.map { meta_data, _dir -> meta_data.sample_id })
-        input_dirs = input_dirs.concat(DOUBLETFINDER.out.map { _metadata, dir -> dir })
+        to_collate = to_collate.concat(DOUBLETFINDER.out)
     }
-    samples = samples.concat(doublet_data_dir.out.map { meta_data, _dir -> meta_data.sample_id })
-        .concat(matrix_data_dir.out.map { meta_data, _dir -> meta_data.sample_id })
-        .collect()
-    input_dirs = input_dirs.concat(doublet_data_dir.map { _metadata, dir -> dir })
-        .concat(matrix_data_dir.map { _metadata, dir -> dir })
-        .collect()
+    to_collate = to_collate.concat( doublet_data_dir )
+        .concat( matrix_data_dir )
+    to_collate_metadata = to_collate.map { metadata, _path -> metadata }.collect()
+    to_collate_paths = to_collate.map { _metadata, path -> path }.collect()
+
     COLLATE_OUTPUTS(
         meta,
-        samples,
-        input_dirs
+        to_collate_metadata,
+        to_collate_paths
     )
 
     emit:

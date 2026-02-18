@@ -50,10 +50,10 @@ workflow {
         cellranger_data_dir
     )
 
-    // // CREATE SEURAT OBJ/QC
-    // run_qc(
-    //     cellranger_data_dir,
-    //     matrix_data_dir,
-    //     cleanup_dir
-    // )
+    // CREATE SEURAT OBJ/QC
+    run_qc(
+        cellranger_data_dir,
+        matrix_data_dir,
+        cleanup_dir
+    )
 }
