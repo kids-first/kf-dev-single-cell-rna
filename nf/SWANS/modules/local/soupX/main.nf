@@ -4,20 +4,20 @@ process SOUPX {
 
     input:
         val(meta_config)
-        tuple val(src), val(sample), path(input_dir)
+        tuple val(meta), path(input_dir)
     output:
-    tuple val(sample), path("${sample}_soupX/")
+    tuple val(meta), path("${meta.sample_id}_soupX/")
 
     script:
-    def soupX_output_path = "${sample}_soupX"
+    def soupX_output_path = "${meta.sample_id}_soupX"
     """
     soupX.R \\
-    --sample $sample \\
+    --sample $meta.sample_id \\
     --data_type $meta_config.SOUPX_START \\
     --project $meta_config.PROJECT \\
     --soupX_input_path $input_dir \\
     --soupX_output_path $soupX_output_path \\
-    --starter_data $src \\
+    --starter_data cellranger \\
     $meta_config.RPATH
     """
 }

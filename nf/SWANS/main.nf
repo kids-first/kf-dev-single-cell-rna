@@ -39,16 +39,16 @@ workflow {
     input_sample_sheet = channel.fromPath(params.input_sample_sheet) // TSV file with required headers: sample_id, condition, name, input_type. Optional header remap
 
     // FORMAT INPUTS
-    (doublet_data_dir, matrix_data_dir, cellranger_data_dir) = format_inputs(
+    (cellranger_data_dir, doublet_data_dir, matrix_data_dir) = format_inputs(
         input_sample_sheet
     )
 
-    // // CLEAN UP DATA
-    // cleanup_dir = data_cleanup(
-    //     doublet_data_dir,
-    //     matrix_data_dir,
-    //     cellranger_data_dir
-    // )
+    // CLEAN UP DATA
+    cleanup_dir = data_cleanup(
+        doublet_data_dir,
+        matrix_data_dir,
+        cellranger_data_dir
+    )
 
     // // CREATE SEURAT OBJ/QC
     // run_qc(
