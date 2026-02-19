@@ -96,46 +96,14 @@
         }
     ],
     "properties": {
-        "input_dir_list": {
-            "type": "array",
-            "items": {
-                "type": "string",
-                "format": "directory-path"
-            },
-            "description": "Input data from one or more of doubletFinder, matrix, cell ranger in directories"
-        },
-        "input_dir_src_list": {
-            "type": "array",
-            "items": {
-                "type": "string",
-                "enum": ["doubletFinder", "matrix", "cellranger"]
-            },
-            "description": "Source of input dirs, options: doubletFinder, matrix, cellranger"
-        },
-        "input_file_list": {
-            "type": "array",
-            "items": {
-                "type": "string",
-                "format": "file-path"
-            },
-            "description": "Input data from one or more of doubletFinder, matrix, cell ranger in tar balls, or h5 cellranger raw + filtered"
-        },
-        "input_file_src_list": {
-            "type": "array",
-            "items": {
-                "type": "string",
-                "enum": ["doubletFinder", "matrix", "cellranger", "h5_raw", "h5_filtered"]
-            },
-            "description": "Source of input tar balls, options: doubletFinder, matrix, cellranger, h5_raw, h5_filtered"
-        },
         "project": {
             "type": "string",
             "description": "Project name to be used in output file names and logs."
         },
-        "sample_condition_map_file": {
+        "input_sample_sheet": {
             "type": "string",
             "format": "file-path",
-            "description": "tsv with input sample, condition, remap. Last column value can be blank if original sample name to be used. Original sample name should match what is part of the directory path name"
+            "description": "Input TSV manifest one or more of doubletFinder, soupX, cell ranger in directories, tar balls, or cellranger h5 files. See docs for required fields"
         },
         "organism": {
             "type": "string",
