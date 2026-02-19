@@ -5,16 +5,17 @@ process DOUBLETFINDER {
     input:
         val(meta_config)
         tuple val(meta), path(input_dir)
-
     output:
-    tuple val(meta), path("${meta.sample_id}_doubletFinder/")
+    tuple val(updated_meta), path("${meta.sample_id}_doubletFinder/")
     script:
-    def src = meta.input_type.contains("cellranger") ? "cellranger" : "matrix"
-    def doubletFinder_output_path = "${meta.sample_id}_doubletFinder/"
-    meta.input_type = "doubletFinder"
+    src = meta.input_type.contains("cellranger") ? "cellranger" : "matrix"
+    sample_id = meta.containsKey("remap") ? meta.remap : meta.sample_id
+    doubletFinder_output_path = "${meta.sample_id}_doubletFinder/"
+    updated_meta = meta.clone()
+    updated_meta.input_type = "doubletFinder"
     """
     doubletFinder.R \\
-    --sample $meta.sample_id \\
+    --sample $sample_id \\
     --project $meta_config.PROJECT \\
     --starting_data $src \\
     --input_path $input_dir \\

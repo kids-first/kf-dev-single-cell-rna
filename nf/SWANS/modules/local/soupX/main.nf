@@ -6,14 +6,16 @@ process SOUPX {
         val(meta_config)
         tuple val(meta), path(input_dir)
     output:
-    tuple val(meta), path("${meta.sample_id}_soupX/")
+    tuple val(updated_meta), path("${meta.sample_id}_soupX/")
 
     script:
-    def soupX_output_path = "${meta.sample_id}_soupX"
-    meta.input_type = "soupX"
+    soupX_output_path = "${meta.sample_id}_soupX"
+    sample_id = meta.containsKey("remap") ? meta.remap : meta.sample_id
+    updated_meta = meta.clone()
+    updated_meta.input_type = "soupX"
     """
     soupX.R \\
-    --sample $meta.sample_id \\
+    --sample $sample_id \\
     --data_type $meta_config.SOUPX_START \\
     --project $meta_config.PROJECT \\
     --soupX_input_path $input_dir \\

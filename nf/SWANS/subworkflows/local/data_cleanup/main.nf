@@ -27,7 +27,6 @@ workflow data_cleanup {
         MAX_FEATURE_THRESHOLD: params.max_feature_threshold,
         COMPONENTS: params.int_components
     ]
-
     // if you've given matched doublet finder and soupX data, then you probably don't need to run doubletFinder again on that data
     if (!params.disable_doubletfinder){
         doubletfinder_samples = doublet_data_dir.map { metadata, _dir -> metadata.sample }.collect()
@@ -46,7 +45,7 @@ workflow data_cleanup {
         SOUPX(
             meta,
             cellranger_data_dir
-        )
+        ).view()
         def soupx_tar_input = SOUPX.out.map { _metadata, dir -> ["", dir] }
 
         TAR_OUTPUTS_SOUP(
@@ -54,7 +53,6 @@ workflow data_cleanup {
         )
         to_collate = SOUPX.out
     }
-    to_collate
     // COLLATE RESULTS
     // initialize with cellranger results if soupX disabled
     if (params.disable_soupx){

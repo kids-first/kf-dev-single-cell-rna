@@ -42,10 +42,10 @@ workflow {
     (cellranger_data_dir, doublet_data_dir, matrix_data_dir) = format_inputs(
         input_sample_sheet
     )
-    // weird quirk where if other matrices empty, values from one channel spill over?! view seems to prevent that
-    cellranger_data_dir.view()
-    doublet_data_dir.view()
-    matrix_data_dir.view()
+    // weird quirk where if other matrices empty, values from one channel spill over?! need to initialize empty channels to avoid this
+    cellranger_data_dir = (cellranger_data_dir ?: channel.value([]))
+    doublet_data_dir = doublet_data_dir ?: channel.value([])
+    matrix_data_dir = (matrix_data_dir ?: channel.value([]))
     // CLEAN UP DATA
     cleanup_dir = data_cleanup(
         doublet_data_dir,

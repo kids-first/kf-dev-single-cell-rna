@@ -18,20 +18,20 @@ workflow run_qc {
     condition_list = input_dirs.map { metadata, _dir -> metadata.condition }.collect()
     input_dir_list_flat = input_dirs.map { _metadata, dir -> dir }.collect()
 
-    // CREATE_INITIAL_SEURAT(
-    //     cleanup_dir,
-    //     sample_list_flat,
-    //     condition_list,
-    //     input_dir_list_flat,
-    //     seurat_filename
-    // )
-    // tar_output_input = CREATE_INITIAL_SEURAT.out.analysis_dir.map { dir -> ["", dir] }
-    // TAR_OUTPUTS(
-    //     tar_output_input
-    // )
-    // emit:
-    //     seurat_qs = CREATE_INITIAL_SEURAT.out.seurat_qs
-    //     qc_report = CREATE_INITIAL_SEURAT.out.qc_report
-    //     seurat_tar = TAR_OUTPUTS.out
+    CREATE_INITIAL_SEURAT(
+        cleanup_dir,
+        sample_list_flat,
+        condition_list,
+        input_dir_list_flat,
+        seurat_filename
+    )
+    tar_output_input = CREATE_INITIAL_SEURAT.out.analysis_dir.map { dir -> ["", dir] }
+    TAR_OUTPUTS(
+        tar_output_input
+    )
+    emit:
+        seurat_qs = CREATE_INITIAL_SEURAT.out.seurat_qs
+        qc_report = CREATE_INITIAL_SEURAT.out.qc_report
+        seurat_tar = TAR_OUTPUTS.out
 
 }
