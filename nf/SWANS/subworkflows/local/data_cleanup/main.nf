@@ -45,7 +45,7 @@ workflow data_cleanup {
         SOUPX(
             meta,
             cellranger_data_dir
-        ).view()
+        )
         def soupx_tar_input = SOUPX.out.map { _metadata, dir -> ["", dir] }
 
         TAR_OUTPUTS_SOUP(
