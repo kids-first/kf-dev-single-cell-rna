@@ -9,7 +9,7 @@ process DOUBLETFINDER {
     tuple val(updated_meta), path("${meta.sample_id}_doubletFinder/")
     script:
     src = meta.input_type.contains("cellranger") ? "cellranger" : "matrix"
-    sample_id = meta.containsKey("remap") ? meta.remap : meta.sample_id
+    sample_id = meta.remap ?: meta.sample_id
     doubletFinder_output_path = "${meta.sample_id}_doubletFinder/"
     updated_meta = meta.clone()
     updated_meta.input_type = "doubletFinder"
