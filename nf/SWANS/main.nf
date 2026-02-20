@@ -4,53 +4,63 @@ include { format_inputs } from './subworkflows/local/format_inputs/main.nf'
 include { data_cleanup } from './subworkflows/local/data_cleanup/main.nf'
 include { run_qc } from './subworkflows/local/run_qc/main.nf'
 
-def validate_inputs(param_obj){
+def validate_manifest(manifest){
     // single value possibilities
-    def valid_options = [
-        organism: ["mouse", "human"],
-        soupx_start: ["outs", "no_clusters", "h5"]
+    def required_free_text = [
+        "sample_id",
+        "condition",
+        "name",
     ]
     // multi value possibilities (lists)
-    def valid_multi_options = [
-        input_dir_src_list: ["cellranger", "doubletFinder", "soupX"],
-        input_file_src_list: ["h5_raw", "h5_filtered", "cellranger", "doubletFinder", "soupX"]
+    def required_enum = [
+        input_type: [
+            "h5_raw",
+            "h5_filtered",
+            "dir_cellranger",
+            "tar_cellranger_count",
+            "tar_cellranger_multi",
+            "dir_doubletFinder",
+            "tar_doubletFinder",
+            "dir_soupX",
+            "tar_soupX"
+        ]
     ]
-
-    param_obj.each { k, v ->
-        if (valid_options.containsKey(k) && !(v == null || v.isEmpty())){
-            if (!valid_options[k].contains(v)){
-                error("Invalid option for parameter ${k}: ${v}. Valid options are: ${valid_options[k]}")
+    manifest.splitCsv(header: true, sep: "\t").map {
+        row -> row.each{
+            required_free_text.each { required_key ->
+                if (!row.containsKey(required_key) || row[required_key] == null || row[required_key].isEmpty()){
+                    error("Manifest is missing required key ${required_key} or it is empty in row: ${row}")
+                }
             }
-        }
-        else if (valid_multi_options.containsKey(k) && !(v == null || v.isEmpty())){
-            def vals = v instanceof String ? v.split(",") : v
-            vals.each { val ->
-                if (!valid_multi_options[k].contains(val)){
-                    error("Invalid option for parameter ${k}: ${val}. Valid options are: ${valid_multi_options[k]}")
+            required_enum.each { required_key, valid_options ->
+                if (!row.containsKey(required_key) || row[required_key] == null || row[required_key].isEmpty()){
+                    error("Manifest is missing required key ${required_key} or it is empty in row: ${row}")
+                }
+                else {
+                    def value = row[required_key]
+                    if (!valid_options.contains(value)){
+                        error("Invalid option for parameter ${required_key}: ${value}. Valid options are: ${valid_options}")
+                    }
                 }
             }
         }
     }
+
 }
 
 workflow {
     main:
-    validate_inputs(params)
-    sample_condition_map_file = file(params.sample_condition_map_file) // TSV file with header and three columns: sample, condition, remap. remap is optional and if not provided, sample name will be used as-is.
-    input_dir_list = params.input_dir_list ? channel.fromPath(params.input_dir_list.class == String ? params.input_dir_list.split(',') as List : params.input_dir_list) : channel.empty() // input dirs from any of cell ranger or previous runs of doubletFinder or soupX. Required if no tar inputs
-    input_dir_src_list = params.input_dir_src_list ? channel.fromList(params.input_dir_src_list) : channel.value([]) // list of sources corresponding to input_dir_list, like cellranger, doubletFinder, soupX. Required if no tar inputs. 
-    input_file_list = params.input_file_list ? channel.fromPath(params.input_file_list.class == String ? params.input_file_list.split(',') as List : params.input_file_list) : channel.empty() // input files from cell ranger or previous runs of doubletFinder or soupX as tar balls or h5 raw + filtered. Required if no dir inputs
-    input_file_src_list = params.input_file_src_list ? channel.fromList(params.input_file_src_list) : channel.value([]) // list of sources corresponding to input_file_list, like cellranger, doubletFinder, soupX. h5_raw, h5_filtered. Required if no dir inputs.
+    input_sample_sheet = channel.fromPath(params.input_sample_sheet) // TSV file with required headers: sample_id, condition, name, input_type. Optional header remap
+    validate_manifest(input_sample_sheet)
 
     // FORMAT INPUTS
-    (doublet_data_dir, matrix_data_dir, cellranger_data_dir) = format_inputs(
-        input_file_src_list,
-        input_file_list,
-        sample_condition_map_file,
-        input_dir_list,
-        input_dir_src_list
+    (cellranger_data_dir, doublet_data_dir, matrix_data_dir) = format_inputs(
+        input_sample_sheet
     )
-
+    // weird quirk where if other matrices empty, values from one channel spill over?! need to initialize empty channels to avoid this
+    cellranger_data_dir = (cellranger_data_dir ?: channel.value([]))
+    doublet_data_dir = doublet_data_dir ?: channel.value([])
+    matrix_data_dir = (matrix_data_dir ?: channel.value([]))
     // CLEAN UP DATA
     cleanup_dir = data_cleanup(
         doublet_data_dir,

@@ -10,10 +10,10 @@ process TAR_OUTPUTS {
 
     script:
     // name of archive will be top level dir name or remaining dir name stripping "level" prefix if given
-    def archive_name = level ? "${level.split('/').last()}.tar.gz" : "${input_dir}.tar.gz"
-    def flags = "chzvf" // create, compress, verbose, file
+    archive_name = level ? "${level.split('/').last()}.tar.gz" : "${input_dir}.tar.gz"
+    flags = "chzvf" // create, compress, verbose, file
     // change to path if level set
-    def path_name = level ? "-C ${level} ." : input_dir
+    path_name = level ? "-C ${level} ." : input_dir
     """
     tar $flags $archive_name $path_name
     """
