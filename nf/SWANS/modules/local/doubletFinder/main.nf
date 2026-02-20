@@ -11,8 +11,7 @@ process DOUBLETFINDER {
     src = meta.input_type.contains("cellranger") ? "cellranger" : "matrix"
     sample_id = meta.remap ?: meta.sample_id
     doubletFinder_output_path = "${meta.sample_id}_doubletFinder/"
-    updated_meta = meta.clone()
-    updated_meta.input_type = "doubletFinder"
+    updated_meta = meta + ["input_type": "doubletFinder"]
     """
     doubletFinder.R \\
     --sample $sample_id \\

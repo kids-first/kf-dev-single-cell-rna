@@ -11,8 +11,7 @@ process SOUPX {
     script:
     soupX_output_path = "${meta.sample_id}_soupX"
     sample_id = meta.containsKey("remap") ? meta.remap : meta.sample_id
-    updated_meta = meta.clone()
-    updated_meta.input_type = "soupX"
+    updated_meta = meta + ["input_type": "soupX"]
     """
     soupX.R \\
     --sample $sample_id \\

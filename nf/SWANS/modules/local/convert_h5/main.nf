@@ -10,8 +10,7 @@ process CONVERT_H5 {
 
     script:
     sample_id = meta.sample_id
-    updated_meta = meta.clone()
-    updated_meta.input_type = "dir_cellranger"
+    updated_meta = meta + ["input_type": "dir_cellranger"]
     """
     cellranger_h5_to_count_dir.R \\
     --sample $sample_id \\

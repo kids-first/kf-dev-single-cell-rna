@@ -9,11 +9,10 @@ workflow format_inputs {
         input_sample_sheet
     main:
     // Convert sample_sheet to queue channel of tuples(input_type, meta)
-    // Filter the channel to get a list of unique, by filename, TAR files
-    // Untar those files
     input_by_type = input_sample_sheet.splitCsv(header: true, sep: "\t").map { metadata -> tuple(metadata.input_type, metadata.findAll{keys -> keys.value})}
     input_meta_tar = input_by_type.filter { input_type, _meta -> input_type.startsWith("tar") }
-        .unique {_input_type, meta -> meta.name }
+        .map {_input_type, meta -> [meta, meta.name] }
+        .unique { _meta, filename -> filename }
     UNTAR_CR(
         input_meta_tar
     )
