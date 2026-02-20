@@ -19,8 +19,8 @@ workflow format_inputs {
     // Correct the metadata for the sample IDs matching tar_cellranger_multi, if any
     tar_cellranger_multi_meta = input_by_type.filter { input_type, _meta -> input_type == "tar_cellranger_multi" }
         .map {_input_type, meta -> tuple(meta.sample_id, meta) }
-    // if parsed_id len > 1, then it's a multi, so replace with meta from tar CR multi, update meta.name
-    // else process as normal, but update meta.name with dir path from untar
+    // if input_type is dir_cellranger_multi, then it's a multi, so replace with meta from tar CR multi, update meta.name
+    // else process as normal, but update associated path with dir path from untar
     UNTAR_CR.out.branch { meta, parsed_id, dir_path ->
         multi: meta.input_type.equals("dir_cellranger_multi")
             return [parsed_id.split("\n"), dir_path].transpose()
@@ -31,6 +31,7 @@ workflow format_inputs {
         soupx: meta.input_type.equalsIgnoreCase("dir_soupX")
             return [meta, dir_path]
         }.set {per_sample_untar} 
+    // if there were tar metadata, prep to associate untarred multi dirs with the correct sample metadata, else initialize empty channel
     multi_dir = tar_cellranger_multi_meta
         .join(per_sample_untar.multi.flatMap())
         .map{_sample_id, meta, untar_path -> 
