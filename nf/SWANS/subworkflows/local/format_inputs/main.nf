@@ -14,27 +14,27 @@ workflow format_inputs {
         .map {_input_type, meta -> [meta, meta.name] }
         .unique { _meta, filename -> filename }
     UNTAR_CR(
-        input_meta_tar
+        input_meta_tar.map{ meta, file -> [meta + ["input_type": meta.input_type.replace("tar_", "dir_")], file] }
     )
     // Correct the metadata for the sample IDs matching tar_cellranger_multi, if any
     tar_cellranger_multi_meta = input_by_type.filter { input_type, _meta -> input_type == "tar_cellranger_multi" }
-        .map {_input_type, meta -> tuple(meta.sample_id, meta) }
+        .map {_input_type, meta -> tuple(meta.subMap('name', 'sample_id'), meta) }
     // if input_type is dir_cellranger_multi, then it's a multi, so replace with meta from tar CR multi, update meta.name
     // else process as normal, but update associated path with dir path from untar
-    UNTAR_CR.out.branch { meta, parsed_id, dir_path ->
+    UNTAR_CR.out.branch { meta, dir_path ->
         multi: meta.input_type.equals("dir_cellranger_multi")
-            return [parsed_id.split("\n"), dir_path].transpose()
+            return dir_path.map{ dir -> [["name": meta.name, "sample_id": dir.baseName], dir] }
         count: meta.input_type.equals("dir_cellranger_count")
             return [meta, dir_path]
         doublet: meta.input_type.equalsIgnoreCase("dir_doubletFinder")
             return [meta, dir_path]
         soupx: meta.input_type.equalsIgnoreCase("dir_soupX")
             return [meta, dir_path]
-        }.set {per_sample_untar} 
+        }.set {per_sample_untar}
     // if there were tar metadata, prep to associate untarred multi dirs with the correct sample metadata, else initialize empty channel
     multi_dir = tar_cellranger_multi_meta
         .join(per_sample_untar.multi.flatMap())
-        .map{_sample_id, meta, untar_path -> 
+        .map{_joinkey, meta, untar_path ->
             meta.name = untar_path
             tuple(meta, untar_path)
         }
@@ -44,7 +44,7 @@ workflow format_inputs {
         .map {_input_type, meta -> [meta.sample_id, meta] }
         .groupTuple()
         .map { _sample_id, meta_list -> tuple(
-            meta_list[0], meta_list.find{ sub_meta -> sub_meta.input_type == "h5_raw" }.name, meta_list.find{ sub_meta -> sub_meta.input_type == "h5_filtered" }.name
+            meta_list[0] + ["input_type": "dir_cellranger"], meta_list.find{ sub_meta -> sub_meta.input_type == "h5_raw" }.name, meta_list.find{ sub_meta -> sub_meta.input_type == "h5_filtered" }.name
             )
         }
     h5_as_cr_dir = CONVERT_H5(h5_to_convert)

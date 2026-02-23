@@ -6,7 +6,7 @@ process UNTAR_CR {
     tuple val(meta), path(tar_file)
 
     output:
-    tuple val(updated_meta), stdout, path("*")
+    tuple val(meta), path("*")
 
     script:
     cr_tar_args = "--ignore-failed-read " +
@@ -18,10 +18,8 @@ process UNTAR_CR {
     "--show-transformed-names"
     tar_args = meta.input_type.contains("cellranger") ? cr_tar_args : ""
     // replace output type with dir prefix in metadata
-    updated_meta = meta + ["input_type": meta.input_type.replace("tar_", "dir_")]
     """
     tar xvf $tar_file \\
-    $tar_args \\
-    | cut -f 1 -d "/" | uniq
+    $tar_args
     """
 }
