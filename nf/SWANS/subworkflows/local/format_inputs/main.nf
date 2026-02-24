@@ -23,7 +23,7 @@ workflow format_inputs {
     // else process as normal, but update associated path with dir path from untar
     UNTAR_CR.out.branch { meta, dir_path ->
         multi: meta.input_type.equals("dir_cellranger_multi")
-            return dir_path.map{ dir -> [["name": meta.name, "sample_id": dir.baseName], dir] }
+            return dir_path.collect{ dir -> [["name": meta.name, "sample_id": dir.baseName], dir] }
         count: meta.input_type.equals("dir_cellranger_count")
             return [meta, dir_path]
         doublet: meta.input_type.equalsIgnoreCase("dir_doubletFinder")
