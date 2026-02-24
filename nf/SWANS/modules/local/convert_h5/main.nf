@@ -6,7 +6,7 @@ process CONVERT_H5 {
     tuple val(meta), path(h5_raw), path(h5_filtered)
 
     output:
-    tuple val(updated_meta), path(sample_id)
+    tuple val(meta), path(sample_id)
 
     script:
     sample_id = meta.sample_id

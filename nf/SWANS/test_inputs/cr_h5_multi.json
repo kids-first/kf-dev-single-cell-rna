@@ -1,0 +1,11 @@
+{
+    "project": "HOPE_h5_multi_TEST",
+    "input_sample_sheet": "/home/ubuntu/volume/SWANS/NF_TEST/hope_h5_muilt_test.tsv",
+    "dbl_mem": 30,
+    "disable_doubletfinder": false,
+    "disable_soupx": false,
+    "dbl_threads": 2,
+    "soupx_start": "no_clusters",
+    "organism": "human",
+    "aws_test_instance": true
+}
