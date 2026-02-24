@@ -1,12 +1,6 @@
 {
     "project": "HOPE_CR_h5_W_CLEANUP_TEST",
-    "sample_condition_map_file": "/home/ubuntu/volume/SWANS/NF_TEST/cr_only_test_map.txt",
-    "input_file_list": [
-        "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/7316-3058.cellranger.raw_feature_bc_matrix.h5",
-        "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/7316-3058.cellranger.filtered_feature_bc_matrix.h5",
-        "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/7316UP-2058.tar.gz"
-    ],
-    "input_file_src_list": ["h5_raw", "h5_filtered", "cellranger"],
+    "input_sample_sheet": "/home/ubuntu/volume/SWANS/NF_TEST/hope_h5_tar_test.tsv",
     "dbl_mem": 30,
     "disable_doubletfinder": false,
     "disable_soupx": false,

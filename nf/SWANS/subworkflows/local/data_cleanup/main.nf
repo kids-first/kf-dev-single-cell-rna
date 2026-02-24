@@ -27,56 +27,49 @@ workflow data_cleanup {
         MAX_FEATURE_THRESHOLD: params.max_feature_threshold,
         COMPONENTS: params.int_components
     ]
-
     // if you've given matched doublet finder and soupX data, then you probably don't need to run doubletFinder again on that data
     if (!params.disable_doubletfinder){
-        doubletfinder_samples = doublet_data_dir.map { _src, sample, _condition, _dir -> sample }.collect()
+        doubletfinder_samples = doublet_data_dir.map { metadata, _dir -> metadata.sample }.collect()
         dbl_input = cellranger_data_dir
-            .concat(matrix_data_dir.filter { _src, sample, _condition, _dir -> !(doubletfinder_samples.contains(sample)) })
-            .map { src, sample, _condition, dir -> [src, sample, dir] }
+            .concat(matrix_data_dir.filter { metadata, _dir -> !(doubletfinder_samples.contains(metadata.sample)) })
         DOUBLETFINDER(
             meta,
             dbl_input
         )
-        dbl_tar_input = DOUBLETFINDER.out.map {_sample, dir -> ["", dir] }
+        dbl_tar_input = DOUBLETFINDER.out.map {_metadata, dir -> ["", dir] }
         TAR_OUTPUTS_DBL(
             dbl_tar_input
         )
     }
     if (!params.disable_soupx){
-        soupx_input = cellranger_data_dir.map { src, sample, _condition, dir -> [src, sample, dir] }
         SOUPX(
             meta,
-            soupx_input
+            cellranger_data_dir
         )
-        def soupx_tar_input = SOUPX.out.map { _sample, dir -> ["", dir] }
-        samples = SOUPX.out.map { sample, _dir -> sample }
-        input_dirs = SOUPX.out.map { _sample, dir -> dir }
+        def soupx_tar_input = SOUPX.out.map { _metadata, dir -> ["", dir] }
 
         TAR_OUTPUTS_SOUP(
             soupx_tar_input
         )
+        to_collate = SOUPX.out
     }
     // COLLATE RESULTS
     // initialize with cellranger results if soupX disabled
     if (params.disable_soupx){
-        samples = cellranger_data_dir.map { _src, sample, _condition, _dir -> sample }
-        input_dirs = cellranger_data_dir.map { _src, _sample, _condition, dir -> dir }
+        to_collate = cellranger_data_dir
     }
     if (!params.disable_doubletfinder) {
-        samples = samples.concat(DOUBLETFINDER.out.map { sample, _dir -> sample })
-        input_dirs = input_dirs.concat(DOUBLETFINDER.out.map { _sample, dir -> dir })
+        to_collate = to_collate.concat(DOUBLETFINDER.out)
     }
-    samples = samples.concat(doublet_data_dir.map { _src, sample, _condition, _dir -> sample })
-        .concat(matrix_data_dir.map { _src, sample, _condition, _dir -> sample })
-        .collect()
-    input_dirs = input_dirs.concat(doublet_data_dir.map {  _src, _sample, _condition, dir -> dir })
-        .concat(matrix_data_dir.map { _src, _sample, _condition, dir -> dir })
-        .collect()
+    to_collate = to_collate.concat( doublet_data_dir )
+        .concat( matrix_data_dir )
+    to_collate_metadata = to_collate.map { metadata, _path -> metadata }.collect()
+    to_collate_paths = to_collate.map { _metadata, path -> path }.collect()
+
     COLLATE_OUTPUTS(
         meta,
-        samples,
-        input_dirs
+        to_collate_metadata,
+        to_collate_paths
     )
 
     emit:
