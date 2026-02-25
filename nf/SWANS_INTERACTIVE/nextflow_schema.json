@@ -130,7 +130,8 @@
         },
         "aso_processes": {
             "type": "integer",
-            "default": 4
+            "default": 4,
+            "description": "Number of processes to use for parallel processing in analyze_seurat_object module"
         },
         "aso_memory": {
             "type": "integer",
@@ -147,7 +148,8 @@
         },
         "run_transferdata": {
             "type": "string",
-            "default": "n"
+            "default": "n",
+            "enum": ["n", "y"]
         },
         "transferdata_ref_file": {
             "type": "string",

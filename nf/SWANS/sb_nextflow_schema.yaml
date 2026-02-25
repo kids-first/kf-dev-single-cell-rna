@@ -71,6 +71,7 @@ hints:
     value: multi-instance
 -   class: "sbg:maxNumberOfParallelInstances"
     value: 10
+
 arguments:
 -   position: 0
     shellQuote: false
