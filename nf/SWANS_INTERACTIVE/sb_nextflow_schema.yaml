@@ -1,0 +1,313 @@
+app_content:
+    entrypoint: main.nf
+class: nextflow
+cwlVersion: None
+hints:
+-   class: sbg:NextflowExecutionMode
+    value: multi-instance
+inputs:
+-   id: r_lib_path
+    inputBinding:
+        prefix: --r_lib_path
+    sbg:toolDefaultValue: /usr/local/lib/R/site-library/
+    type:
+    - 'null'
+    - string
+-   id: project
+    inputBinding:
+        prefix: --project
+    type:
+    - 'null'
+    - string
+-   id: initial_seurat_object
+    inputBinding:
+        prefix: --initial_seurat_object
+    type:
+    - 'null'
+    - string
+-   id: organism
+    inputBinding:
+        prefix: --organism
+    sbg:toolDefaultValue: human
+    type:
+    - 'null'
+    - string
+-   id: mito_cutoff
+    inputBinding:
+        prefix: --mito_cutoff
+    sbg:toolDefaultValue: 15
+    type:
+    - 'null'
+    - int
+-   id: ribo_cutoff
+    inputBinding:
+        prefix: --ribo_cutoff
+    sbg:toolDefaultValue: 100
+    type:
+    - 'null'
+    - int
+-   id: int_components
+    inputBinding:
+        prefix: --int_components
+    sbg:toolDefaultValue: 30
+    type:
+    - 'null'
+    - int
+-   id: aso_processes
+    inputBinding:
+        prefix: --aso_processes
+    sbg:toolDefaultValue: 4
+    type:
+    - 'null'
+    - int
+-   id: aso_memory
+    inputBinding:
+        prefix: --aso_memory
+    sbg:toolDefaultValue: 30000000000
+    type:
+    - 'null'
+    - int
+-   id: run_azimuth
+    inputBinding:
+        prefix: --run_azimuth
+    sbg:toolDefaultValue: n
+    type:
+    - 'null'
+    - string
+-   id: azimuth_ref
+    inputBinding:
+        prefix: --azimuth_ref
+    type:
+    - 'null'
+    - string
+-   id: run_transferdata
+    inputBinding:
+        prefix: --run_transferdata
+    sbg:toolDefaultValue: n
+    type:
+    - 'null'
+    - string
+-   id: transferdata_ref_file
+    inputBinding:
+        prefix: --transferdata_ref_file
+    type:
+    - 'null'
+    - string
+-   id: transferdata_reduction
+    inputBinding:
+        prefix: --transferdata_reduction
+    type:
+    - 'null'
+    - string
+-   id: transferdata_annocol
+    inputBinding:
+        prefix: --transferdata_annocol
+    type:
+    - 'null'
+    - string
+-   id: mito_regression
+    inputBinding:
+        prefix: --mito_regression
+    sbg:toolDefaultValue: n
+    type:
+    - 'null'
+    - string
+-   id: ribo_regression
+    inputBinding:
+        prefix: --ribo_regression
+    sbg:toolDefaultValue: n
+    type:
+    - 'null'
+    - string
+-   id: cc_method
+    inputBinding:
+        prefix: --cc_method
+    type:
+    - 'null'
+    - string
+-   id: num_var_features
+    inputBinding:
+        prefix: --num_var_features
+    sbg:toolDefaultValue: 3000
+    type:
+    - 'null'
+    - int
+-   id: resolution_config
+    inputBinding:
+        prefix: --resolution_config
+    sbg:toolDefaultValue: 0.1,0.2,0.3
+    type:
+    - 'null'
+    - string
+-   id: include_tsne
+    inputBinding:
+        prefix: --include_tsne
+    sbg:toolDefaultValue: n
+    type:
+    - 'null'
+    - string
+-   id: scale_data_features
+    inputBinding:
+        prefix: --scale_data_features
+    sbg:toolDefaultValue: variable
+    type:
+    - 'null'
+    - string
+-   id: split_layers_by
+    inputBinding:
+        prefix: --split_layers_by
+    sbg:toolDefaultValue: Sample
+    type:
+    - 'null'
+    - string
+-   id: normalization_config
+    inputBinding:
+        prefix: --normalization_config
+    sbg:toolDefaultValue: standard,sct
+    type:
+    - 'null'
+    - string
+-   id: integration_config
+    inputBinding:
+        prefix: --integration_config
+    sbg:toolDefaultValue: cca,rpca,harmony
+    type:
+    - 'null'
+    - string
+-   id: ref_based_integration
+    inputBinding:
+        prefix: --ref_based_integration
+    sbg:toolDefaultValue: n
+    type:
+    - 'null'
+    - string
+-   id: ref_samples
+    inputBinding:
+        prefix: --ref_samples
+    type:
+    - 'null'
+    - string
+-   id: regression_file
+    inputBinding:
+        prefix: --regression_file
+    type:
+    - 'null'
+    - string
+-   id: storage
+    inputBinding:
+        prefix: --storage
+    sbg:toolDefaultValue: rds
+    type:
+    - 'null'
+    - string
+-   id: conserved_genes
+    inputBinding:
+        prefix: --conserved_genes
+    sbg:toolDefaultValue: n
+    type:
+    - 'null'
+    - string
+-   id: visualization
+    inputBinding:
+        prefix: --visualization
+    sbg:toolDefaultValue: dot
+    type:
+    - 'null'
+    - string
+-   id: user_gene_file
+    inputBinding:
+        prefix: --user_gene_file
+    type:
+    - 'null'
+    - string
+-   id: aws_test_instance
+    inputBinding:
+        prefix: --aws_test_instance
+    type:
+    - 'null'
+    - string
+-   id: sbg_run
+    inputBinding:
+        prefix: --sbg_run
+    type:
+    - 'null'
+    - string
+-   id: outdir
+    inputBinding:
+        prefix: --outdir
+    label: Path to the output directory where the results will be saved.
+    sbg:category: Input/output options
+    sbg:icon: fas fa-folder-open
+    sbg:toolDefaultValue: ./results
+    type: string
+-   doc: Use to set an upper-limit for the CPU requirement for each process. Should
+        be an integer e.g. `--max_cpus 1`
+    id: max_cpus
+    inputBinding:
+        prefix: --max_cpus
+    label: Maximum number of CPUs that can be requested for any single job.
+    sbg:category: Max job request options
+    sbg:hidden: true
+    sbg:icon: fas fa-microchip
+    sbg:toolDefaultValue: 16
+    type:
+    - 'null'
+    - int
+-   doc: Use to set an upper-limit for the memory requirement for each process. Should
+        be a string in the format integer-unit e.g. `--max_memory '8.GB'`
+    id: max_memory
+    inputBinding:
+        prefix: --max_memory
+    label: Maximum amount of memory that can be requested for any single job.
+    sbg:category: Max job request options
+    sbg:hidden: true
+    sbg:icon: fas fa-memory
+    sbg:pattern: ^\d+(\.\d+)?\.?\s*(K|M|G|T)?B$
+    sbg:toolDefaultValue: 128.GB
+    type:
+    - 'null'
+    - string
+-   doc: Use to set an upper-limit for the time requirement for each process. Should
+        be a string in the format integer-unit e.g. `--max_time '2.h'`
+    id: max_time
+    inputBinding:
+        prefix: --max_time
+    label: Maximum amount of time that can be requested for any single job.
+    sbg:category: Max job request options
+    sbg:hidden: true
+    sbg:icon: far fa-clock
+    sbg:pattern: ^(\d+\.?\s*(s|m|h|day)\s*)+$
+    sbg:toolDefaultValue: 240.h
+    type:
+    - 'null'
+    - string
+-   doc: List of files not added as explicit workflow inputs but required for workflow
+        execution.
+    id: auxiliary_files
+    label: Auxiliary files
+    type:
+    - 'null'
+    -   items: File
+        type: array
+-   doc: Provide parameters through a JSON format input file.
+    id: params_file
+    inputBinding:
+        prefix: -params-file
+    label: Params files
+    sbg:fileTypes: JSON
+    type:
+    - 'null'
+    - File
+outputs:
+-   doc: This is a template output. You can modify the glob pattern to make outputs
+        more specific.
+    id: nf_publishdir
+    label: Publish Directory
+    outputBinding:
+        glob: '*'
+    type:
+    - 'null'
+    -   items: File
+        type: array
+requirements:
+-   class: InlineJavascriptRequirement

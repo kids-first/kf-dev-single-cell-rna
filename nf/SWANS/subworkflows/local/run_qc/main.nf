@@ -9,7 +9,7 @@ workflow run_qc {
         cleanup_dir
     main:
     // CREATE SEURAT OBJ/QC
-    seurat_filename = "data/endpoints/$params.project/analysis/RDS/${params.project}_initial_seurat_object.qs"
+    seurat_filename = "${params.project}_initial_seurat_object.qs"
     // use metadata from matrix and cellranger from src_sample_dir to help collate create the initial sample list file
     //def (sample_list_flat, condition_list, input_dir_list_flat) = [ [],  [], [] ]
     input_dirs = cellranger_data_dir.concat(matrix_data_dir)

@@ -17,7 +17,7 @@ process CREATE_INITIAL_SEURAT {
     sample.eachWithIndex { s, i->
         sample_list_str += "${s}\t${condition[i]}\t${input_dir[i]}\n";
         }
-    def qc_html_fn = "data/endpoints/$params.project/analysis/report/qc_report/${params.project}_qc_report.html"
+    def qc_html_fn = "${params.project}_qc_report.html"
     def meta_config_str = ""
     meta_config.each { k, v -> meta_config_str += "${k}: ${v}\n" }
 
@@ -48,8 +48,5 @@ process CREATE_INITIAL_SEURAT {
     output_file="$qc_html_fn", \
     params = list(root_dir = "./", data_dir = "./data/endpoints", qc_config = "prelim_configs.yaml"))'
 
-    # Organize files for module output
-    ln ./${meta_config.PROJECT}_initial_seurat_qc/RDS/${meta_config.PROJECT}_initial_seurat_object.qs ./
-    ln ./${meta_config.PROJECT}_initial_seurat_qc/report/qc_report/${meta_config.PROJECT}_qc_report.html ./
     """
 }
