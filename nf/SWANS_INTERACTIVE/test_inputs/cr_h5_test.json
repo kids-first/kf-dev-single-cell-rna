@@ -1,0 +1,9 @@
+{
+    "project": "HOPE_TEST_H5_CR_MIXED",
+    "initial_seurat_object": "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/HOPE_TEST_H5_CR_MIXED_initial_seurat_object.qs",
+    "include_tsne" : "y",
+    "run_azimuth": "y",
+    "azimuth_ref": "humancortexref",
+    "organism": "human",
+    "aws_test_instance": true
+}

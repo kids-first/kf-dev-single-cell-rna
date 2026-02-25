@@ -52,34 +52,33 @@ workflow {
     main:
     initial_seurat_object = channel.fromPath(params.initial_seurat_object) // TSV file with required headers: sample_id, condition, name, input_type. Optional header remap
     validate_inputs(params)
-    meta = [
-        PROJECT: params.project,
-        ORGANISM: params.organism,
-        RPATH: params.r_lib_path,
-        MITO: params.mito_cutoff,
-        RIBO: params.ribo_cutoff,
-        MIN_FEATURE_THRESHOLD: params.min_feature_threshold,
-        MAX_FEATURE_THRESHOLD: params.max_feature_threshold,
-        SEURAT_NORMALIZATION_METHOD: params.normalization_config,
-        SEURAT_INTEGRATION_METHOD: params.integration_config,
-        RESOLUTION: params.resolution_config,
-        COMPONENTS: params.int_components,
-        MITO_REGRESSION: params.mito_regression,
-        RIBO_REGRESSION: params.ribo_regression,
-        CELL_CYCLE_REGRESSION: params.cc_method ? 'y' : 'n',
-        NUM_VARIABLE_FEATURES: params.num_var_features,
-        SCALE_DATA_FEATURES: params.scale_data_features,
-        SPLIT_LAYERS_BY: params.split_layers_by,
-        REFERENCE_BASED_INTEGRATION: params.ref_based_integration,
-        RUN_AZIMUTH: params.run_azimuth,
-        RUN_TRANSFERDATA: params.run_transferdata,
-        TSNE: params.include_tsne,
-        CONSERVED_GENES: params.conserved_genes,
-        VISUALIZATION: params.visualization
-    ]
+    meta = channel.value(
+        [
+            PROJECT: params.project,
+            ORGANISM: params.organism,
+            RPATH: params.r_lib_path,
+            MITO: params.mito_cutoff,
+            RIBO: params.ribo_cutoff,
+            SEURAT_NORMALIZATION_METHOD: params.normalization_config,
+            SEURAT_INTEGRATION_METHOD: params.integration_config,
+            RESOLUTION: params.resolution_config,
+            COMPONENTS: params.int_components,
+            MITO_REGRESSION: params.mito_regression,
+            RIBO_REGRESSION: params.ribo_regression,
+            CELL_CYCLE_REGRESSION: params.cc_method ? 'y' : 'n',
+            NUM_VARIABLE_FEATURES: params.num_var_features,
+            SCALE_DATA_FEATURES: params.scale_data_features,
+            SPLIT_LAYERS_BY: params.split_layers_by,
+            REFERENCE_BASED_INTEGRATION: params.ref_based_integration,
+            RUN_AZIMUTH: params.run_azimuth,
+            RUN_TRANSFERDATA: params.run_transferdata,
+            TSNE: params.include_tsne,
+            CONSERVED_GENES: params.conserved_genes,
+            VISUALIZATION: params.visualization
+        ]
+    )
 
-    analyze_seurat_object_input = tuple(meta, initial_seurat_object)
-    
+    analyze_seurat_object_input = meta.combine(initial_seurat_object)
     ANALYZE_SEURAT_OBJECT(
         analyze_seurat_object_input,
         params.aso_memory

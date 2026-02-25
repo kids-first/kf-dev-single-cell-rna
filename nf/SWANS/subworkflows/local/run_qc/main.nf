@@ -1,6 +1,5 @@
 #!/usr/bin/env nextflow
 
-include { TAR_OUTPUTS } from '../../../modules/local/tar/main.nf'
 include { CREATE_INITIAL_SEURAT } from '../../../modules/local/create_initial_seurat/main.nf'
 
 workflow run_qc {
@@ -25,13 +24,9 @@ workflow run_qc {
         input_dir_list_flat,
         seurat_filename
     )
-    tar_output_input = CREATE_INITIAL_SEURAT.out.analysis_dir.map { dir -> ["", dir] }
-    TAR_OUTPUTS(
-        tar_output_input
-    )
+
     emit:
         seurat_qs = CREATE_INITIAL_SEURAT.out.seurat_qs
         qc_report = CREATE_INITIAL_SEURAT.out.qc_report
-        seurat_tar = TAR_OUTPUTS.out
 
 }

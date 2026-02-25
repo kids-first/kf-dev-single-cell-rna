@@ -48,25 +48,6 @@ Refer to the [Nextflow documentation](https://www.nextflow.io/docs/latest/) for 
 ### Required
 - `seurat_qc_report`: HTML QC Report. Check [here](https://github.com/FrancoResearchLab/SWANS/blob/v2.1.0/README.md#qc_report) for report guide
 - `seurat_qs`: Initial seurat filtered obect required for downstream anaylsis
-- `initial_seurat_qc`: Tar ball of outputs from step `F`.  This is required for downstream steps of SWANS. Structured as follows:
-  ```
-  `project`_initial_seurat_qc
-  ├── RDS
-  │   └── `project`_initial_seurat_object.qs
-  ├── figures
-  │   ├── `project`_qc_1_scatter1.png
-  │   ├── `project`_qc_1_scatter2.png
-  │   ├── `project`_qc_1_vln.png
-  │   ├── `project`_qc_2_scatter1.png
-  │   ├── `project`_qc_2_scatter2.png
-  │   └── `project`_qc_2_vln.png
-  ├── report
-  │   ├── `project`_samples.sample_list
-  │   ├── prelim_configs.yaml
-  │   └── qc_report
-  │       └── `project`_qc_report.html
-  └── tables
-  ```
 ### If starting from scratch and flags enabled
 - `doubletfinder`: DoubletFinder tar ball results. Can be reused downstream if needed
 - `soupX`: soupX tar ball results. Can be used downstream and if this workflow is repeated with new params.
