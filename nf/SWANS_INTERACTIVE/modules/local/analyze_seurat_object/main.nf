@@ -12,6 +12,7 @@ process ANALYZE_SEURAT_OBJECT {
     def analyzed_seurat_object = "data/endpoints/$meta_config.PROJECT/analysis/RDS/${meta_config.PROJECT}_analyzed_seurat_object.qs"
     def report_path_figures = "data/endpoints/$params.project/analysis/report/figures" 
     def args = task.ext.args ?: ''
+    def meta_config_str = meta_config.collect{ k, v -> "${k}: ${v}" }.join('\n')
     """
     echo -e "$aso_memory" > memory.txt
     
@@ -41,5 +42,7 @@ process ANALYZE_SEURAT_OBJECT {
     $meta_config.RPATH
 
     cp -r data/endpoints/${meta_config.PROJECT}/analysis ./analyze_seurat_object_output
+
+    echo -e "$meta_config_str" > ./analyze_seurat_object_output/report/prelim_configs.yaml
     """
 }
