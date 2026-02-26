@@ -17,7 +17,7 @@ process CREATE_INITIAL_SEURAT {
     sample.eachWithIndex { s, i->
         sample_list_str += "${s}\t${condition[i]}\t${input_dir[i]}\n";
         }
-    def qc_html_fn = "${params.project}_qc_report.html"
+    def qc_html_fn = "${meta_config.PROJECT}_qc_report.html"
     def meta_config_str = ""
     meta_config.each { k, v -> meta_config_str += "${k}: ${v}\n" }
 
