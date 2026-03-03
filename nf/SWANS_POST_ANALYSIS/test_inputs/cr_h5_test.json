@@ -1,9 +1,16 @@
 {
     "project": "HOPE_TEST_H5_CR_MIXED",
-    "initial_seurat_object": "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/HOPE_TEST_H5_CR_MIXED_initial_seurat_object.qs",
     "include_tsne" : "y",
-    "run_azimuth": "y",
-    "azimuth_ref": "humancortexref",
     "organism": "human",
-    "aws_test_instance": true
+    "aws_test_instance": true,
+    "user_analyzed_seurat_object": "/home/ubuntu/volume/SWANS/NF_TEST/analysis/RDS/HOPE_TEST_H5_CR_MIXED_analyzed_seurat_object.RDS",
+    "user_analyzed_seurat_object_meta_annotation": "celltypes",
+    "user_umap_reduction": "standard.harmony.umap",
+    "user_tnse_reduction": "standard.rpca.tsne",
+    "annotate_provided_final_seurat_object": "y",
+    "cluster_annotation_file": "/home/ubuntu/volume/SWANS/NF_TEST/cluster_annot_mock.tsv",
+    "final_user_gene_file": "/home/ubuntu/volume/SWANS/NF_TEST/mock_gene_list.txt",
+    "run_trajectory_analysis": "y",
+    "partition_trajectory": "n"
+
 }
