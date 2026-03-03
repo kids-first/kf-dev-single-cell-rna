@@ -3,7 +3,7 @@
     "include_tsne" : "y",
     "organism": "human",
     "aws_test_instance": true,
-    "user_analyzed_seurat_object": "/home/ubuntu/volume/SWANS/NF_TEST/analysis/RDS/HOPE_TEST_H5_CR_MIXED_analyzed_seurat_object.RDS",
+    "existing_analysis_tar": "/home/ubuntu/volume/SWANS/NF_TEST/HOPE_TEST_H5_CR_MIXED.tar.gz",
     "user_analyzed_seurat_object_meta_annotation": "celltypes",
     "user_umap_reduction": "standard.harmony.umap",
     "user_tnse_reduction": "standard.rpca.tsne",
@@ -11,6 +11,6 @@
     "cluster_annotation_file": "/home/ubuntu/volume/SWANS/NF_TEST/cluster_annot_mock.tsv",
     "final_user_gene_file": "/home/ubuntu/volume/SWANS/NF_TEST/mock_gene_list.txt",
     "run_trajectory_analysis": "y",
-    "partition_trajectory": "n"
-
+    "partition_trajectory": "n",
+    "final_threads": 8
 }

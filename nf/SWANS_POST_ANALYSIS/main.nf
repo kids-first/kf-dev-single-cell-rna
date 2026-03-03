@@ -1,8 +1,10 @@
 #!/usr/bin/env nextflow
 
+include { FINAL_ANALYSIS } from './modules/local/final_analysis/main.nf'
+
 workflow {
     main:
-    user_analyzed_seurat_object = channel.fromPath(params.user_analyzed_seurat_object)
+    existing_analysis_tar = channel.fromPath(params.existing_analysis_tar)
     cluster_annotation_file = channel.fromPath(params.cluster_annotation_file)
     final_user_gene_file = channel.fromPath(params.final_user_gene_file)
 
@@ -29,7 +31,15 @@ workflow {
             final_conserved_genes: params.final_conserved_genes,
             final_threads: params.final_threads,
             run_trajectory_analysis: params.run_trajectory_analysis,
-            partition_trajectory: params.partition_trajectory
+            partition_trajectory: params.partition_trajectory,
+            memory_mb: params.memory_mb
         ]
+    )
+
+    FINAL_ANALYSIS(
+        meta,
+        existing_analysis_tar,
+        cluster_annotation_file,
+        final_user_gene_file
     )
 }
