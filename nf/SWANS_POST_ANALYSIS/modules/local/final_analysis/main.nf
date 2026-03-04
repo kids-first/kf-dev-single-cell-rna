@@ -8,7 +8,9 @@ process FINAL_ANALYSIS {
         path(cluster_annotation_file)
         path(final_user_gene_file)
     output:
-        path("data/endpoints"), emit: analysis_path
+        path("data"), emit: analysis_path
+        path("data/endpoints/${meta_config.project}/analysis/RDS/${meta_config.project}_final_analyzed_seurat_object.qs"), emit: final_qs
+        path("data/endpoints/${meta_config.project}/analysis/RDS/${meta_config.project}_final_analyzed_seurat_object.rds"), emit: final_rds
     script:
     def rds_root = "data/endpoints/${meta_config.project}/analysis/RDS/${meta_config.project}_analyzed_seurat_object"
     """
@@ -31,7 +33,7 @@ process FINAL_ANALYSIS {
     $final_user_gene_file \\
     $meta_config.final_threads \\
     $meta_config.final_filtering_threshold \\
-    $meta_config.avg2fc \\
+    $meta_config.avg_log2fc_threshold \\
     $meta_config.min_pct \\
     $meta_config.final_conserved_genes \\
     $meta_config.organism \\

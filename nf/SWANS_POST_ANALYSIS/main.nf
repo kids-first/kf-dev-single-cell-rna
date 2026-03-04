@@ -1,6 +1,8 @@
 #!/usr/bin/env nextflow
 
 include { FINAL_ANALYSIS } from './modules/local/final_analysis/main.nf'
+include { TRAJECTORY_ANALYSIS } from './modules/local/trajectory_analysis/main.nf'
+include { FINAL_REPORT } from './modules/local/final_report/main.nf'
 
 workflow {
     main:
@@ -30,7 +32,6 @@ workflow {
             final_visualization: params.final_visualization,
             final_conserved_genes: params.final_conserved_genes,
             final_threads: params.final_threads,
-            run_trajectory_analysis: params.run_trajectory_analysis,
             partition_trajectory: params.partition_trajectory,
             memory_mb: params.memory_mb
         ]
@@ -41,5 +42,17 @@ workflow {
         existing_analysis_tar,
         cluster_annotation_file,
         final_user_gene_file
+    )
+    if (params.run_trajectory_analysis){
+        TRAJECTORY_ANALYSIS(
+            meta,
+            FINAL_ANALYSIS.out.analysis_path,
+            cluster_annotation_file
+        )
+    }
+    final_report_input_dir = TRAJECTORY_ANALYSIS.out ?: FINAL_ANALYSIS.out.analysis_path
+    FINAL_REPORT(
+        meta,
+        final_report_input_dir
     )
 }
