@@ -7,33 +7,36 @@ include { FINAL_REPORT } from './modules/local/final_report/main.nf'
 workflow {
     main:
     existing_analysis_tar = channel.fromPath(params.existing_analysis_tar)
+    sample_list = channel.fromPath(params.sample_list)
+    prelim_config = channel.fromPath(params.prelim_config)
     cluster_annotation_file = channel.fromPath(params.cluster_annotation_file)
     final_user_gene_file = channel.fromPath(params.final_user_gene_file)
 
     meta = channel.value(
         [
-            r_lib_path: params.r_lib_path,
-            project: params.project,
-            provide_analyzed_seurat_object: "y",
-            user_analyzed_seurat_object_meta_sample: params.user_analyzed_seurat_object_meta_sample,
-            user_analyzed_seurat_object_meta_experiment: params.user_analyzed_seurat_object_meta_experiment,
-            user_analyzed_seurat_object_meta_annotation: params.user_analyzed_seurat_object_meta_annotation,
-            user_umap_reduction: params.user_umap_reduction,
-            user_tnse_reduction: params.user_tnse_reduction,
-            organism: params.organism,
-            annotate_provided_final_seurat_object: params.annotate_provided_final_seurat_object,
-            min_pct: params.min_pct,
-            avg_log2fc_threshold: params.avg_log2fc_threshold,
-            final_filtering_threshold: params.final_filtering_threshold,
-            final_seurat_normalization_method: params.final_seurat_normalization_method,
-            final_seurat_integration_method: params.final_seurat_integration_method,
-            final_resolution: params.final_resolution,
-            final_storage: params.final_storage,
-            final_visualization: params.final_visualization,
-            final_conserved_genes: params.final_conserved_genes,
-            final_threads: params.final_threads,
-            partition_trajectory: params.partition_trajectory,
-            memory_mb: params.memory_mb
+            RPATH: params.r_lib_path,
+            PROJECT: params.project,
+            PROVIDE_ANALYZED_SEURAT_OBJECT: "y",
+            USER_ANALYZED_SEURAT_OBJECT_META_SAMPLE: params.user_analyzed_seurat_object_meta_sample,
+            USER_ANALYZED_SEURAT_OBJECT_META_EXPERIMENT: params.user_analyzed_seurat_object_meta_experiment,
+            USER_ANALYZED_SEURAT_OBJECT_META_ANNOTATION: params.user_analyzed_seurat_object_meta_annotation,
+            USER_UMAP_REDUCTION: params.user_umap_reduction,
+            USER_TNSE_REDUCTION: params.user_tnse_reduction,
+            ORGANISM: params.organism,
+            RUN_TRAJECTORY_ANALYSIS: params.run_trajectory_analysis ? 'y' : 'n',
+            ANNOTATE_PROVIDED_FINAL_SEURAT_OBJECT: params.annotate_provided_final_seurat_object,
+            MIN_PCT: params.min_pct,
+            AVG_LOG2FC_THRESHOLD: params.avg_log2fc_threshold,
+            FINAL_FILTERING_THRESHOLD: params.final_filtering_threshold,
+            FINAL_SEURAT_NORMALIZATION_METHOD: params.final_seurat_normalization_method,
+            FINAL_SEURAT_INTEGRATION_METHOD: params.final_seurat_integration_method,
+            FINAL_RESOLUTION: params.final_resolution,
+            FINAL_STORAGE: params.final_storage,
+            FINAL_VISUALIZATION: params.final_visualization,
+            FINAL_CONSERVED_GENES: params.final_conserved_genes,
+            FINAL_THREADS: params.final_threads,
+            PARTITION_TRAJECTORY: params.partition_trajectory,
+            MEMORY_MB: params.memory_mb
         ]
     )
 
@@ -53,6 +56,10 @@ workflow {
     final_report_input_dir = TRAJECTORY_ANALYSIS.out ?: FINAL_ANALYSIS.out.analysis_path
     FINAL_REPORT(
         meta,
-        final_report_input_dir
+        sample_list,
+        prelim_config,
+        final_report_input_dir,
+        cluster_annotation_file,
+        final_user_gene_file
     )
 }

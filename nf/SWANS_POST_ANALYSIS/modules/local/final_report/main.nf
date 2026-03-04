@@ -4,20 +4,32 @@ process FINAL_REPORT {
 
     input:
         val(meta_config)
+        path(sample_list)
+        path(prelim_config)
         path(final_analysis_dir)
+        path(cluster_annotation_file)
+        path(final_user_gene_file)
+
     output:
-        path("data")
+        path("${meta_config.PROJECT}_final_report.html")
     script:
     def script = "/SWANS/src/rmd/final_report.Rmd"
-    def out_html = "data/endpoints/${meta_config.project}/analysis/final_analysis/${meta_config.project}_final_report.html"
+    def out_html = "${meta_config.PROJECT}_final_report.html"
+    def meta_config_str = meta_config.collect{ k, v -> "${k}: ${v}" }.join('\n')
     """
-    complete_path=\$PWD/$out_html
+    echo -e "$meta_config_str" > post_annotation_config.yaml
 
-    echo \$complete_path
+    echo -e "CLUSTER_ANNOTATION_FILE: $cluster_annotation_file" >> post_annotation_config.yaml
+
+    echo -e "FINAL_USER_GENE_FILE: $final_user_gene_file" >> post_annotation_config.yaml
+
+    cp $script ./
 
     Rscript -e 'library(rmarkdown); \
-    rmarkdown::render("${script}",\
-    output_file="\$(complete_path)")'
+    rmarkdown::render("final_report.Rmd", \
+    output_file="$out_html", \
+    params = list(root_dir = "./", data_dir = "./data/endpoints/", prelim_qc_config = "prelim_config.yaml", post_annotation_config = "post_annotation_config.yaml")
+    )'
 
     """
 

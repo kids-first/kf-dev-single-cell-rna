@@ -12,5 +12,7 @@
     "final_user_gene_file": "/home/ubuntu/volume/SWANS/NF_TEST/mock_gene_list.txt",
     "run_trajectory_analysis": "y",
     "partition_trajectory": "n",
-    "final_threads": 8
+    "final_threads": 8,
+    "sample_list": "/home/ubuntu/volume/SWANS/NF_TEST/samples.sample_list",
+    "prelim_config": "/home/ubuntu/volume/SWANS/NF_TEST/prelim_config.yaml"
 }

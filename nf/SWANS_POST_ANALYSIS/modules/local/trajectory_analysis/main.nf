@@ -9,21 +9,21 @@ process TRAJECTORY_ANALYSIS {
     output:
         path("data")
     script:
-    def final_rds_loc = "data/endpoints/${meta_config.project}/analysis/RDS/${meta_config.project}_final_analyzed_seurat_object.rds"
+    def final_rds_loc = "data/endpoints/${meta_config.PROJECT}/analysis/RDS/${meta_config.PROJECT}_final_analyzed_seurat_object.rds"
     """
 
     trajectory_analysis.R \\
-    $meta_config.project \\
+    $meta_config.PROJECT \\
     $final_rds_loc \\
     $cluster_annotation_file \\
-    $meta_config.final_seurat_normalization_method \\
-    $meta_config.final_seurat_integration_method \\
-    $meta_config.final_resolution \\
-    $meta_config.partition_trajectory \\
-    $meta_config.final_storage \\
-    $meta_config.r_lib_path \\
-    $meta_config.provide_analyzed_seurat_object \\
-    $meta_config.annotate_provided_final_seurat_object
+    $meta_config.FINAL_SEURAT_NORMALIZATION_METHOD \\
+    $meta_config.FINAL_SEURAT_INTEGRATION_METHOD \\
+    $meta_config.FINAL_RESOLUTION \\
+    $meta_config.PARTITION_TRAJECTORY \\
+    $meta_config.FINAL_STORAGE \\
+    $meta_config.RPATH \\
+    $meta_config.PROVIDE_ANALYZED_SEURAT_OBJECT \\
+    $meta_config.ANNOTATE_PROVIDED_FINAL_SEURAT_OBJECT
 
     """
 
