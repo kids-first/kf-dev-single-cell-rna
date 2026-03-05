@@ -3,6 +3,7 @@
 include { FINAL_ANALYSIS } from './modules/local/final_analysis/main.nf'
 include { TRAJECTORY_ANALYSIS } from './modules/local/trajectory_analysis/main.nf'
 include { FINAL_REPORT } from './modules/local/final_report/main.nf'
+include { TAR_OUTPUTS } from './modules/local/tar/main.nf'
 
 workflow {
     main:
@@ -62,4 +63,10 @@ workflow {
         cluster_annotation_file,
         final_user_gene_file
     )
+
+    tar_output_input = final_report_input_dir.map { dir_path -> ["data/endpoints/$params.project", "${params.project}.final_analysis.tar.gz", dir_path] }
+    TAR_OUTPUTS(
+        tar_output_input
+    )
+
 }

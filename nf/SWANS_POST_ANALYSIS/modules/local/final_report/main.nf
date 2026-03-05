@@ -1,5 +1,5 @@
 process FINAL_REPORT {
-    label 'C8'
+    label 'C4'
     container "pgc-images.sbgenomics.com/d3b-bixu/swans:v2.1.0"
 
     input:

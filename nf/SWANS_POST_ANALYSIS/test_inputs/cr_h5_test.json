@@ -3,7 +3,7 @@
     "include_tsne" : "y",
     "organism": "human",
     "aws_test_instance": true,
-    "existing_analysis_tar": "/home/ubuntu/volume/SWANS/NF_TEST/HOPE_TEST_H5_CR_MIXED.tar.gz",
+    "existing_analysis_tar": "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/HOPE_TEST_H5_CR_MIXED.tar.gz",
     "user_analyzed_seurat_object_meta_annotation": "celltypes",
     "user_umap_reduction": "standard.harmony.umap",
     "user_tnse_reduction": "standard.rpca.tsne",

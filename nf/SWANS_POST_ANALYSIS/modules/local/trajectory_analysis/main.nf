@@ -1,5 +1,5 @@
 process TRAJECTORY_ANALYSIS {
-    label 'C8'
+    label 'C4'
     container "pgc-images.sbgenomics.com/d3b-bixu/swans:v2.1.0"
 
     input:
@@ -9,7 +9,7 @@ process TRAJECTORY_ANALYSIS {
     output:
         path("data")
     script:
-    def final_rds_loc = "data/endpoints/${meta_config.PROJECT}/analysis/RDS/${meta_config.PROJECT}_final_analyzed_seurat_object.rds"
+    def final_rds_loc = "data/endpoints/${meta_config.PROJECT}/analysis/RDS/${meta_config.PROJECT}_final_analyzed_seurat_object.qs"
     """
 
     trajectory_analysis.R \\

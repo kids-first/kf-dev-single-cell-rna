@@ -9,22 +9,17 @@ process FINAL_ANALYSIS {
         path(final_user_gene_file)
     output:
         path("data"), emit: analysis_path
-        path("data/endpoints/${meta_config.PROJECT}/analysis/RDS/${meta_config.PROJECT}_final_analyzed_seurat_object.qs"), emit: final_qs
-        path("data/endpoints/${meta_config.PROJECT}/analysis/RDS/${meta_config.PROJECT}_final_analyzed_seurat_object.rds"), emit: final_rds
+        path("data/endpoints/${meta_config.PROJECT}/analysis/report/prelim_configs.yaml"), emit: extracted_prelim_config
     script:
     def rds_root = "data/endpoints/${meta_config.PROJECT}/analysis/RDS/${meta_config.PROJECT}_analyzed_seurat_object"
     """
-    tar -xf $existing_analysis_tar \\
+    tar xf $existing_analysis_tar \\
     && mkdir -p data/endpoints/${meta_config.PROJECT} && mv analysis data/endpoints/${meta_config.PROJECT}/
-
-    if [ -f "${rds_root}.RDS" ];then
-        mv ${rds_root}.RDS ${rds_root}.rds
-    fi
 
     final_analysis.R \\
     $meta_config.PROJECT \\
     $meta_config.RPATH \\
-    ${rds_root}.rds \\
+    ${rds_root}.qs \\
     $meta_config.FINAL_SEURAT_NORMALIZATION_METHOD \\
     $meta_config.FINAL_SEURAT_INTEGRATION_METHOD \\
     $meta_config.FINAL_RESOLUTION \\
