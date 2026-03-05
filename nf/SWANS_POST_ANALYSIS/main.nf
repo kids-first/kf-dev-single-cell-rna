@@ -9,9 +9,9 @@ workflow {
     main:
     existing_analysis_tar = channel.fromPath(params.existing_analysis_tar)
     sample_list = channel.fromPath(params.sample_list)
-    prelim_config = channel.fromPath(params.prelim_config)
     cluster_annotation_file = channel.fromPath(params.cluster_annotation_file)
     final_user_gene_file = channel.fromPath(params.final_user_gene_file)
+    augment_prelim_config = params.augment_prelim_config ? channel.fromPath(params.augment_prelim_config) : channel.value([])
 
     meta = channel.value(
         [
@@ -47,6 +47,13 @@ workflow {
         cluster_annotation_file,
         final_user_gene_file
     )
+    prelim_config = FINAL_ANALYSIS.out.extracted_prelim_config
+    prelim_config.view()
+    if (augment_prelim_config){
+        prelim_config = prelim_config.concat(augment_prelim_config).collectFile(name: 'augmented_config.txt', newLine: true)
+        prelim_config.view()
+    }
+
     if (params.run_trajectory_analysis){
         TRAJECTORY_ANALYSIS(
             meta,

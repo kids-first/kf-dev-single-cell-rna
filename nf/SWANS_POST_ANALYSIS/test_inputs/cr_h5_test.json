@@ -14,5 +14,5 @@
     "partition_trajectory": "n",
     "final_threads": 8,
     "sample_list": "/home/ubuntu/volume/SWANS/NF_TEST/samples.sample_list",
-    "prelim_config": "/home/ubuntu/volume/SWANS/NF_TEST/prelim_config.yaml"
+    "augment_prelim_config": "/home/ubuntu/volume/SWANS/NF_TEST/missing_prelim_config.yaml"
 }

@@ -28,7 +28,7 @@ process FINAL_REPORT {
     Rscript -e 'library(rmarkdown); \
     rmarkdown::render("final_report.Rmd", \
     output_file="$out_html", \
-    params = list(root_dir = "./", data_dir = "./data/endpoints/", prelim_qc_config = "prelim_config.yaml", post_annotation_config = "post_annotation_config.yaml")
+    params = list(root_dir = "./", data_dir = "./data/endpoints/", prelim_qc_config = "$prelim_config", post_annotation_config = "post_annotation_config.yaml")
     )'
 
     """
