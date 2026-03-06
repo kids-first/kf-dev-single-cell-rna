@@ -18,11 +18,23 @@ Aligns and quantifies 10X single cell data using STAR Solo
 Nextflow workflow to generate gene expression (gex) counts files using `count` or `multi` modes.
 Can also generate alignments as well as cell ranger cluster output.
 
-## Alpha Phase Workflows
-These workflows are currently in alpha phase
+## Beta Phase Workflows
+These workflows are currently in beta phase
 
 ### [SWANS 2.0: Single-entity Workflow ANalysiS Pipeline](docs/SWANS_PRELIMINARY_ANALYSIS.md)
-Complete QC and analysis pipeline. https://doi.org/10.1101/2025.05.14.654073.
+Complete QC and analysis pipeline. https://doi.org/10.1101/2025.05.14.654073. It is a three part process consisting of the following:
+- [Data Cleanup and QC](docs/SWANS_DATA_CLEANUP_AND_QC.md)
+  - Run tools like soupX and doubletFinder, Seurat filtering, etc. May need to re-run to fine-tune after review
+  - Both [nextflow](nf/SWANS_DATA_QC/main.nf) and [CAVATICA-ready](nf/SWANS_DATA_QC/sb_nextflow_schema.yaml)
+- [Interactive Report](docs/SWANS_INTERACTIVE_REPORT.md)
+  - Once QC params tuned, generate preliminary results for study and review
+  - Both [nextflow](nf/SWANS_INTERACTIVE/main.nf) and [CAVATICA-ready](nf/SWANS_INTERACTIVE/sb_nextflow_schema.yaml)
+- [Post Analysis](docs/SWANS_POST_ANALYSIS.md)
+  - aka, "Final Analysis". After careful review of interactive report results, zero in on specific params
+  - [nextflow](nf/SWANS_INTERACTIVE/main.nf) in alpha
+
+## Alpha Phase Workflows
+These workflows are currently in alpha phase
 
 ### [10X Cell Ranger 6.2.1 Alignment Workflow](docs/10X_cell_ranger_alignment.md)
 Aligns and quantifies 10X single cell data using Cell Ranger

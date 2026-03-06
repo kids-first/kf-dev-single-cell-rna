@@ -11,6 +11,7 @@ process CREATE_INITIAL_SEURAT {
     output:
         tuple val(meta_config), path("${meta_config.PROJECT}_initial_seurat_object.qs"), emit: seurat_qs
         tuple val(meta_config), path("${meta_config.PROJECT}_qc_report.html"), emit: qc_report
+        path("${meta_config.PROJECT}.samples.sample_list"), emit: sample_list
     script:
     // Create input file table
     def sample_list_str = "samples\tcondition\tpath_to_starting_data\n"
@@ -22,12 +23,12 @@ process CREATE_INITIAL_SEURAT {
     meta_config.each { k, v -> meta_config_str += "${k}: ${v}\n" }
 
     """
-    echo -e "$sample_list_str" > samples.sample_list
+    echo -e "$sample_list_str" > ${meta_config.PROJECT}.samples.sample_list
 
     echo -e "$meta_config_str" > prelim_configs.yaml
     
     create_initial_seurat.R \\
-    --sample_file samples.sample_list \\
+    --sample_file ${meta_config.PROJECT}.samples.sample_list \\
     --project $meta_config.PROJECT \\
     --organism $meta_config.ORGANISM \\
     --seurat_creation_source ${meta_config.RUN_SOUPX == "true" ? "soupX": "cellranger" } \\
