@@ -199,4 +199,9 @@ outputs:
     type: File
     outputBinding:
         glob: 'results/seurat_qc_report/*'
+-   id: sample_list
+    doc: Sample list created. Useful for final analysis
+    type: File
+    outputBinding:
+        glob: 'results/config/*'
 

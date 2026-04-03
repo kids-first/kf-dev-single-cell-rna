@@ -1,0 +1,18 @@
+{
+    "project": "HOPE_TEST_H5_CR_MIXED",
+    "include_tsne" : "y",
+    "organism": "human",
+    "aws_test_instance": true,
+    "existing_analysis_tar": "/home/ubuntu/volume/SB/projects/d3b-bixu/kf-dev-single-cell-rna/HOPE_TEST_H5_CR_MIXED.tar.gz",
+    "user_analyzed_seurat_object_meta_annotation": "celltypes",
+    "user_umap_reduction": "standard.harmony.umap",
+    "user_tnse_reduction": "standard.rpca.tsne",
+    "annotate_provided_final_seurat_object": "y",
+    "cluster_annotation_file": "/home/ubuntu/volume/SWANS/NF_TEST/cluster_annot_mock.tsv",
+    "final_user_gene_file": "/home/ubuntu/volume/SWANS/NF_TEST/mock_gene_list.txt",
+    "run_trajectory_analysis": "y",
+    "partition_trajectory": "n",
+    "final_threads": 8,
+    "sample_list": "/home/ubuntu/volume/SWANS/NF_TEST/samples.sample_list",
+    "augment_prelim_config": "/home/ubuntu/volume/SWANS/NF_TEST/missing_prelim_config.yaml"
+}
